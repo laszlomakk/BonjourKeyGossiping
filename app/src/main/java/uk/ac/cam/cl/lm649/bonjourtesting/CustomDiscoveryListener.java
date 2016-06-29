@@ -13,7 +13,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class CustomDiscoveryListener implements NsdManager.DiscoveryListener{
 
-    private static final String TAG = "CustomDiscoveryListener";
+    private static final String TAG = "CDiscoveryListener";
     private MainActivity mainActivity;
 
     protected CustomDiscoveryListener(MainActivity mainActivity){
@@ -29,32 +29,42 @@ public class CustomDiscoveryListener implements NsdManager.DiscoveryListener{
     @Override
     public void onStopDiscoveryFailed(String serviceType, int errorCode) {
         Log.e(TAG, "onStopDiscoveryFailed() "+serviceType+", "+errorCode);
+        mainActivity.nsdManager.stopServiceDiscovery(this);
         mainActivity.displayMsgToUser("onStopDiscoveryFailed");
     }
 
     @Override
     public void onDiscoveryStarted(String serviceType){
-        Log.d(TAG, ">>-------------- onDiscoveryStarted()"+serviceType);
+        Log.d(TAG, ">>-------------- onDiscoveryStarted(). type: "+serviceType);
     }
 
     @Override
     public void onDiscoveryStopped(String serviceType) {
-        Log.d(TAG, ">>-------------- onDiscoveryStopped()"+serviceType);
+        Log.d(TAG, ">>-------------- onDiscoveryStopped(). type: "+serviceType);
     }
 
     @Override
-    public void onServiceFound(NsdServiceInfo serviceInfo) {
-        Log.d(TAG, "onServiceFound()");
-        Log.d(TAG, HelperMethods.getNameAndTypeStringFromServiceInfo(serviceInfo));
-        Log.d(TAG, HelperMethods.getHostAndPortStringFromServiceInfo(serviceInfo));
-        mainActivity.addItemToList(HelperMethods.getDetailedStringFromServiceInfo(serviceInfo));
+    public void onServiceFound(final NsdServiceInfo serviceInfo) {
+        Log.d(TAG, "onServiceFound(). "+HelperMethods.getDetailedStringFromServiceInfo(serviceInfo));
+        if (!HelperMethods.equalsTrimmedFromDots(serviceInfo.getServiceType(), MainActivity.SERVICE_TYPE)) {
+            Log.d(TAG, "Unknown Service Type: " + serviceInfo.getServiceType());
+        }/* else if (serviceInfo.getServiceName().equals(serviceName)) {
+            // we've just found our own service
+            Log.d(TAG, "Same machine: " + serviceName);
+        }*/ else /*if (serviceInfo.getServiceName().contains("gossip"))*/{
+            new Thread(){
+                @Override
+                public void run(){
+                    mainActivity.resolutionWorker.resolveService(serviceInfo);
+                }
+            }.start();
+        }
     }
 
     @Override
     public void onServiceLost(NsdServiceInfo serviceInfo) {
-        Log.d(TAG, "onServiceLost()");
-        Log.d(TAG, HelperMethods.getNameAndTypeStringFromServiceInfo(serviceInfo));
-        Log.d(TAG, HelperMethods.getHostAndPortStringFromServiceInfo(serviceInfo));
+        Log.d(TAG, "onServiceLost(). "+HelperMethods.getDetailedStringFromServiceInfo(serviceInfo));
+        //TODO think about whether this removal works
         mainActivity.removeItemFromList(HelperMethods.getDetailedStringFromServiceInfo(serviceInfo));
     }
 

@@ -29,4 +29,26 @@ public class HelperMethods {
                 + getHostAndPortStringFromServiceInfo(serviceInfo);
     }
 
+    public static String trimStringFromDots(String str){
+        if (null == str) return null;
+        while (str.startsWith(".")){
+            str = str.substring(1);
+        }
+        while (str.endsWith(".")){
+            str = str.substring(0,str.length()-1);
+        }
+        return str;
+    }
+
+    public static boolean equalsTrimmedFromDots(String s1, String s2){
+        if (null == s1 && null == s2){
+            return true;
+        } else if (null == s1 || null == s2){
+            return false;
+        }
+        s1 = trimStringFromDots(s1);
+        s2 = trimStringFromDots(s2);
+        return s1.equals(s2);
+    }
+
 }

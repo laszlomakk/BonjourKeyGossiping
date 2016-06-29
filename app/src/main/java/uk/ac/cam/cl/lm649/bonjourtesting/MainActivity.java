@@ -19,9 +19,13 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String SERVICE_TYPE = "_http._tcp";
+
+    protected NsdManager nsdManager;
+    protected ResolutionWorker resolutionWorker = ResolutionWorker.getInstance(this);
+
     private static final String TAG = "MainActivity";
     private Context context;
-    private NsdManager nsdManager;
     private NsdManager.DiscoveryListener discoveryListener;
     private View rootView;
     private ListView listView;
@@ -56,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void startDiscovery(){
         discoveryListener = new CustomDiscoveryListener(this);
-        nsdManager.discoverServices("_http._tcp", NsdManager.PROTOCOL_DNS_SD, discoveryListener);
+        nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
     }
 
     private void stopDiscovery(){
