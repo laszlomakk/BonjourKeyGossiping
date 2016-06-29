@@ -1,8 +1,26 @@
-*.iml
+# Gradle files
 .gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
+build/
+
+/.idea/*
+!/.idea/encodings.xml
+!/.idea/codeStyleSettings.xml
+
+# Intellij
+*.iml
+
+# Local configuration file (sdk path, etc)
+local.properties
+
 .DS_Store
-/build
-/captures
+
+# Built application files
+*.apk
+*.ap_
+
+# Keystore files
+*.jks
+
+# Execution traces
+captures/
+*.trace
