@@ -4,7 +4,7 @@ import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.util.Log;
 
-import java.net.InetAddress;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class CustomDiscoveryListener implements NsdManager.DiscoveryListener{
 
@@ -40,30 +40,17 @@ public class CustomDiscoveryListener implements NsdManager.DiscoveryListener{
     @Override
     public void onServiceFound(NsdServiceInfo serviceInfo) {
         Log.d(TAG, "onServiceFound()");
-        Log.d(TAG, getNameAndTypeStringFromServiceInfo(serviceInfo));
-        Log.d(TAG, getHostAndPortStringFromServiceInfo(serviceInfo));
-        mainActivity.addItemToList(getNameAndTypeStringFromServiceInfo(serviceInfo));
+        Log.d(TAG, HelperMethods.getNameAndTypeStringFromServiceInfo(serviceInfo));
+        Log.d(TAG, HelperMethods.getHostAndPortStringFromServiceInfo(serviceInfo));
+        mainActivity.addItemToList(HelperMethods.getDetailedStringFromServiceInfo(serviceInfo));
     }
 
     @Override
     public void onServiceLost(NsdServiceInfo serviceInfo) {
         Log.d(TAG, "onServiceLost()");
-        Log.d(TAG, getNameAndTypeStringFromServiceInfo(serviceInfo));
-        Log.d(TAG, getHostAndPortStringFromServiceInfo(serviceInfo));
-        mainActivity.removeItemFromList(getNameAndTypeStringFromServiceInfo(serviceInfo));
-    }
-
-    public static String getNameAndTypeStringFromServiceInfo(NsdServiceInfo serviceInfo){
-        String sname = serviceInfo.getServiceName();
-        String stype = serviceInfo.getServiceType();
-        return "name: "+sname+", type: "+stype;
-    }
-
-    public static String getHostAndPortStringFromServiceInfo(NsdServiceInfo serviceInfo){
-        InetAddress host = serviceInfo.getHost();
-        String address = null==host ? "null" : host.getHostAddress();
-        int port = serviceInfo.getPort();
-        return "host: "+address+", port: "+port;
+        Log.d(TAG, HelperMethods.getNameAndTypeStringFromServiceInfo(serviceInfo));
+        Log.d(TAG, HelperMethods.getHostAndPortStringFromServiceInfo(serviceInfo));
+        mainActivity.removeItemFromList(HelperMethods.getDetailedStringFromServiceInfo(serviceInfo));
     }
 
 }
