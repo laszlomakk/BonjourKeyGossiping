@@ -6,13 +6,17 @@
 package uk.ac.cam.cl.lm649.bonjourtesting;
 
 import android.net.nsd.NsdServiceInfo;
+import android.util.Log;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+
 public class ResolutionWorker {
 
+    private static final String TAG = "ResolutionWorker";
     private static ResolutionWorker INSTANCE = null;
     private ExecutorService threadPool = Executors.newFixedThreadPool(1);
     private MainActivity mainActivity;
@@ -35,12 +39,15 @@ public class ResolutionWorker {
     public void resolveService(final NsdServiceInfo serviceInfo){
         try {
             available.acquire();
+            Log.d(TAG, "semaphore acquired");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         threadPool.execute(new Runnable() {
             @Override
             public void run() {
+                Log.d(TAG, "threadPool starts resolution on: \n"
+                        + HelperMethods.getDetailedStringFromServiceInfo(serviceInfo));
                 CustomResolveListener.resolveService(mainActivity, serviceInfo);
             }
         });

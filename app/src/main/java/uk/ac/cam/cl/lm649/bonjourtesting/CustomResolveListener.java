@@ -61,6 +61,7 @@ public class CustomResolveListener implements NsdManager.ResolveListener {
     protected static void resolveService(MainActivity mainActivity, NsdServiceInfo serviceInfo){
         CustomResolveListener resolveListener = new CustomResolveListener(mainActivity);
         mainActivity.nsdManager.resolveService(serviceInfo, resolveListener);
+        Log.d(TAG, "service resolution started asynchronously by library");
     }
 
 }
