@@ -22,12 +22,12 @@ public class MainActivity extends AppCompatActivity {
     public static final String SERVICE_TYPE = "_http._tcp";
 
     protected NsdManager nsdManager;
-    protected ResolutionWorker resolutionWorker = ResolutionWorker.getInstance(this);
+    protected ResolutionWorker resolutionWorker;
+    protected View rootView;
 
     private static final String TAG = "MainActivity";
     private Context context;
     private NsdManager.DiscoveryListener discoveryListener;
-    private View rootView;
     private ListView listView;
     private ArrayAdapter<String> listAdapter;
 
@@ -44,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.mainListView);
         listAdapter = new ArrayAdapter<>(this, R.layout.row_in_list, new ArrayList<String>());
         listView.setAdapter(listAdapter);
+
+        resolutionWorker = ResolutionWorker.getInstance(this);
     }
 
     @Override

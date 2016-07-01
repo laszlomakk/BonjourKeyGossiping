@@ -13,6 +13,8 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class CustomResolveListener implements NsdManager.ResolveListener {
 
+    public static int nResolutionFinished = 0;
+
     private static final String TAG = "CResolveListener";
     private MainActivity mainActivity;
 
@@ -23,6 +25,7 @@ public class CustomResolveListener implements NsdManager.ResolveListener {
     @Override
     public void onResolveFailed(final NsdServiceInfo serviceInfo, int errorCode) {
         Log.e(TAG, "onResolveFailed() " + errorCode);
+        nResolutionFinished++;
         ResolutionWorker.getInstance(mainActivity).available.release();
         switch (errorCode) {
             case NsdManager.FAILURE_ALREADY_ACTIVE:
@@ -47,6 +50,7 @@ public class CustomResolveListener implements NsdManager.ResolveListener {
     @Override
     public void onServiceResolved(NsdServiceInfo serviceInfo) {
         Log.d(TAG, "onServiceResolved() " + serviceInfo);
+        nResolutionFinished++;
         ResolutionWorker.getInstance(mainActivity).available.release();
 
         /*if (serviceInfo.getServiceName().equals(serviceName)) {
