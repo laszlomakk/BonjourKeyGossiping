@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView listView;
     private ArrayAdapter<String> listAdapter;
 
-    private JmDNS jmdns;
+    protected JmDNS jmdns;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

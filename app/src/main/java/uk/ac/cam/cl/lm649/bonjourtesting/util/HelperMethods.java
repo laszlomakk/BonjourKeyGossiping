@@ -16,6 +16,9 @@ import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Enumeration;
 
+import javax.jmdns.ServiceEvent;
+import javax.jmdns.ServiceInfo;
+
 public class HelperMethods {
 
     public static Enumeration<InetAddress> getWifiInetAddresses(final Context context) {
@@ -56,6 +59,25 @@ public class HelperMethods {
             }
         }
         return null;
+    }
+
+    public static String getDetailedString(ServiceEvent event){
+        StringBuffer sb = new StringBuffer();
+        sb.append("name: ").append(event.getName()).append("\n");
+        sb.append("type: ").append(event.getType()).append("\n");
+        ServiceInfo info = event.getInfo();
+        if (info != null){
+            String[] addresses = info.getHostAddresses();
+            if (addresses != null){
+                sb.append("addresses: ");
+                for (String addr : addresses){
+                    sb.append(addr).append(", ");
+                }
+                sb.append("\n");
+            }
+            sb.append("port: ").append(info.getPort());
+        }
+        return sb.toString();
     }
 
 }
