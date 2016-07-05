@@ -116,12 +116,10 @@ public class MainActivity extends Activity {
     private void createJmDNS() throws IOException {
         inetAddress = HelperMethods.getWifiIpAddress(MainActivity.this);
         Log.i(TAG, "Device IP: "+inetAddress.getHostAddress());
-        rootView.post(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.e(TAG, "ping");
                 textViewDeviceIp.setText(inetAddress.getHostAddress());
-                Log.e(TAG, "pong");
             }
         });
         Log.i(TAG, "Creating jmDNS. Starting discovery...");
@@ -137,7 +135,7 @@ public class MainActivity extends Activity {
         jmdns.registerService(serviceInfo);
         serviceName = serviceInfo.getName();
         String serviceIsRegisteredNotification = "Registered service. Name ended up being: "+serviceName;
-        rootView.post(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 textViewOwnService.setText(HelperMethods.getNameAndTypeString(serviceInfo));
@@ -166,7 +164,7 @@ public class MainActivity extends Activity {
     }
 
     protected void displayMsgToUser(final String msg){
-        rootView.post(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
@@ -191,7 +189,7 @@ public class MainActivity extends Activity {
     }
 
     private void updateListView(){
-        rootView.post(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
