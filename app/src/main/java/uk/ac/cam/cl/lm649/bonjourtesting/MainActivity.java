@@ -29,6 +29,8 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 public class MainActivity extends AppCompatActivity {
 
     public static final String SERVICE_TYPE = "_verysecretstuff._udp.local."; // _http._tcp.local.
+    public static final String SERVICE_NAME_DEFAULT = "cool_name";
+    private String serviceName = "";
 
     protected View rootView;
 
@@ -62,14 +64,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run(){
                 try {
-                    final InetAddress inetAddress = InetAddress.getByName(HelperMethods.getWifiIpAddress(MainActivity.this));
+                    final InetAddress inetAddress = HelperMethods.getWifiIpAddress(MainActivity.this);
                     Log.d(TAG, "Device IP: "+inetAddress);
                     Log.i(TAG, "Creating jmDNS. Starting discovery...");
                     jmdns = JmDNS.create(inetAddress);
+
+                    //start discovery
                     jmdns.addServiceListener(SERVICE_TYPE, new CustomServiceListener(MainActivity.this));
 
-                    ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, "this_is_my_name", 57126, "");
+                    //register own service
+                    ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, SERVICE_NAME_DEFAULT, 57126, "");
                     jmdns.registerService(serviceInfo);
+                    serviceName = serviceInfo.getName();
+                    String serviceIsRegisteredNotification = "Registered service. Name ended up being: "+serviceName;
+                    Log.i(TAG, serviceIsRegisteredNotification);
+                    displayMsgToUser(serviceIsRegisteredNotification);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -133,6 +142,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public String getServiceName() {
+        return serviceName;
     }
 
 }
