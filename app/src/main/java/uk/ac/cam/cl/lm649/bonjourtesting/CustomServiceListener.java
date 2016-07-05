@@ -23,18 +23,20 @@ public class CustomServiceListener implements ServiceListener {
             Log.e(TAG, "jmDNS is null");
             return;
         }
+        mainActivity.addItemToList(event, false);
         mainActivity.jmdns.requestServiceInfo(event.getType(), event.getName(), 8000);
     }
 
     @Override
     public void serviceRemoved(ServiceEvent event) {
         Log.d(TAG, "Service removed: " + event.getInfo());
+        //mainActivity.removeItemFromList(event);
     }
 
     @Override
     public void serviceResolved(ServiceEvent event) {
         Log.d(TAG, "Service resolved: " + event.getInfo());
-        mainActivity.addItemToList(HelperMethods.getDetailedString(event));
+        mainActivity.addItemToList(event, true);
     }
 
 }

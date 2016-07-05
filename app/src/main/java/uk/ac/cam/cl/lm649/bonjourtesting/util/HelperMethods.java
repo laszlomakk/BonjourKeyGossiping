@@ -90,4 +90,11 @@ public class HelperMethods {
         return sb.toString();
     }
 
+    public static String getNamePlusTypeString(ServiceEvent event){
+        StringBuffer sb = new StringBuffer();
+        sb.append("name: ").append(event.getName()).append("\n");
+        sb.append("type: ").append(event.getType()).append("\n");
+        return sb.toString();
+    }
+
 }

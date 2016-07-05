@@ -6,7 +6,6 @@
 package uk.ac.cam.cl.lm649.bonjourtesting;
 
 import android.content.Context;
-import android.net.wifi.WifiManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,17 +16,19 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceEvent;
+import javax.jmdns.ServiceInfo;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String SERVICE_TYPE = "_http._tcp.local."; // _http._tcp
+    public static final String SERVICE_TYPE = "_verysecretstuff._udp.local."; // _http._tcp.local.
 
     protected View rootView;
 
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private Context context;
     private ListView listView;
     private ArrayAdapter<String> listAdapter;
+    private TreeMap<String, String> listElements = new TreeMap<>(); //Key is ID, Value is what to display to user
 
     protected JmDNS jmdns;
 
@@ -60,12 +62,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run(){
                 try {
-                    //final Inet4Address inetAddress = HelperMethods.getWifiInetAddress(context, Inet4Address.class);
                     final InetAddress inetAddress = InetAddress.getByName(HelperMethods.getWifiIpAddress(MainActivity.this));
-                    Log.e(TAG, "Device IP: "+inetAddress);
+                    Log.d(TAG, "Device IP: "+inetAddress);
                     Log.i(TAG, "Creating jmDNS. Starting discovery...");
                     jmdns = JmDNS.create(inetAddress);
                     jmdns.addServiceListener(SERVICE_TYPE, new CustomServiceListener(MainActivity.this));
+
+                    ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, "this_is_my_name", 57126, "");
+                    jmdns.registerService(serviceInfo);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -100,22 +104,29 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    protected void addItemToList(final String str){
-        rootView.post(new Runnable() {
-            @Override
-            public void run() {
-                listAdapter.add(str);
-                listAdapter.notifyDataSetChanged();
-            }
-        });
+    protected synchronized void addItemToList(final ServiceEvent event, boolean serviceIsResolved){
+        String displayToUser = "";
+        if (serviceIsResolved) displayToUser += "* ";
+        displayToUser += HelperMethods.getDetailedString(event);
+        listElements.put(
+                HelperMethods.getNamePlusTypeString(event),
+                displayToUser
+        );
+        updateListView();
     }
 
-    protected void removeItemFromList(final String str){
+    protected synchronized void removeItemFromList(final ServiceEvent event){
+        listElements.remove(HelperMethods.getNamePlusTypeString(event));
+        updateListView();
+    }
+
+    private void updateListView(){
         rootView.post(new Runnable() {
             @Override
             public void run() {
                 try {
-                    listAdapter.remove(str);
+                    listAdapter.clear();
+                    listAdapter.addAll(listElements.values());
                     listAdapter.notifyDataSetChanged();
                 } catch (RuntimeException e){
                     e.printStackTrace();
