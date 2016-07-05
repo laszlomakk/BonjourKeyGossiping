@@ -6,6 +6,7 @@
 package uk.ac.cam.cl.lm649.bonjourtesting;
 
 import android.content.Context;
+import android.net.wifi.WifiManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,10 +17,13 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.util.ArrayList;
 
 import javax.jmdns.JmDNS;
+
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private Context context;
     private ListView listView;
     private ArrayAdapter<String> listAdapter;
+
+    private JmDNS jmdns;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,16 +50,20 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.mainListView);
         listAdapter = new ArrayAdapter<>(this, R.layout.row_in_list, new ArrayList<String>());
         listView.setAdapter(listAdapter);
+    }
 
+    @Override
+    protected void onStart(){
+        Log.i(TAG, "Activity starting up.");
+        super.onStart();
         new Thread(){
             @Override
             public void run(){
                 try {
-                    Log.d(TAG, "Creating JmDNS instance");
-                    JmDNS jmdns = JmDNS.create();
+                    final Inet4Address inet4Address = HelperMethods.getWifiInetAddress(context, Inet4Address.class);
+                    Log.i(TAG, "Creating jmDNS. Starting discovery...");
+                    jmdns = JmDNS.create(inet4Address);
                     jmdns.addServiceListener(SERVICE_TYPE, new CustomServiceListener(MainActivity.this));
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -62,13 +72,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume(){
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause(){
-        super.onPause();
+    protected void onStop(){
+        Log.i(TAG, "Activity stopping.");
+        super.onStop();
+        if (jmdns != null) {
+            Log.i(TAG, "Stopping jmDNS...");
+            jmdns.unregisterAllServices();
+            try {
+                jmdns.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                jmdns = null;
+            }
+        }
     }
 
     protected void displayMsgToUser(final String msg){

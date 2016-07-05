@@ -5,50 +5,57 @@
 
 package uk.ac.cam.cl.lm649.bonjourtesting.util;
 
-import android.net.nsd.NsdServiceInfo;
+import android.content.Context;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.util.Log;
 
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Arrays;
+import java.util.Enumeration;
 
 public class HelperMethods {
 
-    public static String getNameAndTypeStringFromServiceInfo(NsdServiceInfo serviceInfo){
-        String sname = serviceInfo.getServiceName();
-        String stype = serviceInfo.getServiceType();
-        return "name: "+sname+", type: "+stype;
-    }
-
-    public static String getHostAndPortStringFromServiceInfo(NsdServiceInfo serviceInfo){
-        InetAddress host = serviceInfo.getHost();
-        String address = null==host ? "null" : host.getHostAddress();
-        int port = serviceInfo.getPort();
-        return "host: "+address+", port: "+port;
-    }
-
-    public static String getDetailedStringFromServiceInfo(NsdServiceInfo serviceInfo){
-        return getNameAndTypeStringFromServiceInfo(serviceInfo) + "\n "
-                + getHostAndPortStringFromServiceInfo(serviceInfo);
-    }
-
-    public static String trimStringFromDots(String str){
-        if (null == str) return null;
-        while (str.startsWith(".")){
-            str = str.substring(1);
+    public static Enumeration<InetAddress> getWifiInetAddresses(final Context context) {
+        final WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        final WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        final String macAddress = wifiInfo.getMacAddress();
+        final String[] macParts = macAddress.split(":");
+        final byte[] macBytes = new byte[macParts.length];
+        for (int i = 0; i< macParts.length; i++) {
+            macBytes[i] = (byte)Integer.parseInt(macParts[i], 16);
         }
-        while (str.endsWith(".")){
-            str = str.substring(0,str.length()-1);
+        try {
+            final Enumeration<NetworkInterface> e =  NetworkInterface.getNetworkInterfaces();
+            while (e.hasMoreElements()) {
+                final NetworkInterface networkInterface = e.nextElement();
+                if (Arrays.equals(networkInterface.getHardwareAddress(), macBytes)) {
+                    return networkInterface.getInetAddresses();
+                }
+            }
+        } catch (SocketException e) {
+            Log.wtf("WIFIIP", "Unable to NetworkInterface.getNetworkInterfaces()");
         }
-        return str;
+        return null;
     }
 
-    public static boolean equalsTrimmedFromDots(String s1, String s2){
-        if (null == s1 && null == s2){
-            return true;
-        } else if (null == s1 || null == s2){
-            return false;
+    /**
+     * Example usage:
+     * final Inet4Address inet4Address = getWifiInetAddress(context, Inet4Address.class);
+     */
+    @SuppressWarnings("unchecked")
+    public static<T extends InetAddress> T getWifiInetAddress(final Context context, final Class<T> inetClass) {
+        final Enumeration<InetAddress> e = getWifiInetAddresses(context);
+        if (null == e) return null;
+        while (e.hasMoreElements()) {
+            final InetAddress inetAddress = e.nextElement();
+            if (inetAddress.getClass() == inetClass) {
+                return (T)inetAddress;
+            }
         }
-        s1 = trimStringFromDots(s1);
-        s2 = trimStringFromDots(s2);
-        return s1.equals(s2);
+        return null;
     }
 
 }
