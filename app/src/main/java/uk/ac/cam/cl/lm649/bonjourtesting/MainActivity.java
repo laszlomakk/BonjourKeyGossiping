@@ -60,9 +60,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run(){
                 try {
-                    final Inet4Address inet4Address = HelperMethods.getWifiInetAddress(context, Inet4Address.class);
+                    //final Inet4Address inetAddress = HelperMethods.getWifiInetAddress(context, Inet4Address.class);
+                    final InetAddress inetAddress = InetAddress.getByName(HelperMethods.getWifiIpAddress(MainActivity.this));
+                    Log.e(TAG, "Device IP: "+inetAddress);
                     Log.i(TAG, "Creating jmDNS. Starting discovery...");
-                    jmdns = JmDNS.create(inet4Address);
+                    jmdns = JmDNS.create(inetAddress);
                     jmdns.addServiceListener(SERVICE_TYPE, new CustomServiceListener(MainActivity.this));
                 } catch (IOException e) {
                     e.printStackTrace();
