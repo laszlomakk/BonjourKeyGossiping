@@ -87,10 +87,20 @@ public class HelperMethods {
     }
 
     public static String getDetailedString(ServiceEvent event){
-        StringBuffer sb = new StringBuffer();
-        sb.append("name: ").append(event.getName()).append("\n");
-        sb.append("type: ").append(event.getType()).append("\n");
+        return getNameAndTypeString(event)+getAddressesAndPortString(event);
+    }
+
+    public static String getDetailedString(ServiceInfo info){
+        return getNameAndTypeString(info)+getAddressesAndPortString(info);
+    }
+
+    public static String getAddressesAndPortString(ServiceEvent event){
         ServiceInfo info = event.getInfo();
+        return getAddressesAndPortString(info);
+    }
+
+    public static String getAddressesAndPortString(ServiceInfo info){
+        StringBuffer sb = new StringBuffer();
         if (info != null){
             String[] addresses = info.getHostAddresses();
             if (addresses != null){
@@ -105,10 +115,17 @@ public class HelperMethods {
         return sb.toString();
     }
 
-    public static String getNamePlusTypeString(ServiceEvent event){
+    public static String getNameAndTypeString(ServiceEvent event){
         StringBuffer sb = new StringBuffer();
         sb.append("name: ").append(event.getName()).append("\n");
         sb.append("type: ").append(event.getType()).append("\n");
+        return sb.toString();
+    }
+
+    public static String getNameAndTypeString(ServiceInfo info){
+        StringBuffer sb = new StringBuffer();
+        sb.append("name: ").append(info.getName()).append("\n");
+        sb.append("type: ").append(info.getType()).append("\n");
         return sb.toString();
     }
 

@@ -9,6 +9,7 @@ public class CustomServiceListener implements ServiceListener {
 
     private static final String TAG = "CustomServiceListener";
     private MainActivity mainActivity;
+    private static final long SERVICE_RESOLUTION_TIMEOUT_MSEC = 8000;
 
     protected CustomServiceListener(MainActivity mainActivity){
         this.mainActivity = mainActivity;
@@ -26,7 +27,8 @@ public class CustomServiceListener implements ServiceListener {
             return;
         }
         mainActivity.addItemToList(event, false);
-        mainActivity.jmdns.requestServiceInfo(event.getType(), event.getName(), 8000);
+        mainActivity.jmdns.requestServiceInfo(
+                event.getType(), event.getName(), SERVICE_RESOLUTION_TIMEOUT_MSEC);
     }
 
     @Override
