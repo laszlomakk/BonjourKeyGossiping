@@ -6,28 +6,29 @@
 package uk.ac.cam.cl.lm649.bonjourtesting;
 
 import android.content.Context;
-import android.net.nsd.NsdManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+
+import javax.jmdns.JmDNS;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String SERVICE_TYPE = "_http._tcp";
+    public static final String SERVICE_TYPE = "_http._tcp.local."; // _http._tcp
 
-    protected NsdManager nsdManager;
-    protected ResolutionWorker resolutionWorker;
     protected View rootView;
 
     private static final String TAG = "MainActivity";
     private Context context;
-    private NsdManager.DiscoveryListener discoveryListener;
     private ListView listView;
     private ArrayAdapter<String> listAdapter;
 
@@ -35,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getApplicationContext();
-        nsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
 
         //UI
         LayoutInflater li = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -45,28 +45,30 @@ public class MainActivity extends AppCompatActivity {
         listAdapter = new ArrayAdapter<>(this, R.layout.row_in_list, new ArrayList<String>());
         listView.setAdapter(listAdapter);
 
-        resolutionWorker = ResolutionWorker.getInstance(this);
+        new Thread(){
+            @Override
+            public void run(){
+                try {
+                    Log.d(TAG, "Creating JmDNS instance");
+                    JmDNS jmdns = JmDNS.create();
+                    jmdns.addServiceListener(SERVICE_TYPE, new CustomServiceListener(MainActivity.this));
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
     @Override
     protected void onResume(){
         super.onResume();
-        startDiscovery();
     }
 
     @Override
     protected void onPause(){
         super.onPause();
-        stopDiscovery();
-    }
-
-    private void startDiscovery(){
-        discoveryListener = new CustomDiscoveryListener(this);
-        nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
-    }
-
-    private void stopDiscovery(){
-        nsdManager.stopServiceDiscovery(discoveryListener);
     }
 
     protected void displayMsgToUser(final String msg){
@@ -101,6 +103,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
 
 }
