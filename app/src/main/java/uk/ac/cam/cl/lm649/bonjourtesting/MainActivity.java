@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 jmdns = null;
             }
         }
+        listAdapter.clear();
     }
 
     protected void displayMsgToUser(final String msg){
