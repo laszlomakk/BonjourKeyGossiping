@@ -29,9 +29,10 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class MainActivity extends Activity {
 
-    public static final String SERVICE_TYPE = "_verysecretstuff._udp.local."; // _http._tcp.local.
+    public static final String SERVICE_TYPE = "_verysecretstuff._tcp.local."; // _http._tcp.local.
     public static final String SERVICE_NAME_DEFAULT = "client_";
     private String serviceName = "";
+    private int port = 51411;
 
     protected View rootView;
 
@@ -45,7 +46,7 @@ public class MainActivity extends Activity {
     private TextView textViewAppNotFrozen;
 
     protected JmDNS jmdns;
-    protected InetAddress inetAddress;
+    protected InetAddress inetAddressOfThisDevice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +111,7 @@ public class MainActivity extends Activity {
             public void run(){
                 try {
                     createJmDNS();
+                    createServerForIncomingMessages();
                     registerOurService();
                     startDiscovery();
                 } catch (IOException e) {
@@ -120,25 +122,32 @@ public class MainActivity extends Activity {
     }
 
     private void createJmDNS() throws IOException {
-        inetAddress = HelperMethods.getWifiIpAddress(MainActivity.this);
-        Log.i(TAG, "Device IP: "+inetAddress.getHostAddress());
+        inetAddressOfThisDevice = HelperMethods.getWifiIpAddress(MainActivity.this);
+        Log.i(TAG, "Device IP: "+ inetAddressOfThisDevice.getHostAddress());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                textViewDeviceIp.setText(inetAddress.getHostAddress());
+                textViewDeviceIp.setText(inetAddressOfThisDevice.getHostAddress());
             }
         });
-        Log.i(TAG, "Creating jmDNS. Starting discovery...");
-        jmdns = JmDNS.create(inetAddress);
+        Log.i(TAG, "Creating jmDNS.");
+        jmdns = JmDNS.create(inetAddressOfThisDevice);
+    }
+
+    private void createServerForIncomingMessages() throws IOException {
+        Log.i(TAG, "Creating MsgServer.");
+        new MsgServer(MainActivity.this, inetAddressOfThisDevice, port);
     }
 
     private void startDiscovery(){
+        Log.i(TAG, "Starting discovery.");
         jmdns.addServiceListener(SERVICE_TYPE, new CustomServiceListener(MainActivity.this));
     }
 
     private void registerOurService() throws IOException {
+        Log.i(TAG, "Registering our own service.");
         serviceName = SERVICE_NAME_DEFAULT + HelperMethods.getNRandomDigits(5);
-        final ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName, 57126, "");
+        final ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName, port, "");
         jmdns.registerService(serviceInfo);
         serviceName = serviceInfo.getName();
         String serviceIsRegisteredNotification = "Registered service. Name ended up being: "+serviceName;
@@ -195,7 +204,7 @@ public class MainActivity extends Activity {
         updateListView();
     }
 
-    private void updateListView(){
+    private synchronized void updateListView(){
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

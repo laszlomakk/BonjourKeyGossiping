@@ -2,6 +2,11 @@ package uk.ac.cam.cl.lm649.bonjourtesting;
 
 import android.util.Log;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.Socket;
+
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceListener;
 
@@ -45,6 +50,8 @@ public class CustomServiceListener implements ServiceListener {
         }
         Log.d(TAG, "Service resolved: " + event.getInfo());
         mainActivity.addItemToList(event, true);
+
+        MsgServer.sendMessage(event.getInfo(), mainActivity.getServiceName(), "I see you!");
     }
 
 }
