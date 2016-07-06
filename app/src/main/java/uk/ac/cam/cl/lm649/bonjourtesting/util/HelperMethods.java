@@ -87,16 +87,19 @@ public class HelperMethods {
     }
 
     public static String getDetailedString(ServiceEvent event){
-        return getNameAndTypeString(event)+getAddressesAndPortString(event);
+        return getNameAndTypeString(event)
+                +getAddressesAndPortString(event)
+                +"\n"+getPayloadString(event);
     }
 
     public static String getDetailedString(ServiceInfo info){
-        return getNameAndTypeString(info)+getAddressesAndPortString(info);
+        return getNameAndTypeString(info)
+                +getAddressesAndPortString(info)
+                +"\n"+getPayloadString(info);
     }
 
     public static String getAddressesAndPortString(ServiceEvent event){
-        ServiceInfo info = event.getInfo();
-        return getAddressesAndPortString(info);
+        return getAddressesAndPortString(event.getInfo());
     }
 
     public static String getAddressesAndPortString(ServiceInfo info){
@@ -111,6 +114,18 @@ public class HelperMethods {
                 sb.append("\n");
             }
             sb.append("port: ").append(info.getPort());
+        }
+        return sb.toString();
+    }
+
+    public static String getPayloadString(ServiceEvent event){
+        return getPayloadString(event.getInfo());
+    }
+
+    public static String getPayloadString(ServiceInfo info){
+        StringBuffer sb = new StringBuffer();
+        if (info != null){
+            sb.append("payload: ").append(info.getNiceTextString());
         }
         return sb.toString();
     }

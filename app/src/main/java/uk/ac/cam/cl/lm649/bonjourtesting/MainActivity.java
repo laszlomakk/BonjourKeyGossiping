@@ -37,6 +37,7 @@ public class MainActivity extends Activity {
     public static final String SERVICE_NAME_DEFAULT = "client_";
     private String serviceName = "";
     private int port;
+    private String payloadOnOurService = "cherry topped ice cream";
 
     protected View rootView;
 
@@ -164,14 +165,16 @@ public class MainActivity extends Activity {
     private void registerOurService() throws IOException {
         Log.i(TAG, "Registering our own service.");
         serviceName = SERVICE_NAME_DEFAULT + HelperMethods.getNRandomDigits(5);
-        final ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName, port, "");
+        final ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName, port, payloadOnOurService);
         jmdns.registerService(serviceInfo);
         serviceName = serviceInfo.getName();
         String serviceIsRegisteredNotification = "Registered service. Name ended up being: "+serviceName;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                textViewOwnService.setText(HelperMethods.getNameAndTypeString(serviceInfo));
+                String text = HelperMethods.getNameAndTypeString(serviceInfo)
+                        + HelperMethods.getPayloadString(serviceInfo);
+                textViewOwnService.setText(text);
             }
         });
         Log.i(TAG, serviceIsRegisteredNotification);
