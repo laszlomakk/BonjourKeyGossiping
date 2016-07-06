@@ -34,13 +34,6 @@
                     android:textColor="@color/colorPrimaryDark"
                     android:id="@+id/deviceIp"
                     android:textSize="18sp"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:id="@+id/appNotFrozen"
-                    android:layout_marginLeft="20sp"
-                    android:textSize="20sp"/>
             </LinearLayout>
 
 

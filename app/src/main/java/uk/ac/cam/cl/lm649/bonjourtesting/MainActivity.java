@@ -8,6 +8,8 @@ package uk.ac.cam.cl.lm649.bonjourtesting;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,17 +51,16 @@ public class MainActivity extends Activity {
     private TextView textViewDeviceIp;
     private TextView textViewLocalPort;
     private TextView textViewOwnService;
-    private TextView textViewAppNotFrozen;
 
     protected JmDNS jmdns;
-    protected InetAddress inetAddressOfThisDevice;
+    private InetAddress inetAddressOfThisDevice;
+    private CustomServiceListener serviceListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getApplicationContext();
         setupUI();
-        refreshAppIsNotFrozen();
 
         new Thread(){
             @Override
@@ -101,38 +102,12 @@ public class MainActivity extends Activity {
         textViewDeviceIp = (TextView) findViewById(R.id.deviceIp);
         textViewLocalPort = (TextView) findViewById(R.id.localPort) ;
         textViewOwnService = (TextView) findViewById(R.id.ownService);
-        textViewAppNotFrozen = (TextView) findViewById(R.id.appNotFrozen);
-        textViewAppNotFrozen.setText("\\");
     }
 
     private void resetUI(){
         textViewDeviceIp.setText("");
-        textViewLocalPort.setText("");
         textViewOwnService.setText("");
         listAdapter.clear();
-    }
-
-    private void refreshAppIsNotFrozen(){
-        rootView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                String curSymbol = (String) textViewAppNotFrozen.getText();
-                String nextSymbol = "\\";
-                switch (curSymbol){
-                    case "\\":
-                        nextSymbol = "|";
-                        break;
-                    case "|":
-                        nextSymbol = "/";
-                        break;
-                    case "/":
-                        nextSymbol = "-";
-                        break;
-                }
-                textViewAppNotFrozen.setText(nextSymbol);
-                refreshAppIsNotFrozen();
-            }
-        }, 2000);
     }
 
     @Override
@@ -179,7 +154,8 @@ public class MainActivity extends Activity {
 
     private void startDiscovery(){
         Log.i(TAG, "Starting discovery.");
-        jmdns.addServiceListener(SERVICE_TYPE, new CustomServiceListener(MainActivity.this));
+        serviceListener = new CustomServiceListener(this);
+        jmdns.addServiceListener(SERVICE_TYPE, serviceListener);
     }
 
     private void registerOurService() throws IOException {
