@@ -18,16 +18,19 @@ public class MsgServer {
 
     private final MainActivity mainActivity;
     private final static String TAG = "MsgServer";
+    private final ServerSocket serverSocket;
 
-    public MsgServer(MainActivity mainActivity, InetAddress host, int port) throws IOException {
+    public MsgServer(MainActivity mainActivity) throws IOException {
         this.mainActivity = mainActivity;
-        final ServerSocket serverSocket = new ServerSocket(port);
-        new Thread() {
+        serverSocket = new ServerSocket(0);
+        Thread t = new Thread() {
             @Override
             public void run() {
                 startWaitingForConnections(serverSocket);
             }
-        }.start();
+        };
+        t.setDaemon(true);
+        t.start();
     }
 
     private void startWaitingForConnections(final ServerSocket serverSocket){
@@ -44,7 +47,7 @@ public class MsgServer {
     }
 
     private void startWaitingForMessages(final BufferedReader in){
-        new Thread() {
+        Thread t = new Thread() {
             @Override
             public void run() {
                 try {
@@ -60,10 +63,12 @@ public class MsgServer {
                     e.printStackTrace();
                 }
             }
-        }.start();
+        };
+        t.setDaemon(true);
+        t.start();
     }
 
-    public static void sendMessage(ServiceInfo serviceInfo, String senderID, String msg){
+    public static void sendMessage(final ServiceInfo serviceInfo, final String senderID, final String msg){
         if (null == serviceInfo){
             Log.e(TAG, "sendMessage(). serviceInfo is null");
             return;
@@ -73,16 +78,25 @@ public class MsgServer {
             Log.e(TAG, "sendMessage(). inappropriate addresses");
             return;
         }
-        InetAddress address = arrAddresses[0];
-        try {
-            Socket socket = new Socket(address, serviceInfo.getPort());
-            PrintWriter out = new PrintWriter(
-                    new OutputStreamWriter(socket.getOutputStream()));
-            out.println(String.format(Locale.US, "%s: %s", senderID, msg));
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        final InetAddress address = arrAddresses[0];
+        new Thread(){
+            @Override
+            public void run(){
+                try {
+                    Socket socket = new Socket(address, serviceInfo.getPort());
+                    PrintWriter out = new PrintWriter(
+                            new OutputStreamWriter(socket.getOutputStream()));
+                    out.println(String.format(Locale.US, "%s: %s", senderID, msg));
+                    out.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    public int getPort(){
+        return serverSocket.getLocalPort();
     }
 
 }

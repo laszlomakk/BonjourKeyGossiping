@@ -31,7 +31,7 @@ public class CustomServiceListener implements ServiceListener {
             Log.e(TAG, "jmDNS is null");
             return;
         }
-        mainActivity.addItemToList(event, false);
+        mainActivity.addItemToList(event);
         /*mainActivity.jmdns.requestServiceInfo(
                 event.getType(), event.getName(), SERVICE_RESOLUTION_TIMEOUT_MSEC);*/
     }
@@ -49,9 +49,7 @@ public class CustomServiceListener implements ServiceListener {
             return;
         }
         Log.d(TAG, "Service resolved: " + event.getInfo());
-        mainActivity.addItemToList(event, true);
-
-        MsgServer.sendMessage(event.getInfo(), mainActivity.getServiceName(), "I see you!");
+        mainActivity.addItemToList(event);
     }
 
 }
