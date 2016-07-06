@@ -68,7 +68,8 @@ public class MsgServer {
         t.start();
     }
 
-    public static void sendMessage(final ServiceInfo serviceInfo, final String senderID, final String msg){
+    public static void sendMessage(final MainActivity mainActivity, final ServiceInfo serviceInfo,
+                                   final String senderID, final String msg){
         if (null == serviceInfo){
             Log.e(TAG, "sendMessage(). serviceInfo is null");
             return;
@@ -88,8 +89,10 @@ public class MsgServer {
                             new OutputStreamWriter(socket.getOutputStream()));
                     out.println(String.format(Locale.US, "%s: %s", senderID, msg));
                     out.flush();
+                    mainActivity.displayMsgToUser("msg sent");
                 } catch (IOException e) {
                     e.printStackTrace();
+                    mainActivity.displayMsgToUser("error sending msg");
                 }
             }
         }.start();

@@ -92,8 +92,7 @@ public class MainActivity extends Activity {
                         displayMsgToUser("don't know address for that service");
                         return;
                     }
-                    MsgServer.sendMessage(serviceInfo, serviceName, "Hy there!");
-                    displayMsgToUser("msg sent");
+                    MsgServer.sendMessage(MainActivity.this, serviceInfo, serviceName, "Hy there!");
                 }
             }
         });
@@ -155,6 +154,10 @@ public class MainActivity extends Activity {
     private void startDiscovery(){
         Log.i(TAG, "Starting discovery.");
         serviceListener = new CustomServiceListener(this);
+        if (null == jmdns){
+            Log.e(TAG, "jmdns is null");
+            return;
+        }
         jmdns.addServiceListener(SERVICE_TYPE, serviceListener);
     }
 
