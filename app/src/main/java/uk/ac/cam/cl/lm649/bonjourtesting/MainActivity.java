@@ -20,6 +20,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.TreeMap;
 
 import javax.jmdns.JmDNS;
@@ -46,6 +47,7 @@ public class MainActivity extends Activity {
     private final Object servicesFoundLock = new Object();
 
     private TextView textViewDeviceIp;
+    private TextView textViewLocalPort;
     private TextView textViewOwnService;
     private TextView textViewAppNotFrozen;
 
@@ -58,6 +60,17 @@ public class MainActivity extends Activity {
         context = getApplicationContext();
         setupUI();
         refreshAppIsNotFrozen();
+
+        new Thread(){
+            @Override
+            public void run(){
+                try {
+                    createServerForIncomingMessages();
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
     private void setupUI(){
@@ -86,6 +99,7 @@ public class MainActivity extends Activity {
 
         //top area
         textViewDeviceIp = (TextView) findViewById(R.id.deviceIp);
+        textViewLocalPort = (TextView) findViewById(R.id.localPort) ;
         textViewOwnService = (TextView) findViewById(R.id.ownService);
         textViewAppNotFrozen = (TextView) findViewById(R.id.appNotFrozen);
         textViewAppNotFrozen.setText("\\");
@@ -93,6 +107,7 @@ public class MainActivity extends Activity {
 
     private void resetUI(){
         textViewDeviceIp.setText("");
+        textViewLocalPort.setText("");
         textViewOwnService.setText("");
         listAdapter.clear();
     }
@@ -129,7 +144,6 @@ public class MainActivity extends Activity {
             public void run(){
                 try {
                     createJmDNS();
-                    createServerForIncomingMessages();
                     registerOurService();
                     startDiscovery();
                 } catch (IOException e) {
@@ -155,6 +169,12 @@ public class MainActivity extends Activity {
     private void createServerForIncomingMessages() throws IOException {
         Log.i(TAG, "Creating MsgServer.");
         port = new MsgServer(MainActivity.this).getPort();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                textViewLocalPort.setText(String.format(Locale.US,"%d",port));
+            }
+        });
     }
 
     private void startDiscovery(){
