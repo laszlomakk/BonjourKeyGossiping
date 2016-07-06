@@ -16,7 +16,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Locale;
+import java.util.Random;
 
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
@@ -127,6 +127,15 @@ public class HelperMethods {
         sb.append("name: ").append(info.getName()).append("\n");
         sb.append("type: ").append(info.getType()).append("\n");
         return sb.toString();
+    }
+
+    public static String getNRandomDigits(int n){
+        String ret = "";
+        Random rand = new Random();
+        for (int i=0; i<n; i++){
+            ret += rand.nextInt(10);
+        }
+        return ret;
     }
 
 }

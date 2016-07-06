@@ -30,7 +30,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 public class MainActivity extends Activity {
 
     public static final String SERVICE_TYPE = "_verysecretstuff._udp.local."; // _http._tcp.local.
-    public static final String SERVICE_NAME_DEFAULT = "cool_name";
+    public static final String SERVICE_NAME_DEFAULT = "client_";
     private String serviceName = "";
 
     protected View rootView;
@@ -131,7 +131,8 @@ public class MainActivity extends Activity {
     }
 
     private void registerOurService() throws IOException {
-        final ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, SERVICE_NAME_DEFAULT, 57126, "");
+        serviceName = SERVICE_NAME_DEFAULT + HelperMethods.getNRandomDigits(5);
+        final ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName, 57126, "");
         jmdns.registerService(serviceInfo);
         serviceName = serviceInfo.getName();
         String serviceIsRegisteredNotification = "Registered service. Name ended up being: "+serviceName;

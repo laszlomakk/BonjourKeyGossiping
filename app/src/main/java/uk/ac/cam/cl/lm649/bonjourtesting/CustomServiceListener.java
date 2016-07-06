@@ -27,8 +27,8 @@ public class CustomServiceListener implements ServiceListener {
             return;
         }
         mainActivity.addItemToList(event, false);
-        mainActivity.jmdns.requestServiceInfo(
-                event.getType(), event.getName(), SERVICE_RESOLUTION_TIMEOUT_MSEC);
+        /*mainActivity.jmdns.requestServiceInfo(
+                event.getType(), event.getName(), SERVICE_RESOLUTION_TIMEOUT_MSEC);*/
     }
 
     @Override
