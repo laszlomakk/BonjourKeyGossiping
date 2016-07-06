@@ -72,6 +72,12 @@ public class MainActivity extends Activity {
         textViewAppNotFrozen.setText("\\");
     }
 
+    private void resetUI(){
+        textViewDeviceIp.setText("");
+        textViewOwnService.setText("");
+        listAdapter.clear();
+    }
+
     private void refreshAppIsNotFrozen(){
         rootView.postDelayed(new Runnable() {
             @Override
@@ -161,7 +167,7 @@ public class MainActivity extends Activity {
                 jmdns = null;
             }
         }
-        listAdapter.clear();
+        resetUI();
     }
 
     protected void displayMsgToUser(final String msg){
