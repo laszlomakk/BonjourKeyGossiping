@@ -18,7 +18,7 @@ public class MsgServer {
 
     private final MainActivity mainActivity;
     private final static String TAG = "MsgServer";
-    private final ServerSocket serverSocket;
+    protected final ServerSocket serverSocket;
 
     public MsgServer(MainActivity mainActivity) throws IOException {
         this.mainActivity = mainActivity;
@@ -42,6 +42,7 @@ public class MsgServer {
                 startWaitingForMessages(in);
             }
         } catch (IOException e) {
+            Log.e(TAG, "startWaitingForConnections(). error");
             e.printStackTrace();
         }
     }
@@ -54,12 +55,14 @@ public class MsgServer {
                     while (true) {
                         String msg = in.readLine();
                         if (msg == null) {
+                            Log.i(TAG, "MsgServer closed a thread for msging.");
                             break; // disconnected
                         } else {
                             mainActivity.displayMsgToUser(msg);
                         }
                     }
                 } catch (IOException e) {
+                    Log.e(TAG, "startWaitingForMessages(). error");
                     e.printStackTrace();
                 }
             }
@@ -72,13 +75,13 @@ public class MsgServer {
                                    final String senderID, final String msg){
         if (null == serviceInfo){
             Log.e(TAG, "sendMessage(). serviceInfo is null");
-            mainActivity.displayMsgToUser("error (2) sending msg");
+            mainActivity.displayMsgToUser("error sending msg: serviceInfo is null (2)");
             return;
         }
         InetAddress[] arrAddresses = serviceInfo.getInet4Addresses();
         if (null == arrAddresses || arrAddresses.length < 1){
             Log.e(TAG, "sendMessage(). inappropriate addresses");
-            mainActivity.displayMsgToUser("error (3) sending msg");
+            mainActivity.displayMsgToUser("error sending msg: inappropriate addresses");
             return;
         }
         final InetAddress address = arrAddresses[0];
@@ -94,7 +97,8 @@ public class MsgServer {
                     mainActivity.displayMsgToUser("msg sent");
                 } catch (IOException e) {
                     e.printStackTrace();
-                    mainActivity.displayMsgToUser("error (4) sending msg");
+                    Log.e(TAG, "sendMessage(). IOException");
+                    mainActivity.displayMsgToUser("error sending msg: IOException");
                 }
             }
         }.start();

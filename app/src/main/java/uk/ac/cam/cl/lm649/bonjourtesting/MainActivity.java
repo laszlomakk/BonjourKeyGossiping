@@ -56,23 +56,13 @@ public class MainActivity extends Activity {
     protected JmDNS jmdns;
     private InetAddress inetAddressOfThisDevice;
     private CustomServiceListener serviceListener;
+    private MsgServer msgServer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getApplicationContext();
         setupUI();
-
-        new Thread(){
-            @Override
-            public void run(){
-                try {
-                    createServerForIncomingMessages();
-                } catch (IOException e){
-                    e.printStackTrace();
-                }
-            }
-        }.start();
     }
 
     private void setupUI(){
@@ -90,7 +80,8 @@ public class MainActivity extends Activity {
                 synchronized (servicesFoundLock){
                     ServiceInfo serviceInfo = servicesFoundArrList.get(position).getInfo();
                     if (null == serviceInfo){
-                        displayMsgToUser("error (1) sending msg");
+                        Log.e(TAG, "onItemClick(). error sending msg: serviceInfo is null");
+                        displayMsgToUser("error sending msg: serviceInfo is null (1)");
                         return;
                     }
                     MsgServer.sendMessage(MainActivity.this, serviceInfo, serviceName, "Hy there!");
@@ -105,6 +96,7 @@ public class MainActivity extends Activity {
     }
 
     private void resetUI(){
+        Log.i(TAG, "Resetting UI.");
         textViewDeviceIp.setText("");
         textViewOwnService.setText("");
         listAdapter.clear();
@@ -118,6 +110,7 @@ public class MainActivity extends Activity {
             @Override
             public void run(){
                 try {
+                    createServerForIncomingMessages();
                     createJmDNS();
                     registerOurService();
                     startDiscovery();
@@ -143,7 +136,8 @@ public class MainActivity extends Activity {
 
     private void createServerForIncomingMessages() throws IOException {
         Log.i(TAG, "Creating MsgServer.");
-        port = new MsgServer(MainActivity.this).getPort();
+        msgServer = new MsgServer(MainActivity.this);
+        port = msgServer.getPort();
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -195,6 +189,14 @@ public class MainActivity extends Activity {
             } finally {
                 jmdns = null;
             }
+        }
+        try {
+            Log.i(TAG, "Closing serverSocket for msging.");
+            msgServer.serverSocket.close();
+            Log.i(TAG, "serverSocket successfully closed.");
+        } catch (IOException e) {
+            Log.e(TAG, "error closing serverSocket");
+            e.printStackTrace();
         }
         resetUI();
     }
