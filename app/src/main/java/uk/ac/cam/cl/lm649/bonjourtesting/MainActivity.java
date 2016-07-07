@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -70,7 +71,7 @@ public class MainActivity extends Activity {
         rootView = li.inflate(R.layout.activity_main, null);
         setContentView(rootView);
 
-        //listView
+        // listView
         listView = (ListView) findViewById(R.id.mainListView);
         listAdapter = new ArrayAdapter<>(this, R.layout.row_in_list, new ArrayList<String>());
         listView.setAdapter(listAdapter);
@@ -89,10 +90,19 @@ public class MainActivity extends Activity {
             }
         });
 
-        //top area
+        // top area
         textViewDeviceIp = (TextView) findViewById(R.id.deviceIp);
         textViewLocalPort = (TextView) findViewById(R.id.localPort) ;
         textViewOwnService = (TextView) findViewById(R.id.ownService);
+
+        // refresh button
+        findViewById(R.id.refreshButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetListOfServicesFound();
+                startDiscovery();
+            }
+        });
     }
 
     private void resetUI(){
@@ -100,7 +110,12 @@ public class MainActivity extends Activity {
         textViewDeviceIp.setText("");
         textViewLocalPort.setText("");
         textViewOwnService.setText("");
-        listAdapter.clear();
+        resetListOfServicesFound();
+    }
+
+    private void resetListOfServicesFound(){
+        servicesFound.clear();
+        updateListView();
     }
 
     @Override
@@ -149,12 +164,17 @@ public class MainActivity extends Activity {
 
     private void startDiscovery(){
         Log.i(TAG, "Starting discovery.");
+        if (serviceListener != null){
+            Log.i(TAG, "startDiscovery(). serviceListener wasn't null. Removing prev listener");
+            jmdns.removeServiceListener(SERVICE_TYPE, serviceListener);
+        }
         serviceListener = new CustomServiceListener(this);
         if (null == jmdns){
             Log.e(TAG, "jmdns is null");
             return;
         }
         jmdns.addServiceListener(SERVICE_TYPE, serviceListener);
+        displayMsgToUser("Starting discovery...");
     }
 
     private void registerOurService() throws IOException {
