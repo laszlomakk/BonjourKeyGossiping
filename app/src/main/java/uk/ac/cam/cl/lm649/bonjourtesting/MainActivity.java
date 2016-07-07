@@ -98,6 +98,7 @@ public class MainActivity extends Activity {
     private void resetUI(){
         Log.i(TAG, "Resetting UI.");
         textViewDeviceIp.setText("");
+        textViewLocalPort.setText("");
         textViewOwnService.setText("");
         listAdapter.clear();
     }
