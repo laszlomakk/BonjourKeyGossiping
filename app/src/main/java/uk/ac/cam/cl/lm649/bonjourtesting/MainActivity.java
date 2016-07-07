@@ -50,6 +50,7 @@ public class MainActivity extends Activity {
     private ArrayList<ServiceEvent> servicesFoundArrList = new ArrayList<>();
     private final Object servicesFoundLock = new Object();
 
+    private TextView textViewAppState;
     private TextView textViewDeviceIp;
     private TextView textViewLocalPort;
     private TextView textViewOwnService;
@@ -91,6 +92,7 @@ public class MainActivity extends Activity {
         });
 
         // top area
+        textViewAppState = (TextView) findViewById(R.id.appState);
         textViewDeviceIp = (TextView) findViewById(R.id.deviceIp);
         textViewLocalPort = (TextView) findViewById(R.id.localPort) ;
         textViewOwnService = (TextView) findViewById(R.id.ownService);
@@ -101,15 +103,23 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 resetListOfServicesFound();
                 startDiscovery();
+                changeAppState("READY");
             }
         });
+
+        initUI();
+    }
+
+    private void initUI(){
+        textViewAppState.setText("-");
+        textViewDeviceIp.setText("-");
+        textViewLocalPort.setText("-");
+        textViewOwnService.setText("-");
     }
 
     private void resetUI(){
         Log.i(TAG, "Resetting UI.");
-        textViewDeviceIp.setText("");
-        textViewLocalPort.setText("");
-        textViewOwnService.setText("");
+        initUI();
         resetListOfServicesFound();
     }
 
@@ -130,6 +140,7 @@ public class MainActivity extends Activity {
                     createJmDNS();
                     registerOurService();
                     startDiscovery();
+                    changeAppState("READY");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -138,20 +149,22 @@ public class MainActivity extends Activity {
     }
 
     private void createJmDNS() throws IOException {
+        Log.i(TAG, "Creating jmDNS.");
         inetAddressOfThisDevice = HelperMethods.getWifiIpAddress(MainActivity.this);
         Log.i(TAG, "Device IP: "+ inetAddressOfThisDevice.getHostAddress());
+        changeAppState("creating JmDNS");
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 textViewDeviceIp.setText(inetAddressOfThisDevice.getHostAddress());
             }
         });
-        Log.i(TAG, "Creating jmDNS.");
         jmdns = JmDNS.create(inetAddressOfThisDevice);
     }
 
     private void createServerForIncomingMessages() throws IOException {
         Log.i(TAG, "Creating MsgServer.");
+        changeAppState("creating Msg Server");
         msgServer = new MsgServer(MainActivity.this);
         port = msgServer.getPort();
         runOnUiThread(new Runnable() {
@@ -164,6 +177,7 @@ public class MainActivity extends Activity {
 
     private void startDiscovery(){
         Log.i(TAG, "Starting discovery.");
+        changeAppState("starting discovery");
         if (serviceListener != null){
             Log.i(TAG, "startDiscovery(). serviceListener wasn't null. Removing prev listener");
             jmdns.removeServiceListener(SERVICE_TYPE, serviceListener);
@@ -179,6 +193,7 @@ public class MainActivity extends Activity {
 
     private void registerOurService() throws IOException {
         Log.i(TAG, "Registering our own service.");
+        changeAppState("registering our service");
         serviceName = SERVICE_NAME_DEFAULT + HelperMethods.getNRandomDigits(5);
         final ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName, port, payloadOnOurService);
         jmdns.registerService(serviceInfo);
@@ -270,6 +285,15 @@ public class MainActivity extends Activity {
 
     public String getServiceName() {
         return serviceName;
+    }
+
+    private void changeAppState(final String state){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                textViewAppState.setText(state);
+            }
+        });
     }
 
 }

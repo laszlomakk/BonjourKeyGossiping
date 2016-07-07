@@ -14,9 +14,26 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical"
-            android:layout_weight="0.25"
+            android:layout_weight="0.30"
             android:background="@color/colorAlternateBg"
             android:padding="6sp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="State: "
+                android:textColor="@color/colorPrimaryDark"
+                android:id="@+id/appStateText"
+                android:textSize="18sp"
+                android:layout_alignParentLeft="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorPrimaryDark"
+                android:id="@+id/appState"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_toRightOf="@+id/appStateText"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -25,6 +42,7 @@
                 android:textColor="@color/colorPrimaryDark"
                 android:id="@+id/deviceIpText"
                 android:textSize="18sp"
+                android:layout_below="@id/appStateText"
                 android:layout_alignParentLeft="true"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -32,6 +50,7 @@
                 android:textColor="@color/colorPrimaryDark"
                 android:id="@+id/deviceIp"
                 android:textSize="18sp"
+                android:layout_below="@id/appState"
                 android:layout_toRightOf="@+id/deviceIpText"/>
 
 
@@ -85,7 +104,7 @@
         <ListView android:layout_width="match_parent"
             android:layout_height="0dp"
             android:id="@+id/mainListView"
-            android:layout_weight="0.75">
+            android:layout_weight="0.70">
         </ListView>
 
     </LinearLayout>
