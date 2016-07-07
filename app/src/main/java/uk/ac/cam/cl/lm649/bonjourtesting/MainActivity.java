@@ -90,7 +90,7 @@ public class MainActivity extends Activity {
                 synchronized (servicesFoundLock){
                     ServiceInfo serviceInfo = servicesFoundArrList.get(position).getInfo();
                     if (null == serviceInfo){
-                        displayMsgToUser("don't know address for that service");
+                        displayMsgToUser("error (1) sending msg");
                         return;
                     }
                     MsgServer.sendMessage(MainActivity.this, serviceInfo, serviceName, "Hy there!");

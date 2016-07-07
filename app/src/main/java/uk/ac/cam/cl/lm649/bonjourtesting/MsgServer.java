@@ -72,11 +72,13 @@ public class MsgServer {
                                    final String senderID, final String msg){
         if (null == serviceInfo){
             Log.e(TAG, "sendMessage(). serviceInfo is null");
+            mainActivity.displayMsgToUser("error (2) sending msg");
             return;
         }
         InetAddress[] arrAddresses = serviceInfo.getInet4Addresses();
         if (null == arrAddresses || arrAddresses.length < 1){
             Log.e(TAG, "sendMessage(). inappropriate addresses");
+            mainActivity.displayMsgToUser("error (3) sending msg");
             return;
         }
         final InetAddress address = arrAddresses[0];
@@ -92,7 +94,7 @@ public class MsgServer {
                     mainActivity.displayMsgToUser("msg sent");
                 } catch (IOException e) {
                     e.printStackTrace();
-                    mainActivity.displayMsgToUser("error sending msg");
+                    mainActivity.displayMsgToUser("error (4) sending msg");
                 }
             }
         }.start();
