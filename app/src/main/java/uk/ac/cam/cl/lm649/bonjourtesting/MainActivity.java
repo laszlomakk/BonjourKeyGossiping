@@ -298,14 +298,12 @@ public class MainActivity extends Activity {
         });
     }
 
-    private Map<String, String> createPayloadMapForService(){
-        Map<String, String> payloadMap = new HashMap<>();
-        payloadMap.put("str1", "y5jkC6LPM5dKAgjBPFNy7P88DPPNoWbPxvsCp3CMKDd1Vki7Oc4oimmqy9mTmfV2hMkRiRFwQ1NcaXkoccB2C5zAUxnWHoNY7NEYgsjv2ryjZsXl3CjLeUHSUWP5KzsrRCW0JBFa6F4ZeEoE0jvyID4ohO7HZuc14xFdESMlf9SiagFi9DGwD3QIjP3alZxjrrZPzmlCsiTVqlEKF6lv9SYXC6zWjPA6dbO0MbVkGYJooMuIb7KHHKqTKc");
-        payloadMap.put("str2", "K0kKjMHs0aO8pma979hsVEdFgyq2UEl83E3tyTVWVk1nQ2yDpyynHPIyEP0yyav3h8elQg2N6rm5YW4Q2IQSFK2AeuQE6ItgJkLyQLfIdC7B3NsJRoPv2XOy1VhYJcLwlrkohaBzvGuqykwZo6T18sKsp9WhhfSB26ZvYHa3XFdaR0wqvQVnqQb2pESRUVizjXUZ8OUQAWqVfFpM4SCYghvOL6zh4HP9G71A3h2v6lHommbSndrum7LEFr");
-        payloadMap.put("str3", "oOedsxM0GqcIRo5ZEgpoFRsJPesjdpapkHikPcKH4TOoZ3SyIHhPHR8rf9Qx47NiKV53dz1SE2GZECiOee0Fi8Uce4ET6xXjQB4JzB67DfyyPfwuCgIfZr3aQL9EFJGulcFJoFdKscd40B3ogWQbyXvikC0Bwl5qoYMCBzgnods4PpbqZaw5gzxaQkq6oclNwYCBoM72gcfifUp1TrscE6Q00kGkThLq2AfH6CP8DwsYbFHdqwocjSQvxz");
-        payloadMap.put("str4", "YoICBbsT48aRHwIktVopjUaUkLjupX9J0Ar9fgrJW82HyeWnfzTRqlRNy1oUfwwTRQXc73tvvJo0AAgiUfbgTNCR95snqgtTII8JRHeDW16TlcKZ94SMS5f22bWES41MrZlRZwmN4hmkbtGtP4suMR0z4nxDSb3UxDkkfUEWIxMlrCGi93uQK8V5AhMoX4CSM09Adbme9IzMOCMozTcIU2M6rJ9TiR1GBGf3LWDckaIHlgra29KRyr8OVo");
-        payloadMap.put("str5", "AwEAqHzMNt6Xv8iMkEQmg2hxMjs4Tb2XC09aRCMiDs2lvPVqkAkKqgsfvfZDRbX2HYxDXSSFEXuL7DJbJBW7y83zBOrpr56vHlZ2LBEWCdnUo6YJhRBkHYceTYebcFBloh1AW6bbN6akNzuB3uFdaEr11Fwqawwe4e8dLqouCIWOtXNYnO5TyCtwrx1cpOeBrnx0sUJXQeI6tCdU3K0RDEQaw05bRextyS5zRC3DuEc2rdv9A3zQ6dp556");
-        //payloadMap.put("str6", "gjwMRicQUYxFVJlNL5pasRymugK5oAfK7Us1bz9djoMQUb0IMOxOLJs95YDa8xapeRWUYWENvoOGKuWwqARtvtrfpcFurQn3a13BG2scaE5dznG2B63IsLgAmEadHg3WrwkL996npsC6cvNy9rqd7eGzmP3XUyHtT8wbM4ODBMhu3t3iBpwPi5CCa56DIP6efrMzM5mh1YKwre4vBkz2CZ4rnLY62UO7eP4lo6r4fChjRw5jqy4KOxTTur");
+    private Map<String, byte[]> createPayloadMapForService(){
+        Map<String, byte[]> payloadMap = new HashMap<>();
+        byte[] s1 = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+        payloadMap.put("s1", s1);
+        byte[] s2 = new byte[] {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
+        payloadMap.put("s2", s2);
         return payloadMap;
     }
 
