@@ -55,6 +55,7 @@ public class MainActivity extends Activity {
     private TextView textViewDeviceIp;
     private TextView textViewLocalPort;
     private TextView textViewOwnService;
+    private TextView textViewNumServicesFound;
 
     protected JmDNS jmdns;
     private InetAddress inetAddressOfThisDevice;
@@ -97,6 +98,7 @@ public class MainActivity extends Activity {
         textViewDeviceIp = (TextView) findViewById(R.id.deviceIp);
         textViewLocalPort = (TextView) findViewById(R.id.localPort) ;
         textViewOwnService = (TextView) findViewById(R.id.ownService);
+        textViewNumServicesFound = (TextView) findViewById(R.id.numberOfServicesFound);
 
         // refresh button
         findViewById(R.id.refreshButton).setOnClickListener(new View.OnClickListener() {
@@ -116,6 +118,7 @@ public class MainActivity extends Activity {
         textViewDeviceIp.setText("-");
         textViewLocalPort.setText("-");
         textViewOwnService.setText("-");
+        textViewNumServicesFound.setText("-");
     }
 
     private void resetUI(){
@@ -270,6 +273,7 @@ public class MainActivity extends Activity {
             public void run() {
                 try {
                     synchronized (servicesFoundLock) {
+                        textViewNumServicesFound.setText(String.valueOf(servicesFound.size()));
                         listAdapter.clear();
                         servicesFoundArrList.clear();
                         for (ServiceEvent serviceEvent : servicesFound.values()) {

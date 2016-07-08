@@ -13,13 +13,13 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:background="@color/colorAlternateBg"
             android:layout_weight="0.30">
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:background="@color/colorAlternateBg"
                 android:padding="6sp">
 
                 <TextView
@@ -102,6 +102,25 @@
                     android:layout_alignParentTop="true"
                     android:id="@+id/refreshButton"
                     android:src="@drawable/reset_icon" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:text="nServ:"
+                    android:id="@+id/numberOfServicesFoundText"
+                    android:layout_toLeftOf="@+id/numberOfServicesFound"
+                    android:textSize="14sp"
+                    android:layout_below="@+id/refreshButton"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/numberOfServicesFound"
+                    android:layout_alignParentRight="true"
+                    android:textSize="14sp"
+                    android:layout_below="@+id/refreshButton"
+                    android:layout_marginLeft="4sp"/>
 
             </RelativeLayout>
 
