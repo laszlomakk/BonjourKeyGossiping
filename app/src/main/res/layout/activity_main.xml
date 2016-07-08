@@ -10,96 +10,102 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <RelativeLayout
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:orientation="vertical"
-            android:layout_weight="0.30"
-            android:background="@color/colorAlternateBg"
-            android:padding="6sp">
+            android:layout_weight="0.30">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="State: "
-                android:textColor="@color/colorPrimaryDark"
-                android:id="@+id/appStateText"
-                android:textSize="18sp"
-                android:layout_alignParentLeft="true"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorPrimaryDark"
-                android:id="@+id/appState"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_toRightOf="@+id/appStateText"/>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="@color/colorAlternateBg"
+                android:padding="6sp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Your local IP is: "
-                android:textColor="@color/colorPrimaryDark"
-                android:id="@+id/deviceIpText"
-                android:textSize="18sp"
-                android:layout_below="@id/appStateText"
-                android:layout_alignParentLeft="true"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorPrimaryDark"
-                android:id="@+id/deviceIp"
-                android:textSize="18sp"
-                android:layout_below="@id/appState"
-                android:layout_toRightOf="@+id/deviceIpText"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="State: "
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/appStateText"
+                    android:textSize="18sp"
+                    android:layout_alignParentLeft="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/appState"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_toRightOf="@+id/appStateText"/>
 
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Listening on port: "
-                android:textColor="@color/colorPrimaryDark"
-                android:id="@+id/localPortText"
-                android:textSize="14sp"
-                android:layout_below="@id/deviceIpText"
-                android:layout_alignParentLeft="true"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorPrimaryDark"
-                android:id="@+id/localPort"
-                android:textSize="14sp"
-                android:layout_below="@id/deviceIp"
-                android:layout_toRightOf="@+id/localPortText"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Your local IP is: "
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/deviceIpText"
+                    android:textSize="18sp"
+                    android:layout_below="@id/appStateText"
+                    android:layout_alignParentLeft="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/deviceIp"
+                    android:textSize="18sp"
+                    android:layout_below="@id/appState"
+                    android:layout_toRightOf="@+id/deviceIpText"/>
 
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorPrimaryDark"
-                android:text="Your registered service:"
-                android:id="@+id/ownServiceText"
-                android:textSize="18sp"
-                android:paddingTop="4sp"
-                android:layout_below="@id/localPortText"
-                android:layout_alignParentLeft="true"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorPrimaryDark"
-                android:id="@+id/ownService"
-                android:textSize="14sp"
-                android:layout_below="@+id/ownServiceText"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Listening on port: "
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/localPortText"
+                    android:textSize="14sp"
+                    android:layout_below="@id/deviceIpText"
+                    android:layout_alignParentLeft="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/localPort"
+                    android:textSize="14sp"
+                    android:layout_below="@id/deviceIp"
+                    android:layout_toRightOf="@+id/localPortText"/>
 
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:id="@+id/refreshButton"
-                android:src="@drawable/reset_icon" />
 
-        </RelativeLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:text="Your registered service:"
+                    android:id="@+id/ownServiceText"
+                    android:textSize="18sp"
+                    android:paddingTop="4sp"
+                    android:layout_below="@id/localPortText"
+                    android:layout_alignParentLeft="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/ownService"
+                    android:textSize="14sp"
+                    android:layout_below="@+id/ownServiceText"/>
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:id="@+id/refreshButton"
+                    android:src="@drawable/reset_icon" />
+
+            </RelativeLayout>
+
+        </ScrollView>
 
         <ListView android:layout_width="match_parent"
             android:layout_height="0dp"
