@@ -182,15 +182,15 @@ public class MainActivity extends Activity {
     private void startDiscovery(){
         Log.i(TAG, "Starting discovery.");
         changeAppState("starting discovery");
+        if (null == jmdns){
+            Log.e(TAG, "startDiscovery(). jmdns is null");
+            return;
+        }
         if (serviceListener != null){
             Log.i(TAG, "startDiscovery(). serviceListener wasn't null. Removing prev listener");
             jmdns.removeServiceListener(SERVICE_TYPE, serviceListener);
         }
         serviceListener = new CustomServiceListener(this);
-        if (null == jmdns){
-            Log.e(TAG, "jmdns is null");
-            return;
-        }
         jmdns.addServiceListener(SERVICE_TYPE, serviceListener);
         displayMsgToUser("Starting discovery...");
     }
