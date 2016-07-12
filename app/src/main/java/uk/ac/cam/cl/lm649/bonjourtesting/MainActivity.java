@@ -36,7 +36,10 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class MainActivity extends Activity {
 
-    public static final String SERVICE_TYPE = "_verysecretstuff._tcp.local."; // _http._tcp.local.
+    public static final String SERVICE_TYPE = "_vsecserv2._tcp.local.";
+    // _http._tcp.local.
+    // _verysecretstuff._tcp.local.
+    // _vsecserv2._tcp.local.
     public static final String SERVICE_NAME_DEFAULT = "client_";
     private String serviceName = "";
     private int port = 45267; // arbitrary default value, will get changed
