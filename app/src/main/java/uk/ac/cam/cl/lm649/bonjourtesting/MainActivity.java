@@ -33,7 +33,6 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class MainActivity extends Activity {
 
-    public static final String SERVICE_TYPE = "_vsecserv3._tcp.local.";
     private String serviceName = "";
     private int port = 45267; // arbitrary default value, will get changed
 
@@ -189,10 +188,10 @@ public class MainActivity extends Activity {
         }
         if (serviceListener != null){
             Log.i(TAG, "startDiscovery(). serviceListener wasn't null. Removing prev listener");
-            jmdns.removeServiceListener(SERVICE_TYPE, serviceListener);
+            jmdns.removeServiceListener(Constants.SERVICE_TYPE, serviceListener);
         }
         serviceListener = new CustomServiceListener(this);
-        jmdns.addServiceListener(SERVICE_TYPE, serviceListener);
+        jmdns.addServiceListener(Constants.SERVICE_TYPE, serviceListener);
         displayMsgToUser("Starting discovery...");
     }
 
@@ -210,7 +209,7 @@ public class MainActivity extends Activity {
         } else {
             payload = HelperMethods.getRandomString();
         }
-        final ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName, port, payload);
+        final ServiceInfo serviceInfo = ServiceInfo.create(Constants.SERVICE_TYPE, serviceName, port, payload);
         jmdns.registerService(serviceInfo);
 
         runOnUiThread(new Runnable() {

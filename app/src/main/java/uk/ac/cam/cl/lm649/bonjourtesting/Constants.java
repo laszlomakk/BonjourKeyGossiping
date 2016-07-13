@@ -4,6 +4,8 @@ public class Constants {
 
     private Constants(){}
 
+    public static final String SERVICE_TYPE = "_vsecserv3._tcp.local.";
+
     public static final String RANDOM_SERVICE_NAMES_START_WITH = "client_";
 
     public static final boolean FIXED_DNS_TXT_RECORD = false;
