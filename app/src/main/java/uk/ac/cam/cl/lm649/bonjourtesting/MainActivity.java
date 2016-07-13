@@ -36,11 +36,10 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class MainActivity extends Activity {
 
-    public static final String SERVICE_TYPE = "_vsecserv2._tcp.local.";
+    public static final String SERVICE_TYPE = "_vsecserv3._tcp.local.";
     // _http._tcp.local.
     // _verysecretstuff._tcp.local.
     // _vsecserv2._tcp.local.
-    public static final String SERVICE_NAME_DEFAULT = "client_";
     private String serviceName = "";
     private int port = 45267; // arbitrary default value, will get changed
 
@@ -201,9 +200,19 @@ public class MainActivity extends Activity {
     private void registerOurService() throws IOException {
         Log.i(TAG, "Registering our own service.");
         changeAppState("registering our service");
-        serviceName = SERVICE_NAME_DEFAULT + HelperMethods.getNRandomDigits(5);
-        final ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName, port, "");
-        serviceInfo.setText(createPayloadMapForService());
+        if (Constants.FIXED_SERVICE_NAME) {
+            serviceName = Constants.SERVICE_NAME;
+        } else {
+            serviceName = Constants.RANDOM_SERVICE_NAMES_START_WITH + HelperMethods.getNRandomDigits(5);
+        }
+        String payload;
+        if (Constants.FIXED_DNS_TXT_RECORD){
+            payload = Constants.DNS_TXT_RECORD;
+        } else {
+            payload = HelperMethods.getRandomString();
+        }
+        final ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName, port, payload);
+        //serviceInfo.setText(createPayloadMapForService()); // use this for large, byte[]-based DNS TXTs
         jmdns.registerService(serviceInfo);
         serviceName = serviceInfo.getName();
         String serviceIsRegisteredNotification = "Registered service. Name ended up being: "+serviceName;
