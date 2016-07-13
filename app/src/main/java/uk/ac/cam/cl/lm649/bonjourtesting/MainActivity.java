@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -35,19 +34,14 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 public class MainActivity extends Activity {
 
     public static final String SERVICE_TYPE = "_vsecserv3._tcp.local.";
-    // _http._tcp.local.
-    // _verysecretstuff._tcp.local.
-    // _vsecserv2._tcp.local.
     private String serviceName = "";
     private int port = 45267; // arbitrary default value, will get changed
 
-    protected View rootView;
-
     private static final String TAG = "MainActivity";
     private Context context;
-    private ListView listView;
-    private ArrayAdapter<String> listAdapter;
-    private TreeMap<ServiceStub, ServiceEvent> servicesFound = new TreeMap<>();
+
+    private ArrayAdapter<String> listAdapterForDisplayedListOfServices;
+    private TreeMap<ServiceStub, ServiceEvent> servicesFoundMap = new TreeMap<>();
     private ArrayList<ServiceEvent> servicesFoundArrList = new ArrayList<>();
     private final Object servicesFoundLock = new Object();
 
@@ -70,14 +64,12 @@ public class MainActivity extends Activity {
     }
 
     private void setupUI(){
-        LayoutInflater li = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        rootView = li.inflate(R.layout.activity_main, null);
-        setContentView(rootView);
+        setContentView(R.layout.activity_main);
 
-        // listView
-        listView = (ListView) findViewById(R.id.mainListView);
-        listAdapter = new ArrayAdapter<>(this, R.layout.row_in_list, new ArrayList<String>());
-        listView.setAdapter(listAdapter);
+        // listView for displaying the services we find on the network
+        ListView listView = (ListView) findViewById(R.id.mainListView);
+        listAdapterForDisplayedListOfServices = new ArrayAdapter<>(this, R.layout.row_in_list, new ArrayList<String>());
+        listView.setAdapter(listAdapterForDisplayedListOfServices);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -137,7 +129,7 @@ public class MainActivity extends Activity {
     }
 
     private void resetListOfServicesFound(){
-        servicesFound.clear();
+        servicesFoundMap.clear();
         updateListView();
     }
 
@@ -220,8 +212,7 @@ public class MainActivity extends Activity {
         }
         final ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName, port, payload);
         jmdns.registerService(serviceInfo);
-        serviceName = serviceInfo.getName();
-        String serviceIsRegisteredNotification = "Registered service. Name ended up being: "+serviceName;
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -230,6 +221,9 @@ public class MainActivity extends Activity {
                 textViewOwnService.setText(text);
             }
         });
+
+        serviceName = serviceInfo.getName();
+        String serviceIsRegisteredNotification = "Registered service. Name ended up being: "+serviceName;
         Log.i(TAG, serviceIsRegisteredNotification);
         displayMsgToUser(serviceIsRegisteredNotification);
     }
@@ -249,14 +243,7 @@ public class MainActivity extends Activity {
                 jmdns = null;
             }
         }
-        try {
-            Log.i(TAG, "Closing serverSocket for msging.");
-            msgServer.serverSocket.close();
-            Log.i(TAG, "serverSocket successfully closed.");
-        } catch (IOException e) {
-            Log.e(TAG, "error closing serverSocket");
-            e.printStackTrace();
-        }
+        msgServer.stop();
         resetUI();
     }
 
@@ -272,7 +259,7 @@ public class MainActivity extends Activity {
     protected void addItemToList(final ServiceEvent event){
         synchronized (servicesFoundLock){
             ServiceStub serviceStub = new ServiceStub(event);
-            servicesFound.put(serviceStub, event);
+            servicesFoundMap.put(serviceStub, event);
             updateListView();
         }
     }
@@ -280,7 +267,7 @@ public class MainActivity extends Activity {
     protected void removeItemFromList(final ServiceEvent event){
         synchronized (servicesFoundLock) {
             ServiceStub serviceStub = new ServiceStub(event);
-            servicesFound.remove(serviceStub);
+            servicesFoundMap.remove(serviceStub);
             updateListView();
         }
     }
@@ -291,14 +278,14 @@ public class MainActivity extends Activity {
             public void run() {
                 try {
                     synchronized (servicesFoundLock) {
-                        textViewNumServicesFound.setText(String.valueOf(servicesFound.size()));
-                        listAdapter.clear();
+                        textViewNumServicesFound.setText(String.valueOf(servicesFoundMap.size()));
+                        listAdapterForDisplayedListOfServices.clear();
                         servicesFoundArrList.clear();
-                        for (ServiceEvent serviceEvent : servicesFound.values()) {
-                            listAdapter.add(HelperMethods.getDetailedString(serviceEvent));
+                        for (ServiceEvent serviceEvent : servicesFoundMap.values()) {
+                            listAdapterForDisplayedListOfServices.add(HelperMethods.getDetailedString(serviceEvent));
                             servicesFoundArrList.add(serviceEvent);
                         }
-                        listAdapter.notifyDataSetChanged();
+                        listAdapterForDisplayedListOfServices.notifyDataSetChanged();
                     }
                 } catch (RuntimeException e){
                     e.printStackTrace();

@@ -1,3 +1,8 @@
+/**
+ Copyright (C) 2016 Laszlo Makk
+ All code under the BonjourTesting project is licensed under the Apache 2.0 License
+ */
+
 package uk.ac.cam.cl.lm649.bonjourtesting;
 
 import android.util.Log;
@@ -18,7 +23,7 @@ public class MsgServer {
 
     private final MainActivity mainActivity;
     private final static String TAG = "MsgServer";
-    protected final ServerSocket serverSocket;
+    private final ServerSocket serverSocket;
 
     public MsgServer(MainActivity mainActivity) throws IOException {
         this.mainActivity = mainActivity;
@@ -106,6 +111,18 @@ public class MsgServer {
 
     public int getPort(){
         return serverSocket.getLocalPort();
+    }
+
+    public void stop(){
+        Log.i(TAG, "Stopping MsgServer.");
+        try {
+            serverSocket.close();
+            Log.i(TAG, "serverSocket successfully closed.");
+        } catch (IOException e) {
+            Log.e(TAG, "error while closing serverSocket");
+            e.printStackTrace();
+        }
+
     }
 
 }

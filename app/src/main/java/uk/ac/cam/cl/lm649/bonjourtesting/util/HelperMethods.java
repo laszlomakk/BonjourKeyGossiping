@@ -27,46 +27,6 @@ public class HelperMethods {
 
     private static final String TAG = "HelperMethods";
 
-    public static Enumeration<InetAddress> getWifiInetAddresses(final Context context) {
-        final WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        final WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        final String macAddress = wifiInfo.getMacAddress();
-        final String[] macParts = macAddress.split(":");
-        final byte[] macBytes = new byte[macParts.length];
-        for (int i = 0; i< macParts.length; i++) {
-            macBytes[i] = (byte)Integer.parseInt(macParts[i], 16);
-        }
-        try {
-            final Enumeration<NetworkInterface> e =  NetworkInterface.getNetworkInterfaces();
-            while (e.hasMoreElements()) {
-                final NetworkInterface networkInterface = e.nextElement();
-                if (Arrays.equals(networkInterface.getHardwareAddress(), macBytes)) {
-                    return networkInterface.getInetAddresses();
-                }
-            }
-        } catch (SocketException e) {
-            Log.wtf("WIFIIP", "Unable to NetworkInterface.getNetworkInterfaces()");
-        }
-        return null;
-    }
-
-    /**
-     * Example usage:
-     * final Inet4Address inet4Address = getWifiInetAddress(context, Inet4Address.class);
-     */
-    @SuppressWarnings("unchecked")
-    public static<T extends InetAddress> T getWifiInetAddress(final Context context, final Class<T> inetClass) {
-        final Enumeration<InetAddress> e = getWifiInetAddresses(context);
-        if (null == e) return null;
-        while (e.hasMoreElements()) {
-            final InetAddress inetAddress = e.nextElement();
-            if (inetAddress.getClass() == inetClass) {
-                return (T)inetAddress;
-            }
-        }
-        return null;
-    }
-
     /**
      * @return IPv4 address of this Android device on the local wi-fi network
      */

@@ -1,11 +1,11 @@
+/**
+ Copyright (C) 2016 Laszlo Makk
+ All code under the BonjourTesting project is licensed under the Apache 2.0 License
+ */
+
 package uk.ac.cam.cl.lm649.bonjourtesting;
 
 import android.util.Log;
-
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.Socket;
 
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceListener;
