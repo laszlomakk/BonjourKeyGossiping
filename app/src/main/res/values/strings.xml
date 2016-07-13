@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">BonjourTesting</string>
+
+    <string name="settings_save_location">uk.ac.cam.cl.lm649.bonjourtesting.SETTINGS_SAVE</string>
 </resources>

@@ -7,15 +7,13 @@ package uk.ac.cam.cl.lm649.bonjourtesting;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -102,6 +100,14 @@ public class MainActivity extends Activity {
         textViewLocalPort = (TextView) findViewById(R.id.localPort) ;
         textViewOwnService = (TextView) findViewById(R.id.ownService);
         textViewNumServicesFound = (TextView) findViewById(R.id.numberOfServicesFound);
+
+        // settings button
+        findViewById(R.id.settingsButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.SETTINGS"));
+            }
+        });
 
         // refresh button
         findViewById(R.id.refreshButton).setOnClickListener(new View.OnClickListener() {
@@ -201,10 +207,10 @@ public class MainActivity extends Activity {
     private void registerOurService() throws IOException {
         Log.i(TAG, "Registering our own service.");
         changeAppState("registering our service");
-        if (Constants.FIXED_SERVICE_NAME) {
-            serviceName = Constants.SERVICE_NAME;
-        } else {
+        if (SaveSettingsData.getInstance(this).isUsingRandomServiceName()) {
             serviceName = Constants.RANDOM_SERVICE_NAMES_START_WITH + HelperMethods.getNRandomDigits(5);
+        } else {
+            serviceName = SaveSettingsData.getInstance(this).getCustomServiceName();
         }
         String payload;
         if (Constants.FIXED_DNS_TXT_RECORD){
@@ -213,7 +219,6 @@ public class MainActivity extends Activity {
             payload = HelperMethods.getRandomString();
         }
         final ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName, port, payload);
-        //serviceInfo.setText(createPayloadMapForService()); // use this for large, byte[]-based DNS TXTs
         jmdns.registerService(serviceInfo);
         serviceName = serviceInfo.getName();
         String serviceIsRegisteredNotification = "Registered service. Name ended up being: "+serviceName;
@@ -315,6 +320,7 @@ public class MainActivity extends Activity {
         });
     }
 
+    //use this as: serviceInfo.setText(createPayloadMapForService());
     private Map<String, byte[]> createPayloadMapForService(){
         Map<String, byte[]> payloadMap = new HashMap<>();
         // long hardcoded data to test large payloads

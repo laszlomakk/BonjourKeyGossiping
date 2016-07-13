@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="use random instead"
+        android:id="@+id/checkBoxRandomServiceName"
+        android:layout_gravity="center_horizontal"
+        android:checked="false"
+        android:layout_below="@+id/textViewFixedServiceNameText"
+        android:layout_toEndOf="@+id/textViewFixedServiceNameText"
+        android:layout_marginTop="24sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Service Name:"
+        android:id="@+id/textViewFixedServiceNameText"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="24sp"
+        android:layout_marginLeft="16sp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="servName"
+        android:id="@+id/editTextFixedServiceNameInput"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="20sp"
+        android:enabled="true"
+        android:minWidth="140sp"
+        android:minLines="1"
+        android:layout_alignTop="@+id/textViewFixedServiceNameText"
+        android:layout_alignEnd="@+id/checkBoxRandomServiceName"
+        android:maxLines="1" />
+
+</RelativeLayout>

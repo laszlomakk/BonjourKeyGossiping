@@ -95,14 +95,21 @@
                     android:textSize="14sp"
                     android:layout_below="@+id/ownServiceText"/>
 
-                <ImageView
+
+                <ImageButton
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
+                    android:id="@+id/settingsButton"
+                    android:src="@android:drawable/ic_menu_preferences" />
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentRight="true"
                     android:id="@+id/refreshButton"
-                    android:src="@drawable/reset_icon" />
-
+                    android:src="@android:drawable/stat_notify_sync"
+                    android:layout_below="@+id/settingsButton"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
