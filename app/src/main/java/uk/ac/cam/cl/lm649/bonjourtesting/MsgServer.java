@@ -71,14 +71,14 @@ public class MsgServer {
         t.start();
     }
 
-    public static void sendMessage(final MainActivity mainActivity, final ServiceInfo serviceInfo,
+    public static void sendMessage(final MainActivity mainActivity, final ServiceInfo serviceInfoOfDst,
                                    final String senderID, final String msg){
-        if (null == serviceInfo){
+        if (null == serviceInfoOfDst){
             Log.e(TAG, "sendMessage(). serviceInfo is null");
             mainActivity.displayMsgToUser("error sending msg: serviceInfo is null (2)");
             return;
         }
-        InetAddress[] arrAddresses = serviceInfo.getInet4Addresses();
+        InetAddress[] arrAddresses = serviceInfoOfDst.getInet4Addresses();
         if (null == arrAddresses || arrAddresses.length < 1){
             Log.e(TAG, "sendMessage(). inappropriate addresses");
             mainActivity.displayMsgToUser("error sending msg: inappropriate addresses");
@@ -89,7 +89,7 @@ public class MsgServer {
             @Override
             public void run(){
                 try {
-                    Socket socket = new Socket(address, serviceInfo.getPort());
+                    Socket socket = new Socket(address, serviceInfoOfDst.getPort());
                     PrintWriter out = new PrintWriter(
                             new OutputStreamWriter(socket.getOutputStream()));
                     out.println(String.format(Locale.US, "%s: %s", senderID, msg));

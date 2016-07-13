@@ -90,7 +90,8 @@ public class MainActivity extends Activity {
                         displayMsgToUser("error sending msg: serviceInfo is null (1)");
                         return;
                     }
-                    MsgServer.sendMessage(MainActivity.this, serviceInfo, serviceName, "Hy there!");
+                    String msg = "Hy there! I see your payload is "+serviceInfo.getNiceTextString();
+                    MsgServer.sendMessage(MainActivity.this, serviceInfo, serviceName, msg);
                 }
             }
         });
