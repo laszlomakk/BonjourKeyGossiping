@@ -1,0 +1,192 @@
+package uk.ac.cam.cl.lm649.bonjourtesting;
+
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Binder;
+import android.os.IBinder;
+import android.util.Log;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.TreeMap;
+
+import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceEvent;
+import javax.jmdns.ServiceInfo;
+
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+
+public class BonjourService extends Service {
+
+    private static final String TAG = "BonjourService";
+    private Context context;
+    private MainActivity mainActivity;
+    private String strServiceState = "-";
+
+    private final IBinder binder = new BonjourServiceBinder();
+
+    public class BonjourServiceBinder extends Binder {
+        public BonjourService getService() {
+            return BonjourService.this;
+        }
+    }
+
+    protected JmDNS jmdns;
+    private InetAddress inetAddressOfThisDevice;
+    private CustomServiceListener serviceListener;
+    private final TreeMap<ServiceStub, ServiceEvent> serviceRegistry = new TreeMap<>();
+    private String nameOfOurService = "";
+    private ServiceInfo serviceInfoOfOurService;
+
+    private Thread workerThread = new Thread(){
+        @Override
+        public void run() {
+            try {
+                createJmDNS();
+                registerOurService();
+                startDiscovery();
+                changeServiceState("READY");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    @Override
+    public void onCreate() {
+        Log.i(TAG, "onCreate() called.");
+        super.onCreate();
+        context = getApplicationContext();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.i(TAG, "onDestroy() called.");
+        if (jmdns != null) {
+            Log.i(TAG, "Stopping jmDNS...");
+            jmdns.unregisterAllServices();
+            try {
+                jmdns.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                jmdns = null;
+            }
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(TAG, "onStartCommand() called.");
+        try {
+            workerThread.start();
+        } catch (IllegalThreadStateException e) {
+            Log.e(TAG, "onStartCommand() swallowed exception. Worker thread already started.");
+            //e.printStackTrace();
+        }
+        return START_STICKY;
+    }
+
+    private void createJmDNS() throws IOException {
+        Log.i(TAG, "Creating jmDNS.");
+        inetAddressOfThisDevice = HelperMethods.getWifiIpAddress(context);
+        Log.i(TAG, "Device IP: "+ inetAddressOfThisDevice.getHostAddress());
+        changeServiceState("creating JmDNS");
+        jmdns = JmDNS.create(inetAddressOfThisDevice);
+    }
+
+    private void startDiscovery(){
+        Log.i(TAG, "Starting discovery.");
+        changeServiceState("starting discovery");
+        if (null == jmdns){
+            Log.e(TAG, "startDiscovery(). jmdns is null");
+            return;
+        }
+        if (serviceListener != null){
+            Log.i(TAG, "startDiscovery(). serviceListener wasn't null. Removing prev listener");
+            jmdns.removeServiceListener(Constants.SERVICE_TYPE, serviceListener);
+        }
+        serviceListener = new CustomServiceListener(this);
+        jmdns.addServiceListener(Constants.SERVICE_TYPE, serviceListener);
+        if (null != mainActivity) mainActivity.displayMsgToUser("Starting discovery...");
+    }
+
+    private void registerOurService() throws IOException {
+        Log.i(TAG, "Registering our own service.");
+        changeServiceState("registering our service");
+        if (SaveSettingsData.getInstance(this).isUsingRandomServiceName()) {
+            nameOfOurService = Constants.RANDOM_SERVICE_NAMES_START_WITH + HelperMethods.getNRandomDigits(5);
+        } else {
+            nameOfOurService = SaveSettingsData.getInstance(this).getCustomServiceName();
+        }
+        String payload;
+        if (Constants.FIXED_DNS_TXT_RECORD){
+            payload = Constants.DNS_TXT_RECORD;
+        } else {
+            payload = HelperMethods.getRandomString();
+        }
+        int port = MsgServer.getInstance().getPort();
+        serviceInfoOfOurService = ServiceInfo.create(Constants.SERVICE_TYPE, nameOfOurService, port, payload);
+        jmdns.registerService(serviceInfoOfOurService);
+
+        if (null != mainActivity) mainActivity.refreshTopUI();
+
+        nameOfOurService = serviceInfoOfOurService.getName();
+        String serviceIsRegisteredNotification = "Registered service. Name ended up being: " + nameOfOurService;
+        Log.i(TAG, serviceIsRegisteredNotification);
+        if (null != mainActivity) mainActivity.displayMsgToUser(serviceIsRegisteredNotification);
+    }
+
+    public void attachActivity(MainActivity mainActivity) {
+        this.mainActivity = mainActivity;
+    }
+
+    protected void addServiceToRegistry(final ServiceEvent event) {
+        synchronized (serviceRegistry){
+            ServiceStub serviceStub = new ServiceStub(event);
+            serviceRegistry.put(serviceStub, event);
+            if (null != mainActivity) mainActivity.updateListView(serviceRegistry);
+        }
+    }
+
+    protected void removeServiceFromRegistry(final ServiceEvent event) {
+        synchronized (serviceRegistry) {
+            ServiceStub serviceStub = new ServiceStub(event);
+            serviceRegistry.remove(serviceStub);
+            if (null != mainActivity) mainActivity.updateListView(serviceRegistry);
+        }
+    }
+
+    private void changeServiceState(final String state) {
+        strServiceState = state;
+        if (null != mainActivity) mainActivity.refreshTopUI();
+    }
+
+    public String getIPAdress() {
+        return inetAddressOfThisDevice.getHostAddress();
+    }
+
+    public String getNameOfOurService() {
+        return nameOfOurService;
+    }
+
+    public ServiceInfo getServiceInfoOfOurService() {
+        return serviceInfoOfOurService;
+    }
+
+    public TreeMap<ServiceStub, ServiceEvent> getServiceRegistry() {
+        return serviceRegistry;
+    }
+
+    public String getStrServiceState() {
+        return strServiceState;
+    }
+
+}
