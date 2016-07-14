@@ -125,7 +125,7 @@ public class BonjourService extends Service {
         }
         serviceListener = new CustomServiceListener(this);
         jmdns.addServiceListener(Constants.SERVICE_TYPE, serviceListener);
-        if (null != mainActivity) mainActivity.displayMsgToUser("Starting discovery...");
+        HelperMethods.displayMsgToUser(context, "Starting discovery...");
     }
 
     private void registerOurService() throws IOException {
@@ -151,7 +151,7 @@ public class BonjourService extends Service {
         nameOfOurService = serviceInfoOfOurService.getName();
         String serviceIsRegisteredNotification = "Registered service. Name ended up being: " + nameOfOurService;
         Log.i(TAG, serviceIsRegisteredNotification);
-        if (null != mainActivity) mainActivity.displayMsgToUser(serviceIsRegisteredNotification);
+        HelperMethods.displayMsgToUser(context, serviceIsRegisteredNotification);
     }
 
     protected void restartDiscovery() {

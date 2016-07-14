@@ -15,7 +15,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -177,13 +176,8 @@ public class MainActivity extends Activity {
         resetUI();
     }
 
-    protected void displayMsgToUser(final String msg){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-            }
-        });
+    public void displayMsgToUser(final String msg) {
+        HelperMethods.displayMsgToUser(context, msg);
     }
 
     protected void updateListView(final TreeMap<ServiceStub, ServiceEvent> serviceRegistry) {
