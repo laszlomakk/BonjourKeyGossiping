@@ -25,6 +25,7 @@ public class MsgServer {
     private static MsgServer INSTANCE = null;
 
     private final ServerSocket serverSocket;
+    private MainActivity mainActivity;
 
     private MsgServer() throws IOException {
         serverSocket = new ServerSocket(0);
@@ -80,7 +81,7 @@ public class MsgServer {
                             break; // disconnected
                         } else {
                             Log.i(TAG, "received msg -- " + msg);
-                            //mainActivity.displayMsgToUser(msg);
+                            if (null != mainActivity) mainActivity.displayMsgToUser(msg);
                         }
                     }
                 } catch (IOException e) {
@@ -91,6 +92,10 @@ public class MsgServer {
         };
         t.setDaemon(true);
         t.start();
+    }
+
+    public void attachActivity(MainActivity mainActivity) {
+        this.mainActivity = mainActivity;
     }
 
     public static void sendMessage(final MainActivity mainActivity, final ServiceInfo serviceInfoOfDst,

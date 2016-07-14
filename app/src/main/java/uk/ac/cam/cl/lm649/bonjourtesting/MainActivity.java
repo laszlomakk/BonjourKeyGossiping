@@ -134,6 +134,7 @@ public class MainActivity extends Activity {
     protected void onStart(){
         Log.i(TAG, "Activity starting up.");
         super.onStart();
+        MsgServer.getInstance().attachActivity(this);
         new Thread(){
             @Override
             public void run(){
@@ -227,6 +228,7 @@ public class MainActivity extends Activity {
                 jmdns = null;
             }
         }
+        MsgServer.getInstance().attachActivity(null);
         resetUI();
     }
 
