@@ -21,12 +21,12 @@ import javax.jmdns.ServiceInfo;
 
 public class MsgServer {
 
-    private final MainActivity mainActivity;
     private final static String TAG = "MsgServer";
+    private static MsgServer INSTANCE = null;
+
     private final ServerSocket serverSocket;
 
-    public MsgServer(MainActivity mainActivity) throws IOException {
-        this.mainActivity = mainActivity;
+    private MsgServer() throws IOException {
         serverSocket = new ServerSocket(0);
         Thread t = new Thread() {
             @Override
@@ -36,6 +36,22 @@ public class MsgServer {
         };
         t.setDaemon(true);
         t.start();
+    }
+
+    public static MsgServer getInstance() {
+        if (null == INSTANCE) {
+            Log.e(TAG, "getInstance(). trying to get MsgServer before calling initInstance()");
+            throw new RuntimeException("MsgServer INSTANCE not yet initialised");
+        }
+        return INSTANCE;
+    }
+
+    public static void initInstance() throws IOException {
+        if (null != INSTANCE) {
+            Log.e(TAG, "initInstance(). trying to reinit already initialised MsgServer");
+            throw new RuntimeException("MsgServer INSTANCE already initialised");
+        }
+        INSTANCE = new MsgServer();
     }
 
     private void startWaitingForConnections(final ServerSocket serverSocket){
@@ -63,7 +79,8 @@ public class MsgServer {
                             Log.i(TAG, "MsgServer closed a thread for msging.");
                             break; // disconnected
                         } else {
-                            mainActivity.displayMsgToUser(msg);
+                            Log.i(TAG, "received msg -- " + msg);
+                            //mainActivity.displayMsgToUser(msg);
                         }
                     }
                 } catch (IOException e) {

@@ -34,7 +34,6 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 public class MainActivity extends Activity {
 
     private String serviceName = "";
-    private int port = 45267; // arbitrary default value, will get changed
 
     private static final String TAG = "MainActivity";
     private Context context;
@@ -53,7 +52,6 @@ public class MainActivity extends Activity {
     protected JmDNS jmdns;
     private InetAddress inetAddressOfThisDevice;
     private CustomServiceListener serviceListener;
-    private MsgServer msgServer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,7 +114,7 @@ public class MainActivity extends Activity {
     private void initUI(){
         textViewAppState.setText("-");
         textViewDeviceIp.setText("-");
-        textViewLocalPort.setText("-");
+        textViewLocalPort.setText(String.format(Locale.US,"%d",MsgServer.getInstance().getPort()));
         textViewOwnService.setText("-");
         textViewNumServicesFound.setText("-");
     }
@@ -140,7 +138,6 @@ public class MainActivity extends Activity {
             @Override
             public void run(){
                 try {
-                    createServerForIncomingMessages();
                     createJmDNS();
                     registerOurService();
                     startDiscovery();
@@ -164,19 +161,6 @@ public class MainActivity extends Activity {
             }
         });
         jmdns = JmDNS.create(inetAddressOfThisDevice);
-    }
-
-    private void createServerForIncomingMessages() throws IOException {
-        Log.i(TAG, "Creating MsgServer.");
-        changeAppState("creating Msg Server");
-        msgServer = new MsgServer(MainActivity.this);
-        port = msgServer.getPort();
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                textViewLocalPort.setText(String.format(Locale.US,"%d",port));
-            }
-        });
     }
 
     private void startDiscovery(){
@@ -209,6 +193,7 @@ public class MainActivity extends Activity {
         } else {
             payload = HelperMethods.getRandomString();
         }
+        int port = MsgServer.getInstance().getPort();
         final ServiceInfo serviceInfo = ServiceInfo.create(Constants.SERVICE_TYPE, serviceName, port, payload);
         jmdns.registerService(serviceInfo);
 
@@ -242,7 +227,6 @@ public class MainActivity extends Activity {
                 jmdns = null;
             }
         }
-        msgServer.stop();
         resetUI();
     }
 
