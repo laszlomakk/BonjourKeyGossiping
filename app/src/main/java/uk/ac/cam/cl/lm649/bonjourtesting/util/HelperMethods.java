@@ -12,12 +12,8 @@ import android.util.Log;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.Random;
 
 import javax.jmdns.ServiceEvent;
@@ -34,7 +30,7 @@ public class HelperMethods {
         InetAddress ret = null;
         try {
             // default to Android localhost
-            ret = InetAddress.getByName("10.0.0.2");
+            ret = InetAddress.getByName("10.0.2.2");
 
             // try to figure out our wifi address, or fail
             WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
@@ -117,7 +113,7 @@ public class HelperMethods {
 
     public static String getRandomString() {
         SecureRandom random = new SecureRandom();
-        return new BigInteger(60, random).toString(32);
+        return new BigInteger(60, random).toString(Character.MAX_RADIX);
     }
 
 }
