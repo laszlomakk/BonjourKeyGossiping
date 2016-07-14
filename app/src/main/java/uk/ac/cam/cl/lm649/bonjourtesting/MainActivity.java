@@ -51,15 +51,15 @@ public class MainActivity extends Activity {
             Log.i(TAG, "onServiceConnected() called.");
             BonjourService.BonjourServiceBinder binder = (BonjourService.BonjourServiceBinder) service;
             bonjourService = binder.getService();
-            bonjourService.attachActivity(MainActivity.this);
             bonjourServiceBound = true;
+            bonjourService.attachActivity(MainActivity.this);
             updateListView();
         }
         @Override
         public void onServiceDisconnected(ComponentName className) {
             Log.i(TAG, "onServiceDisconnected() called.");
-            bonjourService.attachActivity(null);
             bonjourServiceBound = false;
+            bonjourService.attachActivity(null);
         }
     };
     private BonjourService bonjourService;
@@ -121,9 +121,7 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 refreshTopUI();
                 updateListView();
-                /*resetListOfServicesFound();
-                startDiscovery();
-                changeAppState("READY");*/
+                if (bonjourServiceBound) bonjourService.restartDiscovery();
             }
         });
 

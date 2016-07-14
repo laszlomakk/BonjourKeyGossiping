@@ -1,3 +1,8 @@
+/**
+ Copyright (C) 2016 Laszlo Makk
+ All code under the BonjourTesting project is licensed under the Apache 2.0 License
+ */
+
 package uk.ac.cam.cl.lm649.bonjourtesting;
 
 import android.app.Service;
@@ -10,6 +15,8 @@ import android.util.Log;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
@@ -39,19 +46,8 @@ public class BonjourService extends Service {
     private String nameOfOurService = "";
     private ServiceInfo serviceInfoOfOurService;
 
-    private Thread workerThread = new Thread(){
-        @Override
-        public void run() {
-            try {
-                createJmDNS();
-                registerOurService();
-                startDiscovery();
-                changeServiceState("READY");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    };
+    private final ExecutorService workerThread = Executors.newFixedThreadPool(1);
+    private boolean started = false;
 
     @Override
     public void onCreate() {
@@ -85,11 +81,25 @@ public class BonjourService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "onStartCommand() called.");
-        try {
-            workerThread.start();
-        } catch (IllegalThreadStateException e) {
-            Log.e(TAG, "onStartCommand() swallowed exception. Worker thread already started.");
-            //e.printStackTrace();
+        if (!started){
+            started = true;
+            Log.i(TAG, "onStartCommand(). doing start-up.");
+            workerThread.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        createJmDNS();
+                        registerOurService();
+                        startDiscovery();
+                        changeServiceState("READY");
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error during start-up.");
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } else {
+            Log.i(TAG, "onStartCommand(). already started.");
         }
         return START_STICKY;
     }
@@ -144,6 +154,34 @@ public class BonjourService extends Service {
         if (null != mainActivity) mainActivity.displayMsgToUser(serviceIsRegisteredNotification);
     }
 
+    protected void restartDiscovery() {
+        workerThread.execute(new Runnable() {
+            @Override
+            public void run() {
+                serviceRegistry.clear();
+                startDiscovery();
+                changeServiceState("READY");
+            }
+        });
+    }
+
+    protected void reregisterOurService() {
+        workerThread.execute(new Runnable() {
+            @Override
+            public void run() {
+                jmdns.unregisterAllServices();
+                try {
+                    registerOurService();
+                    changeServiceState("READY");
+                } catch (IOException e) {
+                    Log.e(TAG, "reregisterOurService() failed to register service.");
+                    e.printStackTrace();
+                    changeServiceState("ERROR - rereg failed");
+                }
+            }
+        });
+    }
+
     public void attachActivity(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
     }
@@ -170,7 +208,9 @@ public class BonjourService extends Service {
     }
 
     public String getIPAdress() {
-        return inetAddressOfThisDevice.getHostAddress();
+        String ret = "999.999.999.999";
+        if (null != inetAddressOfThisDevice) ret = inetAddressOfThisDevice.getHostAddress();
+        return ret;
     }
 
     public String getNameOfOurService() {
