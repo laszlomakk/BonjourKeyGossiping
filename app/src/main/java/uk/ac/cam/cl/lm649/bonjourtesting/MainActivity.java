@@ -6,12 +6,9 @@
 package uk.ac.cam.cl.lm649.bonjourtesting;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -33,6 +30,7 @@ public class MainActivity extends Activity {
 
     private static final String TAG = "MainActivity";
     private Context context;
+    private CustomApplication app;
 
     private ArrayAdapter<String> listAdapterForDisplayedListOfServices;
     private ArrayList<ServiceEvent> servicesFoundArrList = new ArrayList<>();
@@ -44,32 +42,13 @@ public class MainActivity extends Activity {
     private TextView textViewOwnService;
     private TextView textViewNumServicesFound;
 
-    private ServiceConnection bonjourServiceConnection = new ServiceConnection() {
-        private static final String TAG = "BonjourServiceConn";
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            Log.i(TAG, "onServiceConnected() called.");
-            BonjourService.BonjourServiceBinder binder = (BonjourService.BonjourServiceBinder) service;
-            bonjourService = binder.getService();
-            bonjourServiceBound = true;
-            bonjourService.attachActivity(MainActivity.this);
-            updateListView();
-        }
-        @Override
-        public void onServiceDisconnected(ComponentName className) {
-            Log.i(TAG, "onServiceDisconnected() called.");
-            bonjourServiceBound = false;
-            bonjourService.attachActivity(null);
-        }
-    };
-    private BonjourService bonjourService;
-    private boolean bonjourServiceBound = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getApplicationContext();
+        app = (CustomApplication) getApplication();
         setupUI();
+        app.setMainActivity(this);
     }
 
     private void setupUI(){
@@ -90,8 +69,8 @@ public class MainActivity extends Activity {
                         return;
                     }
                     String msg = "Hy there! I see your payload is " + serviceInfo.getNiceTextString();
-                    if (bonjourServiceBound){
-                        String serviceName = bonjourService.getNameOfOurService();
+                    if (app.isBonjourServiceBound()){
+                        String serviceName = app.getBonjourService().getNameOfOurService();
                         MsgServer.sendMessage(MainActivity.this, serviceInfo, serviceName, msg);
                     } else {
                         displayMsgToUser("error: bonjourService not bound");
@@ -121,7 +100,7 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 refreshTopUI();
                 updateListView();
-                if (bonjourServiceBound) bonjourService.restartDiscovery();
+                if (app.isBonjourServiceBound()) app.getBonjourService().restartDiscovery();
             }
         });
 
@@ -139,25 +118,25 @@ public class MainActivity extends Activity {
 
     private void refreshTopUIInternal() {
         String appStateText = "-";
-        if (bonjourServiceBound) appStateText = bonjourService.getStrServiceState();
+        if (app.isBonjourServiceBound()) appStateText = app.getBonjourService().getStrServiceState();
         textViewAppState.setText(appStateText);
 
         String deviceIP = "999.999.999.999";
-        if (bonjourServiceBound) deviceIP = bonjourService.getIPAdress();
+        if (app.isBonjourServiceBound()) deviceIP = app.getBonjourService().getIPAdress();
         textViewDeviceIp.setText(deviceIP);
 
         textViewLocalPort.setText(String.format(Locale.US,"%d",MsgServer.getInstance().getPort()));
 
         String ownServiceText = "-";
-        if (bonjourServiceBound && null != bonjourService.getServiceInfoOfOurService()) {
-            ServiceInfo serviceInfo = bonjourService.getServiceInfoOfOurService();
+        if (app.isBonjourServiceBound() && null != app.getBonjourService().getServiceInfoOfOurService()) {
+            ServiceInfo serviceInfo = app.getBonjourService().getServiceInfoOfOurService();
             ownServiceText = HelperMethods.getNameAndTypeString(serviceInfo)
                     + HelperMethods.getPayloadString(serviceInfo);
         }
         textViewOwnService.setText(ownServiceText);
 
         String numServicesText = "-";
-        if (bonjourServiceBound) numServicesText = "" + bonjourService.getServiceRegistry().size();
+        if (app.isBonjourServiceBound()) numServicesText = "" + app.getBonjourService().getServiceRegistry().size();
         textViewNumServicesFound.setText(numServicesText);
     }
 
@@ -180,13 +159,13 @@ public class MainActivity extends Activity {
         Log.i(TAG, "Activity starting up.");
         super.onStart();
         MsgServer.getInstance().attachActivity(this);
-
-        Log.i(TAG, "Starting and binding BonjourService.");
-        Intent intent = new Intent(this, BonjourService.class);
-        startService(intent); // explicit start will keep the service alive
-        bindService(intent, bonjourServiceConnection, Context.BIND_AUTO_CREATE);
-
         updateListView();
+
+        if (app.isBonjourServiceBound()) {
+            app.getBonjourService().attachActivity(this);
+        } else {
+            textViewAppState.setText("Waiting for BonjourService.");
+        }
     }
 
     @Override
@@ -194,6 +173,7 @@ public class MainActivity extends Activity {
         Log.i(TAG, "Activity stopping.");
         super.onStop();
         MsgServer.getInstance().attachActivity(null);
+        if (app.isBonjourServiceBound()) app.getBonjourService().attachActivity(null);
         resetUI();
     }
 
@@ -228,8 +208,8 @@ public class MainActivity extends Activity {
 
     private void updateListView() {
         Log.d(TAG, "updateListView() called.");
-        if (bonjourServiceBound) {
-            updateListView(bonjourService.getServiceRegistry());
+        if (app.isBonjourServiceBound()) {
+            updateListView(app.getBonjourService().getServiceRegistry());
         }
     }
 

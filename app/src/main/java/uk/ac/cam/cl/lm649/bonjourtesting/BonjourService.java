@@ -184,6 +184,7 @@ public class BonjourService extends Service {
 
     public void attachActivity(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
+        if (null != mainActivity) mainActivity.updateListView(serviceRegistry);
     }
 
     protected void addServiceToRegistry(final ServiceEvent event) {
