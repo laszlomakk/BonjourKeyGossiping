@@ -8,6 +8,9 @@ package uk.ac.cam.cl.lm649.bonjourtesting.bonjour;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -22,11 +25,13 @@ import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.ConnectivityChangeReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.MainActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
 public class BonjourService extends Service {
@@ -47,6 +52,7 @@ public class BonjourService extends Service {
     protected JmDNS jmdns;
     private InetAddress inetAddressOfThisDevice;
     private CustomServiceListener serviceListener;
+    private ConnectivityChangeReceiver connectivityChangeReceiver;
     private final TreeMap<ServiceStub, ServiceEvent> serviceRegistry = new TreeMap<>();
     private String nameOfOurService = "";
     private ServiceInfo serviceInfoOfOurService;
@@ -79,12 +85,8 @@ public class BonjourService extends Service {
         if (!started){
             started = true;
             Log.i(TAG, "onStartCommand(). doing start-up.");
-            workerThread.execute(new Runnable() {
-                @Override
-                public void run() {
-                    startWork();
-                }
-            });
+            startWork();
+            registerConnectivityChangeReceiver();
         } else {
             Log.w(TAG, "onStartCommand(). already started.");
         }
@@ -93,7 +95,7 @@ public class BonjourService extends Service {
 
     private void createJmDNS() throws IOException {
         Log.i(TAG, "Creating jmDNS.");
-        inetAddressOfThisDevice = HelperMethods.getWifiIpAddress(context);
+        inetAddressOfThisDevice = NetworkUtil.getWifiIpAddress(context);
         Log.i(TAG, "Device IP: "+ inetAddressOfThisDevice.getHostAddress());
         changeServiceState("creating JmDNS");
         jmdns = JmDNS.create(inetAddressOfThisDevice);
@@ -141,6 +143,15 @@ public class BonjourService extends Service {
         HelperMethods.displayMsgToUser(context, serviceIsRegisteredNotification);
     }
 
+    private void registerConnectivityChangeReceiver() {
+        Log.i(TAG, "Registering ConnectivityChangeReceiver.");
+        changeServiceState("registering cc-receiver");
+        connectivityChangeReceiver = new ConnectivityChangeReceiver();
+        registerReceiver(
+                connectivityChangeReceiver,
+                new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
+    }
+
     public void restartDiscovery() {
         workerThread.execute(new Runnable() {
             @Override
@@ -171,40 +182,51 @@ public class BonjourService extends Service {
 
     private void startWork() {
         Log.i(TAG, "startWork() called.");
-        if (null != jmdns) {
-            Log.e(TAG, "jmdns was not null. This is not a clean start-up...");
-        }
-        try {
-            createJmDNS();
-            registerOurService();
-            startDiscovery();
-            changeServiceState("READY");
-            Log.i(TAG, "startWork() finished without error.");
-        } catch (IOException e) {
-            Log.e(TAG, "startWork(). Error during start-up.");
-            e.printStackTrace();
-        }
+        workerThread.execute(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "startWork() is being executed.");
+                if (null != jmdns) {
+                    Log.e(TAG, "jmdns was not null. This is not a clean start-up...");
+                }
+                try {
+                    createJmDNS();
+                    registerOurService();
+                    startDiscovery();
+                    changeServiceState("READY");
+                    Log.i(TAG, "startWork() finished without error.");
+                } catch (IOException e) {
+                    Log.e(TAG, "startWork(). Error during start-up.");
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void stopAndCloseWork() {
         Log.i(TAG, "stopAndCloseWork() called.");
-        if (jmdns != null) {
-            Log.i(TAG, "Stopping jmDNS...");
-            jmdns.unregisterAllServices();
-            try {
-                jmdns.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                jmdns = null;
-            }
-        }
+        workerThread.execute(new Runnable() {
+             @Override
+             public void run() {
+                 Log.i(TAG, "stopAndCloseWork() is being executed.");
+                 if (jmdns != null) {
+                     Log.i(TAG, "Stopping jmDNS...");
+                     jmdns.unregisterAllServices();
+                     try {
+                         jmdns.close();
+                     } catch (IOException e) {
+                         e.printStackTrace();
+                     } finally {
+                         jmdns = null;
+                     }
+                 }
+             }
+        });
     }
 
-    private void restartWork() {
+    public void restartWork() {
         Log.i(TAG, "restartWork() called.");
         stopAndCloseWork();
-        changeServiceState("restarting...");
         startWork();
     }
 

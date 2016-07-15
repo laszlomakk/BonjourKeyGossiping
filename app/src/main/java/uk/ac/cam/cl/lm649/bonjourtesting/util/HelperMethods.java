@@ -26,26 +26,7 @@ public class HelperMethods {
 
     private static final String TAG = "HelperMethods";
 
-    /**
-     * @return IPv4 address of this Android device on the local wi-fi network
-     */
-    public static InetAddress getWifiIpAddress(Context context){
-        InetAddress ret = null;
-        try {
-            // default to Android localhost
-            ret = InetAddress.getByName("10.0.2.2");
-
-            // try to figure out our wifi address, or fail
-            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-            WifiInfo wifiinfo = wifiManager.getConnectionInfo();
-            int ip = wifiinfo.getIpAddress();
-            byte[] byteaddr = new byte[] { (byte) (ip & 0xff), (byte) (ip >> 8 & 0xff), (byte) (ip >> 16 & 0xff), (byte) (ip >> 24 & 0xff) };
-            ret = InetAddress.getByAddress(byteaddr);
-        } catch (UnknownHostException ex) {
-            Log.e(TAG, String.format("getWifiIpAddress() Error: %s", ex.getMessage()));
-        }
-        return ret;
-    }
+    private HelperMethods() {}
 
     public static String getDetailedString(ServiceEvent event){
         return getNameAndTypeString(event)
