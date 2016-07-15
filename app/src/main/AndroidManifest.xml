@@ -18,14 +18,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingsActivity">
+        <activity android:name=".settings.SettingsActivity">
             <intent-filter>
                 <action android:name="uk.ac.cam.cl.lm649.bonjourtesting.SETTINGS" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
-        <service android:name=".BonjourService"
+        <service android:name=".bonjour.BonjourService"
             android:exported="false"/>
     </application>
 

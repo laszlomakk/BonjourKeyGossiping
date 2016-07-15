@@ -24,6 +24,7 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
 public class MainActivity extends Activity {
 
@@ -180,7 +181,7 @@ public class MainActivity extends Activity {
         HelperMethods.displayMsgToUser(context, msg);
     }
 
-    protected void updateListView(final TreeMap<ServiceStub, ServiceEvent> serviceRegistry) {
+    public void updateListView(final TreeMap<ServiceStub, ServiceEvent> serviceRegistry) {
         Log.v(TAG, "updateListView(TreeMap) called.");
         runOnUiThread(new Runnable() {
             @Override

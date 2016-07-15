@@ -1,6 +1,5 @@
 package uk.ac.cam.cl.lm649.bonjourtesting;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,6 +9,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 import java.io.IOException;
+
+import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 
 public class CustomApplication extends Application {
 

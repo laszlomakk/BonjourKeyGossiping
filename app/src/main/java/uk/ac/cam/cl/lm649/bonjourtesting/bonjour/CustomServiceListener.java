@@ -3,12 +3,14 @@
  All code under the BonjourTesting project is licensed under the Apache 2.0 License
  */
 
-package uk.ac.cam.cl.lm649.bonjourtesting;
+package uk.ac.cam.cl.lm649.bonjourtesting.bonjour;
 
 import android.util.Log;
 
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceListener;
+
+import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 
 public class CustomServiceListener implements ServiceListener {
 

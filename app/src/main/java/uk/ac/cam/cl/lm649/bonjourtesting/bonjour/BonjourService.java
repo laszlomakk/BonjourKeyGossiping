@@ -3,7 +3,7 @@
  All code under the BonjourTesting project is licensed under the Apache 2.0 License
  */
 
-package uk.ac.cam.cl.lm649.bonjourtesting;
+package uk.ac.cam.cl.lm649.bonjourtesting.bonjour;
 
 import android.app.Service;
 import android.content.Context;
@@ -22,7 +22,12 @@ import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
+import uk.ac.cam.cl.lm649.bonjourtesting.MainActivity;
+import uk.ac.cam.cl.lm649.bonjourtesting.MsgServer;
+import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
 public class BonjourService extends Service {
 
@@ -136,7 +141,7 @@ public class BonjourService extends Service {
         HelperMethods.displayMsgToUser(context, serviceIsRegisteredNotification);
     }
 
-    protected void restartDiscovery() {
+    public void restartDiscovery() {
         workerThread.execute(new Runnable() {
             @Override
             public void run() {
@@ -147,7 +152,7 @@ public class BonjourService extends Service {
         });
     }
 
-    protected void reregisterOurService() {
+    public void reregisterOurService() {
         workerThread.execute(new Runnable() {
             @Override
             public void run() {

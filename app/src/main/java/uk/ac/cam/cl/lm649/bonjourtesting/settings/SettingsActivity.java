@@ -1,9 +1,12 @@
-package uk.ac.cam.cl.lm649.bonjourtesting;
+package uk.ac.cam.cl.lm649.bonjourtesting.settings;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.CheckBox;
 import android.widget.EditText;
+
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
+import uk.ac.cam.cl.lm649.bonjourtesting.R;
 
 public class SettingsActivity extends Activity {
 
