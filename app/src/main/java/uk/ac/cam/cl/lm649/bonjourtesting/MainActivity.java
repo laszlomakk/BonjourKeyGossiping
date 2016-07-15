@@ -181,7 +181,7 @@ public class MainActivity extends Activity {
     }
 
     protected void updateListView(final TreeMap<ServiceStub, ServiceEvent> serviceRegistry) {
-        Log.d(TAG, "updateListView(TreeMap) called.");
+        Log.v(TAG, "updateListView(TreeMap) called.");
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -201,7 +201,7 @@ public class MainActivity extends Activity {
     }
 
     private void updateListView() {
-        Log.d(TAG, "updateListView() called.");
+        Log.v(TAG, "updateListView() called.");
         if (app.isBonjourServiceBound()) {
             updateListView(app.getBonjourService().getServiceRegistry());
         }

@@ -64,7 +64,7 @@ public class MsgServer {
                 startWaitingForMessages(in);
             }
         } catch (IOException e) {
-            Log.e(TAG, "startWaitingForConnections(). error");
+            Log.e(TAG, "startWaitingForConnections(). error -- closing main thread");
             e.printStackTrace();
         }
     }

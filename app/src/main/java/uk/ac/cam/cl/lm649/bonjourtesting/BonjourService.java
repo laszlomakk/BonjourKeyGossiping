@@ -99,7 +99,7 @@ public class BonjourService extends Service {
                 }
             });
         } else {
-            Log.i(TAG, "onStartCommand(). already started.");
+            Log.w(TAG, "onStartCommand(). already started.");
         }
         return START_STICKY;
     }
