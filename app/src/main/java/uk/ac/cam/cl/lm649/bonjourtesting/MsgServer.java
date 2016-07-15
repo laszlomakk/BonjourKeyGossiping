@@ -21,12 +21,13 @@ import javax.jmdns.ServiceInfo;
 
 public class MsgServer {
 
-    private final MainActivity mainActivity;
     private final static String TAG = "MsgServer";
-    private final ServerSocket serverSocket;
+    private static MsgServer INSTANCE = null;
 
-    public MsgServer(MainActivity mainActivity) throws IOException {
-        this.mainActivity = mainActivity;
+    private final ServerSocket serverSocket;
+    private MainActivity mainActivity;
+
+    private MsgServer() throws IOException {
         serverSocket = new ServerSocket(0);
         Thread t = new Thread() {
             @Override
@@ -38,6 +39,22 @@ public class MsgServer {
         t.start();
     }
 
+    public static MsgServer getInstance() {
+        if (null == INSTANCE) {
+            Log.e(TAG, "getInstance(). trying to get MsgServer before calling initInstance()");
+            throw new RuntimeException("MsgServer INSTANCE not yet initialised");
+        }
+        return INSTANCE;
+    }
+
+    public static void initInstance() throws IOException {
+        if (null != INSTANCE) {
+            Log.e(TAG, "initInstance(). trying to reinit already initialised MsgServer");
+            throw new RuntimeException("MsgServer INSTANCE already initialised");
+        }
+        INSTANCE = new MsgServer();
+    }
+
     private void startWaitingForConnections(final ServerSocket serverSocket){
         try {
             while (true) {
@@ -47,7 +64,7 @@ public class MsgServer {
                 startWaitingForMessages(in);
             }
         } catch (IOException e) {
-            Log.e(TAG, "startWaitingForConnections(). error");
+            Log.e(TAG, "startWaitingForConnections(). error -- closing main thread");
             e.printStackTrace();
         }
     }
@@ -63,7 +80,8 @@ public class MsgServer {
                             Log.i(TAG, "MsgServer closed a thread for msging.");
                             break; // disconnected
                         } else {
-                            mainActivity.displayMsgToUser(msg);
+                            Log.i(TAG, "received msg -- " + msg);
+                            if (null != mainActivity) mainActivity.displayMsgToUser(msg);
                         }
                     }
                 } catch (IOException e) {
@@ -74,6 +92,10 @@ public class MsgServer {
         };
         t.setDaemon(true);
         t.start();
+    }
+
+    public void attachActivity(MainActivity mainActivity) {
+        this.mainActivity = mainActivity;
     }
 
     public static void sendMessage(final MainActivity mainActivity, final ServiceInfo serviceInfoOfDst,

@@ -8,7 +8,7 @@ public abstract class SaveData {
     protected final SharedPreferences sharedPreferences;
 
     protected SaveData(Context context, String sharedPrefName) {
-        sharedPreferences = context.getSharedPreferences(
+        sharedPreferences = context.getApplicationContext().getSharedPreferences(
                 sharedPrefName, Context.MODE_PRIVATE);
     }
 

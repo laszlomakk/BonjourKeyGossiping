@@ -1,12 +1,16 @@
-package uk.ac.cam.cl.lm649.bonjourtesting;
+package uk.ac.cam.cl.lm649.bonjourtesting.settings;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
+import uk.ac.cam.cl.lm649.bonjourtesting.R;
+
 public class SettingsActivity extends Activity {
 
+    private CustomApplication app;
     private SaveSettingsData saveSettingsData;
 
     private EditText editTextFixedServiceNameInput;
@@ -16,6 +20,7 @@ public class SettingsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_view);
+        app = (CustomApplication) getApplication();
 
         saveSettingsData = SaveSettingsData.getInstance(this);
 
@@ -30,6 +35,7 @@ public class SettingsActivity extends Activity {
     public void onBackPressed() {
         saveSettingsData.saveCustomServiceName(editTextFixedServiceNameInput.getText().toString());
         saveSettingsData.saveUsingRandomServiceName(checkBoxRandomServiceName.isChecked());
+        if (app.isBonjourServiceBound()) app.getBonjourService().reregisterOurService();
         super.onBackPressed();
     }
 
