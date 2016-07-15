@@ -59,17 +59,7 @@ public class BonjourService extends Service {
     @Override
     public void onDestroy() {
         Log.i(TAG, "onDestroy() called.");
-        if (jmdns != null) {
-            Log.i(TAG, "Stopping jmDNS...");
-            jmdns.unregisterAllServices();
-            try {
-                jmdns.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                jmdns = null;
-            }
-        }
+        stopAndCloseWork();
         super.onDestroy();
     }
 
@@ -87,15 +77,7 @@ public class BonjourService extends Service {
             workerThread.execute(new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        createJmDNS();
-                        registerOurService();
-                        startDiscovery();
-                        changeServiceState("READY");
-                    } catch (IOException e) {
-                        Log.e(TAG, "Error during start-up.");
-                        e.printStackTrace();
-                    }
+                    startWork();
                 }
             });
         } else {
@@ -180,6 +162,45 @@ public class BonjourService extends Service {
                 }
             }
         });
+    }
+
+    private void startWork() {
+        Log.i(TAG, "startWork() called.");
+        if (null != jmdns) {
+            Log.e(TAG, "jmdns was not null. This is not a clean start-up...");
+        }
+        try {
+            createJmDNS();
+            registerOurService();
+            startDiscovery();
+            changeServiceState("READY");
+            Log.i(TAG, "startWork() finished without error.");
+        } catch (IOException e) {
+            Log.e(TAG, "startWork(). Error during start-up.");
+            e.printStackTrace();
+        }
+    }
+
+    private void stopAndCloseWork() {
+        Log.i(TAG, "stopAndCloseWork() called.");
+        if (jmdns != null) {
+            Log.i(TAG, "Stopping jmDNS...");
+            jmdns.unregisterAllServices();
+            try {
+                jmdns.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                jmdns = null;
+            }
+        }
+    }
+
+    private void restartWork() {
+        Log.i(TAG, "restartWork() called.");
+        stopAndCloseWork();
+        changeServiceState("restarting...");
+        startWork();
     }
 
     public void attachActivity(MainActivity mainActivity) {
