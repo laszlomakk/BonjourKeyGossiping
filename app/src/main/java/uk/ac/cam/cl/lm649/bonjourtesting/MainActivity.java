@@ -186,16 +186,18 @@ public class MainActivity extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                synchronized (displayedServicesLock) {
-                    Log.d(TAG, "updateListView() doing actual update.");
-                    refreshTopUIInternal();
-                    listAdapterForDisplayedListOfServices.clear();
-                    servicesFoundArrList.clear();
-                    for (ServiceEvent serviceEvent : serviceRegistry.values()) {
-                        listAdapterForDisplayedListOfServices.add(HelperMethods.getDetailedString(serviceEvent));
-                        servicesFoundArrList.add(serviceEvent);
+                synchronized (serviceRegistry) {
+                    synchronized (displayedServicesLock) {
+                        Log.d(TAG, "updateListView() doing actual update.");
+                        refreshTopUIInternal();
+                        listAdapterForDisplayedListOfServices.clear();
+                        servicesFoundArrList.clear();
+                        for (ServiceEvent serviceEvent : serviceRegistry.values()) {
+                            listAdapterForDisplayedListOfServices.add(HelperMethods.getDetailedString(serviceEvent));
+                            servicesFoundArrList.add(serviceEvent);
+                        }
+                        listAdapterForDisplayedListOfServices.notifyDataSetChanged();
                     }
-                    listAdapterForDisplayedListOfServices.notifyDataSetChanged();
                 }
             }
         });
