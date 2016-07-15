@@ -14,12 +14,12 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.e(TAG, "onReceive(). received intent"); // TODO this should be level INFO
-        debugIntent(intent);
+        Log.i(TAG, "onReceive(). received intent");
+        //debugIntent(intent);
         if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(intent.getAction())) {
             // there was a change of connectivity
             if (isThisANewWifiConnectionThatWeJustEstablished(intent)) {
-                Log.e(TAG, "onReceive(). decided to act on intent"); // TODO this should be level INFO
+                Log.i(TAG, "onReceive(). decided to act on intent");
                 Context appContext = context.getApplicationContext();
                 if (!(appContext instanceof CustomApplication)) {
                     Log.e(TAG, "onReceive(). wtf. can't access Application.");
@@ -41,10 +41,7 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
             return false;
         }
         Bundle extras = intent.getExtras();
-        if (null == extras) {
-            return false;
-        }
-        if (null == extras.get("bssid")){
+        if (null == extras || null == extras.get("bssid")) {
             return false;
         }
         return true;
