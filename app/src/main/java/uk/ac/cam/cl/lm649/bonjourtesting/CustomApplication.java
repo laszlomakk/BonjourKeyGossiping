@@ -11,6 +11,7 @@ import android.util.Log;
 import java.io.IOException;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.Logger;
 
 public class CustomApplication extends Application {
 
@@ -43,6 +44,13 @@ public class CustomApplication extends Application {
     public void onCreate() {
         Log.i(TAG, "onCreate() called.");
         super.onCreate();
+
+        try {
+            Logger.init(this);
+        } catch (IOException e) {
+            Log.e(TAG, "onCreate(). Failed to init Logger.");
+            e.printStackTrace();
+        }
 
         try {
             MsgServer.initInstance();
