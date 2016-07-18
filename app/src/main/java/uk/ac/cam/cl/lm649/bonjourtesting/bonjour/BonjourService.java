@@ -27,7 +27,7 @@ import javax.jmdns.ServiceInfo;
 import uk.ac.cam.cl.lm649.bonjourtesting.ConnectivityChangeReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.BonjourDebugActivity;
-import uk.ac.cam.cl.lm649.bonjourtesting.MsgServer;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;

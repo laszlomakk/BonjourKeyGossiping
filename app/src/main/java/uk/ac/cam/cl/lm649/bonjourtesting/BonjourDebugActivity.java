@@ -23,6 +23,8 @@ import java.util.TreeMap;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
@@ -71,7 +73,8 @@ public class BonjourDebugActivity extends Activity {
                     String msg = "Hy there! I see your payload is " + serviceInfo.getNiceTextString();
                     if (app.isBonjourServiceBound()){
                         String serviceName = app.getBonjourService().getNameOfOurService();
-                        MsgServer.sendMessage(BonjourDebugActivity.this, serviceInfo, serviceName, msg);
+                        MsgClient msgClient = MsgServer.getInstance().serviceToMsgClientMap.get(new ServiceStub(serviceInfo));
+                        msgClient.sendTextMessage(serviceName, msg);
                     } else {
                         HelperMethods.displayMsgToUser(context, "error: bonjourService not bound");
                     }

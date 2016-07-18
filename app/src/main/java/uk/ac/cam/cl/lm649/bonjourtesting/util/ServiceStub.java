@@ -29,4 +29,18 @@ public class ServiceStub implements Comparable<ServiceStub> {
         return s1.compareTo(s2);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ServiceStub) {
+            ServiceStub other = (ServiceStub) o;
+            return type.equals(other.type) && name.equals(other.name);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return (type+name).hashCode();
+    }
 }

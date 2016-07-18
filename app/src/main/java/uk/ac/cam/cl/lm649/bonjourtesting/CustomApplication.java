@@ -11,6 +11,7 @@ import android.util.Log;
 import java.io.IOException;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.Logger;
 
