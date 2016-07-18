@@ -26,9 +26,9 @@ import javax.jmdns.ServiceInfo;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
-public class MainActivity extends Activity {
+public class BonjourDebugActivity extends Activity {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "BonjourDebugActivity";
     private Context context;
     private CustomApplication app;
 
@@ -48,15 +48,15 @@ public class MainActivity extends Activity {
         context = getApplicationContext();
         app = (CustomApplication) getApplication();
         setupUI();
-        app.setMainActivity(this);
+        app.setBonjourDebugActivity(this);
     }
 
     private void setupUI(){
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.bonjour_debug_view);
 
         // listView for displaying the services we find on the network
         ListView listView = (ListView) findViewById(R.id.mainListView);
-        listAdapterForDisplayedListOfServices = new ArrayAdapter<>(this, R.layout.row_in_list, new ArrayList<String>());
+        listAdapterForDisplayedListOfServices = new ArrayAdapter<>(this, R.layout.bonjour_debug_row_in_list, new ArrayList<String>());
         listView.setAdapter(listAdapterForDisplayedListOfServices);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -65,15 +65,15 @@ public class MainActivity extends Activity {
                     ServiceInfo serviceInfo = servicesFoundArrList.get(position).getInfo();
                     if (null == serviceInfo){
                         Log.e(TAG, "onItemClick(). error sending msg: serviceInfo is null");
-                        displayMsgToUser("error sending msg: serviceInfo is null (1)");
+                        HelperMethods.displayMsgToUser(context, "error sending msg: serviceInfo is null (1)");
                         return;
                     }
                     String msg = "Hy there! I see your payload is " + serviceInfo.getNiceTextString();
                     if (app.isBonjourServiceBound()){
                         String serviceName = app.getBonjourService().getNameOfOurService();
-                        MsgServer.sendMessage(MainActivity.this, serviceInfo, serviceName, msg);
+                        MsgServer.sendMessage(BonjourDebugActivity.this, serviceInfo, serviceName, msg);
                     } else {
-                        displayMsgToUser("error: bonjourService not bound");
+                        HelperMethods.displayMsgToUser(context, "error: bonjourService not bound");
                     }
                 }
             }
@@ -122,7 +122,7 @@ public class MainActivity extends Activity {
         textViewAppState.setText(appStateText);
 
         String deviceIP = "999.999.999.999";
-        if (app.isBonjourServiceBound()) deviceIP = app.getBonjourService().getIPAdress();
+        if (app.isBonjourServiceBound()) deviceIP = app.getBonjourService().getIPAddress();
         textViewDeviceIp.setText(deviceIP);
 
         textViewLocalPort.setText(String.format(Locale.US,"%d",MsgServer.getInstance().getPort()));
@@ -158,11 +158,10 @@ public class MainActivity extends Activity {
     protected void onStart(){
         Log.i(TAG, "Activity starting up.");
         super.onStart();
-        MsgServer.getInstance().attachActivity(this);
         updateListView();
 
         if (app.isBonjourServiceBound()) {
-            app.getBonjourService().attachActivity(this);
+            app.getBonjourService().attachBonjourDebugActivity(this);
         } else {
             textViewAppState.setText("Waiting for BonjourService.");
         }
@@ -172,13 +171,8 @@ public class MainActivity extends Activity {
     protected void onStop(){
         Log.i(TAG, "Activity stopping.");
         super.onStop();
-        MsgServer.getInstance().attachActivity(null);
-        if (app.isBonjourServiceBound()) app.getBonjourService().attachActivity(null);
+        if (app.isBonjourServiceBound()) app.getBonjourService().attachBonjourDebugActivity(null);
         resetUI();
-    }
-
-    public void displayMsgToUser(final String msg) {
-        HelperMethods.displayMsgToUser(context, msg);
     }
 
     public void updateListView(final TreeMap<ServiceStub, ServiceEvent> serviceRegistry) {

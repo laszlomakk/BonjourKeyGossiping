@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:minHeight="50sp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Active Badge"
+        android:id="@+id/buttonActiveBadge"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="10sp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bonjour Debug"
+        android:id="@+id/buttonBonjourDebug"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="10sp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        android:id="@+id/buttonSettings"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="10sp" />
+</LinearLayout>

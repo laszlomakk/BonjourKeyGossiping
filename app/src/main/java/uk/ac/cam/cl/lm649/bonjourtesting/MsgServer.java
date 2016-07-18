@@ -5,6 +5,7 @@
 
 package uk.ac.cam.cl.lm649.bonjourtesting;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -19,13 +20,14 @@ import java.util.Locale;
 
 import javax.jmdns.ServiceInfo;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+
 public class MsgServer {
 
     private final static String TAG = "MsgServer";
     private static MsgServer INSTANCE = null;
 
     private final ServerSocket serverSocket;
-    private MainActivity mainActivity;
 
     private MsgServer() throws IOException {
         serverSocket = new ServerSocket(0);
@@ -81,7 +83,7 @@ public class MsgServer {
                             break; // disconnected
                         } else {
                             Log.i(TAG, "received msg -- " + msg);
-                            if (null != mainActivity) mainActivity.displayMsgToUser(msg);
+                            HelperMethods.displayMsgToUser(CustomApplication.getInstance(), msg);
                         }
                     }
                 } catch (IOException e) {
@@ -94,21 +96,17 @@ public class MsgServer {
         t.start();
     }
 
-    public void attachActivity(MainActivity mainActivity) {
-        this.mainActivity = mainActivity;
-    }
-
-    public static void sendMessage(final MainActivity mainActivity, final ServiceInfo serviceInfoOfDst,
+    public static void sendMessage(final Context context, final ServiceInfo serviceInfoOfDst,
                                    final String senderID, final String msg){
         if (null == serviceInfoOfDst){
             Log.e(TAG, "sendMessage(). serviceInfo is null");
-            mainActivity.displayMsgToUser("error sending msg: serviceInfo is null (2)");
+            HelperMethods.displayMsgToUser(context, "error sending msg: serviceInfo is null (2)");
             return;
         }
         InetAddress[] arrAddresses = serviceInfoOfDst.getInet4Addresses();
         if (null == arrAddresses || arrAddresses.length < 1){
             Log.e(TAG, "sendMessage(). inappropriate addresses");
-            mainActivity.displayMsgToUser("error sending msg: inappropriate addresses");
+            HelperMethods.displayMsgToUser(context, "error sending msg: inappropriate addresses");
             return;
         }
         final InetAddress address = arrAddresses[0];
@@ -121,11 +119,11 @@ public class MsgServer {
                             new OutputStreamWriter(socket.getOutputStream()));
                     out.println(String.format(Locale.US, "%s: %s", senderID, msg));
                     out.flush();
-                    mainActivity.displayMsgToUser("msg sent");
+                    HelperMethods.displayMsgToUser(context, "msg sent");
                 } catch (IOException e) {
                     e.printStackTrace();
                     Log.e(TAG, "sendMessage(). IOException");
-                    mainActivity.displayMsgToUser("error sending msg: IOException");
+                    HelperMethods.displayMsgToUser(context, "error sending msg: IOException");
                 }
             }
         }.start();

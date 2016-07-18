@@ -9,7 +9,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.IBinder;
@@ -27,7 +26,7 @@ import javax.jmdns.ServiceInfo;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.ConnectivityChangeReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
-import uk.ac.cam.cl.lm649.bonjourtesting.MainActivity;
+import uk.ac.cam.cl.lm649.bonjourtesting.BonjourDebugActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
@@ -38,7 +37,7 @@ public class BonjourService extends Service {
 
     private static final String TAG = "BonjourService";
     private Context context;
-    private MainActivity mainActivity;
+    private BonjourDebugActivity bonjourDebugActivity;
     private String strServiceState = "-";
 
     private final IBinder binder = new BonjourServiceBinder();
@@ -135,7 +134,7 @@ public class BonjourService extends Service {
         serviceInfoOfOurService = ServiceInfo.create(Constants.SERVICE_TYPE, nameOfOurService, port, payload);
         jmdns.registerService(serviceInfoOfOurService);
 
-        if (null != mainActivity) mainActivity.refreshTopUI();
+        if (null != bonjourDebugActivity) bonjourDebugActivity.refreshTopUI();
 
         nameOfOurService = serviceInfoOfOurService.getName();
         String serviceIsRegisteredNotification = "Registered service. Name ended up being: " + nameOfOurService;
@@ -230,16 +229,16 @@ public class BonjourService extends Service {
         startWork();
     }
 
-    public void attachActivity(MainActivity mainActivity) {
-        this.mainActivity = mainActivity;
-        if (null != mainActivity) mainActivity.updateListView(serviceRegistry);
+    public void attachBonjourDebugActivity(BonjourDebugActivity bonjourDebugActivity) {
+        this.bonjourDebugActivity = bonjourDebugActivity;
+        if (null != bonjourDebugActivity) bonjourDebugActivity.updateListView(serviceRegistry);
     }
 
     protected void addServiceToRegistry(final ServiceEvent event) {
         synchronized (serviceRegistry){
             ServiceStub serviceStub = new ServiceStub(event);
             serviceRegistry.put(serviceStub, event);
-            if (null != mainActivity) mainActivity.updateListView(serviceRegistry);
+            if (null != bonjourDebugActivity) bonjourDebugActivity.updateListView(serviceRegistry);
         }
     }
 
@@ -247,16 +246,16 @@ public class BonjourService extends Service {
         synchronized (serviceRegistry) {
             ServiceStub serviceStub = new ServiceStub(event);
             serviceRegistry.remove(serviceStub);
-            if (null != mainActivity) mainActivity.updateListView(serviceRegistry);
+            if (null != bonjourDebugActivity) bonjourDebugActivity.updateListView(serviceRegistry);
         }
     }
 
     private void changeServiceState(final String state) {
         strServiceState = state;
-        if (null != mainActivity) mainActivity.refreshTopUI();
+        if (null != bonjourDebugActivity) bonjourDebugActivity.refreshTopUI();
     }
 
-    public String getIPAdress() {
+    public String getIPAddress() {
         String ret = "999.999.999.999";
         if (null != inetAddressOfThisDevice) ret = inetAddressOfThisDevice.getHostAddress();
         return ret;

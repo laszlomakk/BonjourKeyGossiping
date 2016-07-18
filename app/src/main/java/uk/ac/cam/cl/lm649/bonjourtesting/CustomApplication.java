@@ -17,6 +17,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.Logger;
 public class CustomApplication extends Application {
 
     private static final String TAG = "CustomApplication";
+    private static CustomApplication INSTANCE = null;
 
     private ServiceConnection bonjourServiceConnection = new ServiceConnection() {
         private static final String TAG = "BonjourServiceConn";
@@ -26,25 +27,27 @@ public class CustomApplication extends Application {
             BonjourService.BonjourServiceBinder binder = (BonjourService.BonjourServiceBinder) service;
             bonjourService = binder.getService();
             bonjourServiceBound = true;
-            if (null != mainActivity) bonjourService.attachActivity(mainActivity);
+            if (null != bonjourDebugActivity) bonjourService.attachBonjourDebugActivity(bonjourDebugActivity);
         }
         @Override
         public void onServiceDisconnected(ComponentName className) {
             Log.i(TAG, "onServiceDisconnected() called.");
             bonjourServiceBound = false;
-            bonjourService.attachActivity(null);
+            bonjourService.attachBonjourDebugActivity(null);
         }
     };
 
     private BonjourService bonjourService;
     private boolean bonjourServiceBound = false;
 
-    private MainActivity mainActivity = null;
+    private BonjourDebugActivity bonjourDebugActivity = null;
 
     @Override
     public void onCreate() {
         Log.i(TAG, "onCreate() called.");
         super.onCreate();
+
+        INSTANCE = this;
 
         try {
             Logger.init(this);
@@ -76,13 +79,13 @@ public class CustomApplication extends Application {
         return bonjourServiceBound;
     }
 
-    public MainActivity getMainActivity() {
-        return mainActivity;
+    public void setBonjourDebugActivity(BonjourDebugActivity bonjourDebugActivity) {
+        this.bonjourDebugActivity = bonjourDebugActivity;
+        if (bonjourServiceBound) bonjourService.attachBonjourDebugActivity(bonjourDebugActivity);
     }
 
-    public void setMainActivity(MainActivity mainActivity) {
-        this.mainActivity = mainActivity;
-        if (bonjourServiceBound) bonjourService.attachActivity(mainActivity);
+    public static CustomApplication getInstance() {
+        return INSTANCE;
     }
 
 }
