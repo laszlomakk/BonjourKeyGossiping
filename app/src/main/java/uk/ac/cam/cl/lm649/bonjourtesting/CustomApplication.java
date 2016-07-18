@@ -8,11 +8,10 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
 
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.Logger;
 
 public class CustomApplication extends Application {
@@ -51,6 +50,7 @@ public class CustomApplication extends Application {
             Logger.init(this);
         } catch (IOException e) {
             Log.e(TAG, "onCreate(). Failed to init Logger.");
+            HelperMethods.displayMsgToUser(this, "failed to init Logger");
             e.printStackTrace();
         }
 
@@ -58,6 +58,7 @@ public class CustomApplication extends Application {
             MsgServer.initInstance();
         } catch (IOException e) {
             Log.e(TAG, "onCreate(). Failed to init MsgServer.");
+            HelperMethods.displayMsgToUser(this, "failed to init MsgServer");
             e.printStackTrace();
         }
 

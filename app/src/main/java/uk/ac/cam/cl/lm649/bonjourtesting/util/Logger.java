@@ -34,6 +34,7 @@ public class Logger {
             throw e;
         }
         initialised = true;
+        Logger.i(TAG, "--------------------------------------------------");
         Logger.i(TAG, "init() finished.");
     }
 
