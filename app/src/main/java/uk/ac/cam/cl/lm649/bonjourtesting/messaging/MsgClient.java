@@ -132,21 +132,25 @@ public class MsgClient {
                 break;
             case MessageType.WHO_ARE_YOU_QUESTION:
                 Log.i(TAG, "received msg with type WHO_ARE_YOU_QUESTION");
+                SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
                 outStream.writeInt(MessageType.WHO_ARE_YOU_REPLY);
-                outStream.writeUTF(SaveBadgeData.getInstance(context).getMyBadgeId().toString());
+                outStream.writeUTF(saveBadgeData.getMyBadgeId().toString());
+                outStream.writeUTF(saveBadgeData.getMyBadgeCustomName());
                 outStream.writeUTF(NetworkUtil.getRouterMacAddress(context));
                 outStream.flush();
                 Log.i(TAG, "sent msg with type WHO_ARE_YOU_REPLY");
                 break;
             case MessageType.WHO_ARE_YOU_REPLY:
                 String strBadgeId = inStream.readUTF();
+                String customName = inStream.readUTF();
                 String macAddress = inStream.readUTF();
                 Log.i(TAG, "received msg with type WHO_ARE_YOU_REPLY, badgeID: " + strBadgeId
-                        + ", MAC: " + macAddress);
+                        + ", nick: " + customName + ", MAC: " + macAddress);
                 UUID badgeId = UUID.fromString(strBadgeId);
                 Badge badge = new Badge(badgeId);
-                badge.setTimestamp(System.currentTimeMillis());
+                badge.setCustomName(customName);
                 badge.setRouterMac(macAddress);
+                badge.setTimestamp(System.currentTimeMillis());
                 BadgeDbHelper.getInstance(context).smartUpdateBadge(badge);
                 break;
             default: // unknown

@@ -10,15 +10,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.TreeMap;
-
-import javax.jmdns.ServiceEvent;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
 public class ActiveBadgeActivity extends Activity {
 
@@ -61,7 +56,7 @@ public class ActiveBadgeActivity extends Activity {
         findViewById(R.id.refreshButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO refresh stuff
+                updateListView();
             }
         });
 
@@ -80,7 +75,7 @@ public class ActiveBadgeActivity extends Activity {
     private void refreshTopUIInternal() {
         textViewBadgeId.setText(SaveBadgeData.getInstance(context).getMyBadgeId().toString());
 
-        String customName = "-";
+        String customName = SaveBadgeData.getInstance(context).getMyBadgeCustomName();
         textViewCustomName.setText(customName);
 
         textViewRouterMac.setText(NetworkUtil.getRouterMacAddress(context));

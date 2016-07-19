@@ -147,7 +147,7 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
         } else {
             // badge already in db, merge
             Badge mergedBadge = new Badge(newBadge.getBadgeId());
-            if (null != newBadge.getCustomName()) {
+            if (null != newBadge.getCustomName() && !"".equals(newBadge.getCustomName())) {
                 mergedBadge.setCustomName(newBadge.getCustomName());
             } else {
                 mergedBadge.setCustomName(oldBadge.getCustomName());

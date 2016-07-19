@@ -13,6 +13,7 @@ public class SaveBadgeData extends SaveData {
     private static SaveBadgeData INSTANCE = null;
 
     private static final String SAVE_LOCATION_FOR_OWN_BADGE_ID = "my_badge_id";
+    private static final String SAVE_LOCATION_FOR_OWN_BADGE_CUSTOM_NAME = "my_badge_custom_name";
 
     private SaveBadgeData(Context context) {
         super(context, context.getString(R.string.badge_save_location));
@@ -25,14 +26,14 @@ public class SaveBadgeData extends SaveData {
         return INSTANCE;
     }
 
-    private void saveMyBadgeId(UUID badgeId){
+    private void saveMyBadgeId(UUID badgeId) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         String strId = badgeId.toString();
         editor.putString(SAVE_LOCATION_FOR_OWN_BADGE_ID, strId);
         editor.apply();
     }
 
-    public UUID getMyBadgeId(){
+    public UUID getMyBadgeId() {
         String strId = sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_BADGE_ID, "");
         UUID ret;
         if ("".equals(strId)) {
@@ -42,6 +43,16 @@ public class SaveBadgeData extends SaveData {
             ret = UUID.fromString(strId);
         }
         return ret;
+    }
+
+    public void saveMyBadgeCustomName(String customName) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(SAVE_LOCATION_FOR_OWN_BADGE_CUSTOM_NAME, customName);
+        editor.apply();
+    }
+
+    public String getMyBadgeCustomName() {
+        return sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_BADGE_CUSTOM_NAME, "");
     }
 
 }

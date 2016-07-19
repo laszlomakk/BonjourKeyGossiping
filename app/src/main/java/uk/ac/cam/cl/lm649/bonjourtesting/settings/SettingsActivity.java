@@ -10,6 +10,7 @@ import android.widget.EditText;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class SettingsActivity extends Activity {
@@ -18,8 +19,10 @@ public class SettingsActivity extends Activity {
 
     private CustomApplication app;
     private SaveSettingsData saveSettingsData;
+    private SaveBadgeData saveBadgeData;
 
     private EditText editTextFixedServiceNameInput;
+    private EditText editTextBadgeCustomNameInput;
     private CheckBox checkBoxRandomServiceName;
     private Button buttonReRegisterService;
 
@@ -30,6 +33,7 @@ public class SettingsActivity extends Activity {
         app = (CustomApplication) getApplication();
 
         saveSettingsData = SaveSettingsData.getInstance(this);
+        saveBadgeData = SaveBadgeData.getInstance(this);
 
         setupUI();
     }
@@ -37,6 +41,9 @@ public class SettingsActivity extends Activity {
     private void setupUI() {
         editTextFixedServiceNameInput = (EditText)findViewById(R.id.editTextFixedServiceNameInput);
         editTextFixedServiceNameInput.setText(saveSettingsData.getCustomServiceName());
+
+        editTextBadgeCustomNameInput = (EditText)findViewById(R.id.editTextBadgeCustomNameInput);
+        editTextBadgeCustomNameInput.setText(saveBadgeData.getMyBadgeCustomName());
 
         checkBoxRandomServiceName = (CheckBox)findViewById(R.id.checkBoxRandomServiceName);
         checkBoxRandomServiceName.setChecked(saveSettingsData.isUsingRandomServiceName());
@@ -66,6 +73,7 @@ public class SettingsActivity extends Activity {
     private void saveContentsOfFieldsToStorage() {
         saveSettingsData.saveCustomServiceName(editTextFixedServiceNameInput.getText().toString());
         saveSettingsData.saveUsingRandomServiceName(checkBoxRandomServiceName.isChecked());
+        saveBadgeData.saveMyBadgeCustomName(editTextBadgeCustomNameInput.getText().toString());
     }
 
 }
