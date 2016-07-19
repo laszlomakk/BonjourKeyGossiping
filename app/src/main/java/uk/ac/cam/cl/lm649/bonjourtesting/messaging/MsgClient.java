@@ -13,6 +13,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -40,7 +41,7 @@ public class MsgClient {
 
     private ObjectInputStream inStream;
     private ObjectOutputStream outStream;
-    private boolean outStreamReady = false;
+    private CountDownLatch outStreamReadyLatch = new CountDownLatch(1);
 
     private boolean closed = false;
 
@@ -95,7 +96,7 @@ public class MsgClient {
         try {
             outStream = new ObjectOutputStream(
                     new BufferedOutputStream(socket.getOutputStream()));
-            outStreamReady = true;
+            outStreamReadyLatch.countDown();
             inStream = new ObjectInputStream(
                     new BufferedInputStream(socket.getInputStream()));
             startWaitingForMessages();
@@ -163,8 +164,10 @@ public class MsgClient {
         final Runnable runnable = new Runnable() {
             @Override
             public void run(){
-                if (!outStreamReady) {
-                    retrySending(this);
+                try {
+                    outStreamReadyLatch.await();
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "sendMessageArbitraryText(). latch await interrupted - " + e.getMessage());
                     return;
                 }
                 try {
@@ -190,8 +193,10 @@ public class MsgClient {
         final Runnable runnable = new Runnable() {
             @Override
             public void run(){
-                if (!outStreamReady) {
-                    retrySending(this);
+                try {
+                    outStreamReadyLatch.await();
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "sendMessageWhoAreYouQuestion(). latch await interrupted - " + e.getMessage());
                     return;
                 }
                 try {
@@ -207,20 +212,6 @@ public class MsgClient {
             workerThreadOutgoing.execute(runnable);
         } catch (RejectedExecutionException e) {
             Log.e(TAG, "sendMessageWhoAreYouQuestion(). runnable was rejected by executor");
-        }
-    }
-
-    private void retrySending(Runnable runnable) { // TODO this is an ugly hack
-        //Log.d(TAG, "retrySending() called.");
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            Log.e(TAG, "retrySending(). sleep interrupted - " + e.getMessage());
-        }
-        try {
-            workerThreadOutgoing.execute(runnable);
-        } catch (RejectedExecutionException e) {
-            Log.e(TAG, "retrySending(). runnable was rejected by executor");
         }
     }
 
