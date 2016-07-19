@@ -62,7 +62,7 @@ public class MsgClient {
         try {
             workerThreadIncoming.execute(runnable);
         } catch (RejectedExecutionException e) {
-            Log.e(TAG, "runnable was rejected by executor");
+            Log.e(TAG, "MsgClient() 1. runnable was rejected by executor");
         }
     }
 
@@ -86,7 +86,7 @@ public class MsgClient {
         try {
             workerThreadIncoming.execute(runnable);
         } catch (RejectedExecutionException e) {
-            Log.e(TAG, "runnable was rejected by executor");
+            Log.e(TAG, "MsgClient() 2. runnable was rejected by executor");
         }
 
     }
@@ -178,9 +178,8 @@ public class MsgClient {
         try {
             workerThreadOutgoing.execute(runnable);
         } catch (RejectedExecutionException e) {
-            Log.e(TAG, "runnable was rejected by executor");
+            Log.e(TAG, "sendMessageArbitraryText(). runnable was rejected by executor");
         }
-
     }
 
     public void sendMessageWhoAreYouQuestion(){
@@ -203,7 +202,7 @@ public class MsgClient {
         try {
             workerThreadOutgoing.execute(runnable);
         } catch (RejectedExecutionException e) {
-            Log.e(TAG, "runnable was rejected by executor");
+            Log.e(TAG, "sendMessageWhoAreYouQuestion(). runnable was rejected by executor");
         }
     }
 
@@ -217,7 +216,7 @@ public class MsgClient {
         try {
             workerThreadOutgoing.execute(runnable);
         } catch (RejectedExecutionException e) {
-            Log.e(TAG, "runnable was rejected by executor");
+            Log.e(TAG, "retrySending(). runnable was rejected by executor");
         }
     }
 
