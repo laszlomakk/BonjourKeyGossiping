@@ -10,7 +10,6 @@ import android.util.Log;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceListener;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
@@ -59,8 +58,9 @@ public class CustomServiceListener implements ServiceListener {
 
         bonjourService.addServiceToRegistry(event);
         MsgClient msgClient = new MsgClient(event.getInfo());
-        MsgServer.getInstance().serviceToMsgClientMap.put(new ServiceStub(event), msgClient);
-        msgClient.sendWhoAreYouMessage();
+        MsgClient oldMsgClient = MsgServer.getInstance().serviceToMsgClientMap.put(new ServiceStub(event), msgClient);
+        if (null != oldMsgClient) oldMsgClient.close();
+        msgClient.sendMessageWhoAreYouQuestion();
     }
 
 }

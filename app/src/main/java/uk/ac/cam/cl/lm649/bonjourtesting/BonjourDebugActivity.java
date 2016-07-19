@@ -74,7 +74,7 @@ public class BonjourDebugActivity extends Activity {
                     if (app.isBonjourServiceBound()){
                         String serviceName = app.getBonjourService().getNameOfOurService();
                         MsgClient msgClient = MsgServer.getInstance().serviceToMsgClientMap.get(new ServiceStub(serviceInfo));
-                        msgClient.sendTextMessage(serviceName, msg);
+                        msgClient.sendMessageArbitraryText(serviceName, msg);
                     } else {
                         HelperMethods.displayMsgToUser(context, "error: bonjourService not bound");
                     }

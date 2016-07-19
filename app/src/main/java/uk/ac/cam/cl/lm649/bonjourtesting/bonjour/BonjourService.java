@@ -194,8 +194,10 @@ public class BonjourService extends Service {
                     startDiscovery();
                     changeServiceState("READY");
                     Log.i(TAG, "startWork() finished without error.");
+                    HelperMethods.displayMsgToUser(context, "Start-up finished without error");
                 } catch (IOException e) {
                     Log.e(TAG, "startWork(). Error during start-up.");
+                    HelperMethods.displayMsgToUser(context, "Error during start-up: IOE");
                     e.printStackTrace();
                 }
             }

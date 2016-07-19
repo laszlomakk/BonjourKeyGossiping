@@ -14,6 +14,7 @@ import java.net.Socket;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
 import javax.jmdns.ServiceInfo;
 
@@ -44,29 +45,42 @@ public class MsgClient {
     protected MsgClient(Socket socket) {
         this();
         this.socket = socket;
-        workerThreadIncoming.execute(new Runnable() {
+
+        Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 init();
             }
-        });
+        };
+        try {
+            workerThreadIncoming.execute(runnable);
+        } catch (RejectedExecutionException e) {
+            Log.e(TAG, "runnable was rejected by executor");
+        }
     }
 
     public MsgClient(final ServiceInfo serviceInfo) {
         this();
         final InetAddress address = getAddress(serviceInfo);
-        workerThreadIncoming.execute(new Runnable() {
+
+        Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 try {
                     MsgClient.this.socket = new Socket(address, serviceInfo.getPort());
                     init();
-                } catch (IOException e) { // TODO this is not properly handled...
-                    Log.e(TAG, "failed to open socket");
+                } catch (IOException e) { // TODO think about this
+                    Log.e(TAG, "Failed to open socket. closing MsgClient. IOE - " + e.getMessage());
                     e.printStackTrace();
+                    MsgClient.this.close();
                 }
             }
-        });
+        };
+        try {
+            workerThreadIncoming.execute(runnable);
+        } catch (RejectedExecutionException e) {
+            Log.e(TAG, "runnable was rejected by executor");
+        }
 
     }
 
@@ -79,7 +93,7 @@ public class MsgClient {
                     new BufferedInputStream(socket.getInputStream()));
             startWaitingForMessages();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "init() failed. IOE - " + e.getMessage());
         }
     }
 
@@ -89,11 +103,9 @@ public class MsgClient {
                 receiveMsg();
             }
         } catch (EOFException e) {
-            Log.e(TAG, "startWaitingForMessages(). EOF");
-            e.printStackTrace();
+            Log.e(TAG, "startWaitingForMessages(). EOF - " + e.getMessage());
         } catch (IOException e) {
-            Log.e(TAG, "startWaitingForMessages(). IOE");
-            e.printStackTrace();
+            Log.e(TAG, "startWaitingForMessages(). IOE - " + e.getMessage());
         }
     }
 
@@ -116,6 +128,7 @@ public class MsgClient {
                 outStream.writeInt(MessageType.WHO_ARE_YOU_REPLY);
                 outStream.writeUTF(saveSettingsData.getCustomServiceName()); // TODO
                 outStream.flush();
+                Log.i(TAG, "sent msg with type WHO_ARE_YOU_REPLY");
                 break;
             case MessageType.WHO_ARE_YOU_REPLY: // TODO
                 String identity = inStream.readUTF();
@@ -127,49 +140,70 @@ public class MsgClient {
         }
     }
 
-    public void sendTextMessage(final String senderID, final String msg){
+    public void sendMessageArbitraryText(final String senderID, final String msg){
         final Runnable runnable = new Runnable() {
             @Override
             public void run(){
-                if (!outStreamReady) { // TODO this is an ugly hack, pls do this properly
-                    //Log.d(TAG, "outStream not ready!");
-                    workerThreadOutgoing.execute(this);
+                if (!outStreamReady) {
+                    retrySending(this);
                     return;
                 }
                 try {
                     outStream.writeInt(MessageType.ARBITRARY_TEXT);
                     outStream.writeUTF(String.format(Locale.US, "%s: %s", senderID, msg));
                     outStream.flush();
+                    Log.i(TAG, "sent msg with type ARBITRARY_TEXT");
                     HelperMethods.displayMsgToUser(context, "msg sent");
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "sendTextMessage(). IOException");
+                    Log.e(TAG, "sendMessageArbitraryText(). IOE - " + e.getMessage());
                     HelperMethods.displayMsgToUser(context, "error sending msg: IOException");
                 }
             }
         };
-        workerThreadOutgoing.execute(runnable);
+        try {
+            workerThreadOutgoing.execute(runnable);
+        } catch (RejectedExecutionException e) {
+            Log.e(TAG, "runnable was rejected by executor");
+        }
+
     }
 
-    public void sendWhoAreYouMessage(){
+    public void sendMessageWhoAreYouQuestion(){
         final Runnable runnable = new Runnable() {
             @Override
             public void run(){
-                if (!outStreamReady) { // TODO this is an ugly hack, pls do this properly
-                    //Log.d(TAG, "outStream not ready!");
-                    workerThreadOutgoing.execute(this);
+                if (!outStreamReady) {
+                    retrySending(this);
                     return;
                 }
                 try {
                     outStream.writeInt(MessageType.WHO_ARE_YOU_QUESTION);
                     outStream.flush();
+                    Log.i(TAG, "sent msg with type WHO_ARE_YOU_QUESTION");
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "sendWhoAreYouMessage(). IOException");
+                    Log.e(TAG, "sendMessageWhoAreYouQuestion(). IOE - " + e.getMessage());
                 }
             }
         };
-        workerThreadOutgoing.execute(runnable);
+        try {
+            workerThreadOutgoing.execute(runnable);
+        } catch (RejectedExecutionException e) {
+            Log.e(TAG, "runnable was rejected by executor");
+        }
+    }
+
+    private void retrySending(Runnable runnable) { // TODO this is an ugly hack
+        //Log.d(TAG, "retrySending() called.");
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            Log.e(TAG, "retrySending(). sleep interrupted - " + e.getMessage());
+        }
+        try {
+            workerThreadOutgoing.execute(runnable);
+        } catch (RejectedExecutionException e) {
+            Log.e(TAG, "runnable was rejected by executor");
+        }
     }
 
     private static InetAddress getAddress(ServiceInfo serviceInfoOfDst) {
@@ -183,6 +217,18 @@ public class MsgClient {
             return null;
         }
         return arrAddresses[0];
+    }
+
+    public void close() {
+        workerThreadOutgoing.shutdown();
+        workerThreadIncoming.shutdown();
+        try {
+            outStream.close();
+            inStream.close();
+            socket.close();
+        } catch (IOException e) {
+            Log.e(TAG, "close(). trying to close streams and socket, IOE - " + e.getMessage());
+        }
     }
 
 }
