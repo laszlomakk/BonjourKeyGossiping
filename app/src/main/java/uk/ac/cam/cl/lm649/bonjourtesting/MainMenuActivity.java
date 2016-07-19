@@ -17,6 +17,14 @@ public class MainMenuActivity extends Activity {
     }
 
     private void setupButtons() {
+        Button btnActiveBadge = (Button) findViewById(R.id.buttonActiveBadge);
+        btnActiveBadge.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.ACTIVEBADGE"));
+            }
+        });
+
         Button btnBonjourDebug = (Button) findViewById(R.id.buttonBonjourDebug);
         btnBonjourDebug.setOnClickListener(new View.OnClickListener() {
             @Override

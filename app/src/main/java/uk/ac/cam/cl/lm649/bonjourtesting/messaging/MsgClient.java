@@ -12,6 +12,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -19,8 +20,12 @@ import java.util.concurrent.RejectedExecutionException;
 import javax.jmdns.ServiceInfo;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.Badge;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeDbHelper;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 
 public class MsgClient {
 
@@ -36,6 +41,8 @@ public class MsgClient {
     private ObjectInputStream inStream;
     private ObjectOutputStream outStream;
     private boolean outStreamReady = false;
+
+    private boolean closed = false;
 
     private MsgClient() {
         context = CustomApplication.getInstance();
@@ -126,13 +133,21 @@ public class MsgClient {
             case MessageType.WHO_ARE_YOU_QUESTION:
                 Log.i(TAG, "received msg with type WHO_ARE_YOU_QUESTION");
                 outStream.writeInt(MessageType.WHO_ARE_YOU_REPLY);
-                outStream.writeUTF(saveSettingsData.getCustomServiceName()); // TODO
+                outStream.writeUTF(SaveBadgeData.getInstance(context).getMyBadgeId().toString());
+                outStream.writeUTF(NetworkUtil.getRouterMacAddress(context));
                 outStream.flush();
                 Log.i(TAG, "sent msg with type WHO_ARE_YOU_REPLY");
                 break;
-            case MessageType.WHO_ARE_YOU_REPLY: // TODO
-                String identity = inStream.readUTF();
-                Log.i(TAG, "received msg with type WHO_ARE_YOU_REPLY, identity: " + identity);
+            case MessageType.WHO_ARE_YOU_REPLY:
+                String strBadgeId = inStream.readUTF();
+                String macAddress = inStream.readUTF();
+                Log.i(TAG, "received msg with type WHO_ARE_YOU_REPLY, badgeID: " + strBadgeId
+                        + ", MAC: " + macAddress);
+                UUID badgeId = UUID.fromString(strBadgeId);
+                Badge badge = new Badge(badgeId);
+                badge.setTimestamp(System.currentTimeMillis());
+                badge.setRouterMac(macAddress);
+                BadgeDbHelper.getInstance(context).smartUpdateBadge(badge);
                 break;
             default: // unknown
                 Log.e(TAG, "received msg with unknown msgType: " + msgType);
@@ -220,6 +235,11 @@ public class MsgClient {
     }
 
     public void close() {
+        if (closed) {
+            Log.e(TAG, "close() called. but it is already closed!");
+            return;
+        }
+        closed = true;
         workerThreadOutgoing.shutdown();
         workerThreadIncoming.shutdown();
         try {

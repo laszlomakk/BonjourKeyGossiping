@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".BonjourDebugActivity">
+    tools:context=".activebadge.ActiveBadgeActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,9 +12,8 @@
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:background="@color/colorAlternateBg"
-            android:layout_weight="0.30">
+            android:layout_height="wrap_content"
+            android:background="@color/colorAlternateBg">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -25,24 +24,24 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="State: "
+                    android:text="bID: "
                     android:textColor="@color/colorPrimaryDark"
                     android:id="@+id/badgeIdText"
-                    android:textSize="18sp"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
                     android:layout_alignParentLeft="true"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorPrimaryDark"
-                    android:id="@+id/appState"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
+                    android:id="@+id/badgeId"
+                    android:textSize="14sp"
                     android:layout_toRightOf="@+id/badgeIdText"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Your local IP is: "
+                    android:text="Custom Name: "
                     android:textColor="@color/colorPrimaryDark"
                     android:id="@+id/customNameText"
                     android:textSize="18sp"
@@ -52,78 +51,52 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorPrimaryDark"
-                    android:id="@+id/deviceIp"
+                    android:id="@+id/customName"
                     android:textSize="18sp"
-                    android:layout_below="@id/appState"
+                    android:layout_below="@id/badgeId"
                     android:layout_toRightOf="@+id/customNameText"/>
 
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Listening on port: "
+                    android:text="router_MAC: "
                     android:textColor="@color/colorPrimaryDark"
                     android:id="@+id/routerMacText"
-                    android:textSize="14sp"
+                    android:textSize="18sp"
                     android:layout_below="@id/customNameText"
                     android:layout_alignParentLeft="true"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorPrimaryDark"
-                    android:id="@+id/localPort"
-                    android:textSize="14sp"
-                    android:layout_below="@id/deviceIp"
+                    android:id="@+id/routerMac"
+                    android:textSize="18sp"
+                    android:layout_below="@id/customName"
                     android:layout_toRightOf="@+id/routerMacText"/>
 
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:text="Your registered service:"
-                    android:id="@+id/ownServiceText"
-                    android:textSize="18sp"
-                    android:paddingTop="4sp"
-                    android:layout_below="@id/routerMacText"
-                    android:layout_alignParentLeft="true"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:id="@+id/ownService"
-                    android:textSize="14sp"
-                    android:layout_below="@+id/ownServiceText"/>
 
-
-                <ImageButton
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:id="@+id/settingsButton"
-                    android:src="@android:drawable/ic_menu_preferences" />
                 <ImageButton
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_alignParentRight="true"
                     android:id="@+id/refreshButton"
-                    android:src="@android:drawable/stat_notify_sync"
-                    android:layout_below="@+id/settingsButton"/>
+                    android:src="@android:drawable/stat_notify_sync" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorPrimaryDark"
-                    android:text="nServ:"
-                    android:id="@+id/numberOfServicesFoundText"
-                    android:layout_toLeftOf="@+id/numberOfServicesFound"
+                    android:text="nBadges:"
+                    android:id="@+id/nBadgesInListText"
+                    android:layout_toLeftOf="@+id/nBadgesInList"
                     android:textSize="14sp"
                     android:layout_below="@+id/refreshButton"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorPrimaryDark"
-                    android:id="@+id/numberOfServicesFound"
+                    android:id="@+id/nBadgesInList"
                     android:layout_alignParentRight="true"
                     android:textSize="14sp"
                     android:layout_below="@+id/refreshButton"
@@ -134,9 +107,8 @@
         </ScrollView>
 
         <ListView android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:id="@+id/mainListView"
-            android:layout_weight="0.70">
+            android:layout_height="wrap_content"
+            android:id="@+id/mainListView">
         </ListView>
 
     </LinearLayout>

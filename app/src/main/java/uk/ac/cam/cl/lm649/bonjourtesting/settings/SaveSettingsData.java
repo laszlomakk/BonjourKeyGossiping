@@ -17,7 +17,7 @@ public class SaveSettingsData extends SaveData {
         super(context, context.getString(R.string.settings_save_location));
     }
 
-    public static SaveSettingsData getInstance(Context context) {
+    public static synchronized SaveSettingsData getInstance(Context context) {
         if (null == INSTANCE) {
             INSTANCE = new SaveSettingsData(context);
         }

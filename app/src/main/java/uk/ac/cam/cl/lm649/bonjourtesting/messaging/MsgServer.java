@@ -38,7 +38,7 @@ public class MsgServer {
         t.start();
     }
 
-    public static MsgServer getInstance() {
+    public static synchronized MsgServer getInstance() {
         if (null == INSTANCE) {
             Log.e(TAG, "getInstance(). trying to get MsgServer before calling initInstance()");
             throw new RuntimeException("MsgServer INSTANCE not yet initialised");
@@ -46,7 +46,7 @@ public class MsgServer {
         return INSTANCE;
     }
 
-    public static void initInstance() throws IOException {
+    public static synchronized void initInstance() throws IOException {
         if (null != INSTANCE) {
             Log.e(TAG, "initInstance(). trying to reinit already initialised MsgServer");
             throw new RuntimeException("MsgServer INSTANCE already initialised");
