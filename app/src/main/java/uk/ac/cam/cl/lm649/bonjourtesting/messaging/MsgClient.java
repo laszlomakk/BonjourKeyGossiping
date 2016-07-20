@@ -30,7 +30,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 
 public class MsgClient {
 
-    private static final String TAG = "ConnectedClient";
+    private static final String TAG = "MsgClient";
     private Socket socket = null;
 
     private Context context;
