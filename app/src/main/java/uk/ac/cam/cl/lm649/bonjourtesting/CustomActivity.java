@@ -4,7 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+
 public class CustomActivity extends Activity {
+
+    private static final String TAG = "CustomActivity";
 
     protected CustomApplication app;
     protected Context context;
@@ -18,13 +22,14 @@ public class CustomActivity extends Activity {
 
     @Override
     protected void onStart() {
+        FLogger.i(TAG, "Activity starting up. (" + this.getClass().getSimpleName() + ")");
         super.onStart();
         app.setTopActivity(this);
     }
 
     @Override
     protected void onStop() {
+        FLogger.i(TAG, "Activity stopping. (" + this.getClass().getSimpleName() + ")");
         super.onStop();
-        //app.setTopActivity(null);
     }
 }

@@ -99,7 +99,8 @@ public class FLogger {
         if (LogLevel.getPriority(logLevel) < LogLevel.getPriority(LOGGING_TO_FILE_MINIMUM_LOGLEVEL)) {
             return;
         }
-        String timeStamp = new SimpleDateFormat("yyyy.MM.dd-HH.mm.ss", Locale.US).format(new Timestamp(System.currentTimeMillis()));
+        String timeStamp = new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss.SSS", Locale.US)
+                .format(new Timestamp(System.currentTimeMillis()));
         String rawLine = String.format(Locale.US, "%s %s/%s: %s",
                 timeStamp, logLevel.name().charAt(0), tag, msg);
         printRawLine(rawLine);

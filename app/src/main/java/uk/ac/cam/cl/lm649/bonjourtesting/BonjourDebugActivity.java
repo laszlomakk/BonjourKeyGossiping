@@ -161,14 +161,12 @@ public class BonjourDebugActivity extends CustomActivity {
 
     @Override
     protected void onStart(){
-        FLogger.i(TAG, "Activity starting up.");
         super.onStart();
         updateListView();
     }
 
     @Override
     protected void onStop(){
-        FLogger.i(TAG, "Activity stopping.");
         super.onStop();
         resetUI();
     }
