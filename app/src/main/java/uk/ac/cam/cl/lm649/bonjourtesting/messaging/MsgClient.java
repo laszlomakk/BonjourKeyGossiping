@@ -242,9 +242,9 @@ public class MsgClient {
         workerThreadOutgoing.shutdown();
         workerThreadIncoming.shutdown();
         try {
-            outStream.close();
-            inStream.close();
-            socket.close();
+            if (null != outStream) outStream.close();
+            if (null != inStream) inStream.close();
+            if (null != socket) socket.close();
         } catch (IOException e) {
             Log.e(TAG, "close(). trying to close streams and socket, IOE - " + e.getMessage());
         }
