@@ -6,10 +6,6 @@ import android.util.Log;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-
-import javax.jmdns.ServiceEvent;
-import javax.jmdns.ServiceInfo;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
@@ -25,12 +21,12 @@ public class ActiveBadgePoller {
     private static final long POLL_PERIOD = 120_000;
 
     private CustomApplication app;
-    private Handler handler;
+    private final Handler handler;
 
     private ActiveBadgePoller() {
         app = CustomApplication.getInstance();
 
-        HandlerThread thread = new HandlerThread("MyHandlerThread");
+        HandlerThread thread = new HandlerThread("ActBadgePoll-handler");
         thread.start();
         handler = new Handler(thread.getLooper());
 

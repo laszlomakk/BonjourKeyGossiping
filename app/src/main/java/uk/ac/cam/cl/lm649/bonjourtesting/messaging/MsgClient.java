@@ -83,7 +83,6 @@ public class MsgClient {
                     init();
                 } catch (IOException e) { // TODO think about this
                     Log.e(TAG, "Failed to open socket. closing MsgClient. IOE - " + e.getMessage());
-                    e.printStackTrace();
                     MsgClient.this.close();
                 }
             }

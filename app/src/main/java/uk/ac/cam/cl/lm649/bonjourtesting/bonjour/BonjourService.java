@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -57,7 +59,7 @@ public class BonjourService extends Service {
     private String nameOfOurService = "";
     private ServiceInfo serviceInfoOfOurService;
 
-    private final ExecutorService workerThread = Executors.newFixedThreadPool(1);
+    private Handler handler;
     private boolean started = false;
 
     @Override
@@ -66,6 +68,10 @@ public class BonjourService extends Service {
         super.onCreate();
         app = (CustomApplication) getApplication();
         context = app;
+
+        HandlerThread thread = new HandlerThread("BonjServ-handler");
+        thread.start();
+        handler = new Handler(thread.getLooper());
     }
 
     @Override
@@ -95,10 +101,10 @@ public class BonjourService extends Service {
     }
 
     private void createJmDNS() throws IOException {
-        Log.i(TAG, "Creating jmDNS.");
         inetAddressOfThisDevice = NetworkUtil.getWifiIpAddress(context);
         Log.i(TAG, "Device IP: "+ inetAddressOfThisDevice.getHostAddress());
         changeServiceState("creating JmDNS");
+        Log.i(TAG, "Creating jmDNS.");
         jmdns = JmDNS.create(inetAddressOfThisDevice);
     }
 
@@ -154,7 +160,7 @@ public class BonjourService extends Service {
     }
 
     public void restartDiscovery() {
-        workerThread.execute(new Runnable() {
+        handler.post(new Runnable() {
             @Override
             public void run() {
                 serviceRegistry.clear();
@@ -165,7 +171,7 @@ public class BonjourService extends Service {
     }
 
     public void reregisterOurService() {
-        workerThread.execute(new Runnable() {
+        handler.post(new Runnable() {
             @Override
             public void run() {
                 jmdns.unregisterAllServices();
@@ -183,7 +189,7 @@ public class BonjourService extends Service {
 
     private void startWork() {
         Log.i(TAG, "startWork() called.");
-        workerThread.execute(new Runnable() {
+        handler.post(new Runnable() {
             @Override
             public void run() {
                 Log.i(TAG, "startWork() is being executed.");
@@ -198,9 +204,17 @@ public class BonjourService extends Service {
                     Log.i(TAG, "startWork() finished without error.");
                     HelperMethods.displayMsgToUser(context, "Start-up finished without error");
                 } catch (IOException e) {
-                    Log.e(TAG, "startWork(). Error during start-up.");
+                    Log.e(TAG, "startWork(). Error during start-up: IOE - " + e.getMessage());
                     HelperMethods.displayMsgToUser(context, "Error during start-up: IOE");
+                    changeServiceState("error during start-up: IOE");
                     e.printStackTrace();
+                    Log.i(TAG, "sleeping for a bit and then retrying...");
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            restartWork();
+                        }
+                    }, 15_000);
                 }
             }
         });
@@ -208,7 +222,7 @@ public class BonjourService extends Service {
 
     private void stopAndCloseWork() {
         Log.i(TAG, "stopAndCloseWork() called.");
-        workerThread.execute(new Runnable() {
+        handler.post(new Runnable() {
              @Override
              public void run() {
                  Log.i(TAG, "stopAndCloseWork() is being executed.");
