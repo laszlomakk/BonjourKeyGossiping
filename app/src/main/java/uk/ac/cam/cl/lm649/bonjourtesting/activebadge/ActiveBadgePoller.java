@@ -48,7 +48,9 @@ public class ActiveBadgePoller {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                pollActiveBadges();
+                //pollActiveBadges();
+                restartBonjourDiscovery();
+
                 schedulePoll();
             }
         }, POLL_PERIOD);
@@ -67,6 +69,16 @@ public class ActiveBadgePoller {
             Log.d(TAG, "polling mDNS service: " + serviceStub.name);
             msgClient.sendMessageWhoAreYouQuestion();
         }
+    }
+
+    private void restartBonjourDiscovery() {
+        Log.i(TAG, "restartBonjourDiscovery() called.");
+        if (!app.isBonjourServiceBound()) {
+            Log.e(TAG, "bonjourService not bound.");
+            return;
+        }
+        BonjourService bonjourService = app.getBonjourService();
+        bonjourService.restartDiscovery();
     }
 
 }
