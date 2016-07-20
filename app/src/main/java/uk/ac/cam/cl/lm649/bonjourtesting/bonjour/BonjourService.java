@@ -213,6 +213,7 @@ public class BonjourService extends Service {
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            FLogger.i(TAG, "sleep ended. retrying start-up...");
                             restartWork();
                         }
                     }, 15_000);

@@ -20,7 +20,6 @@ import java.util.concurrent.RejectedExecutionException;
 
 import javax.jmdns.ServiceInfo;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.BonjourDebugActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgeActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.Badge;
@@ -48,6 +47,9 @@ public class MsgClient {
     private CountDownLatch outStreamReadyLatch = new CountDownLatch(1);
 
     private boolean closed = false;
+
+    private String sFromAddress;
+    private String sToAddress;
 
     private MsgClient() {
         app = CustomApplication.getInstance();
@@ -98,6 +100,9 @@ public class MsgClient {
 
     private void init() {
         try {
+            String address = socket.getInetAddress().getHostAddress();
+            sFromAddress = "from addr: " + address + ", ";
+            sToAddress = "to addr: " + address + ", ";
             outStream = new ObjectOutputStream(
                     new BufferedOutputStream(socket.getOutputStream()));
             outStreamReadyLatch.countDown();
@@ -132,25 +137,25 @@ public class MsgClient {
         switch (msgType) {
             case MessageType.ARBITRARY_TEXT:
                 String text = inStream.readUTF();
-                FLogger.i(TAG, "received msg with type ARBITRARY_TEXT: " + text);
-                HelperMethods.displayMsgToUser(CustomApplication.getInstance(), text);
+                FLogger.i(TAG, sFromAddress + "received msg with type ARBITRARY_TEXT: " + text);
+                HelperMethods.displayMsgToUser(app, text);
                 break;
             case MessageType.WHO_ARE_YOU_QUESTION:
-                FLogger.i(TAG, "received msg with type WHO_ARE_YOU_QUESTION");
+                FLogger.i(TAG, sFromAddress + "received msg with type WHO_ARE_YOU_QUESTION");
                 SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
                 outStream.writeInt(MessageType.WHO_ARE_YOU_REPLY);
                 outStream.writeUTF(saveBadgeData.getMyBadgeId().toString());
                 outStream.writeUTF(saveBadgeData.getMyBadgeCustomName());
                 outStream.writeUTF(NetworkUtil.getRouterMacAddress(context));
                 outStream.flush();
-                FLogger.i(TAG, "sent msg with type WHO_ARE_YOU_REPLY");
+                FLogger.i(TAG, sToAddress + "sent msg with type WHO_ARE_YOU_REPLY");
                 break;
             case MessageType.WHO_ARE_YOU_REPLY:
                 String strBadgeId = inStream.readUTF();
                 String customName = inStream.readUTF();
                 String macAddress = inStream.readUTF();
-                FLogger.i(TAG, "received msg with type WHO_ARE_YOU_REPLY, badgeID: " + strBadgeId
-                        + ", nick: " + customName + ", MAC: " + macAddress);
+                FLogger.i(TAG, sFromAddress + "received msg with type WHO_ARE_YOU_REPLY, badgeID: "
+                        + strBadgeId + ", nick: " + customName + ", MAC: " + macAddress);
                 UUID badgeId = UUID.fromString(strBadgeId);
                 Badge badge = new Badge(badgeId);
                 badge.setCustomName(customName);
@@ -160,7 +165,7 @@ public class MsgClient {
                 if (app.getTopActivity() instanceof ActiveBadgeActivity) ((ActiveBadgeActivity)app.getTopActivity()).updateListView();
                 break;
             default: // unknown
-                FLogger.e(TAG, "received msg with unknown msgType: " + msgType);
+                FLogger.e(TAG, sFromAddress + "received msg with unknown msgType: " + msgType);
                 break;
         }
     }
@@ -179,7 +184,7 @@ public class MsgClient {
                     outStream.writeInt(MessageType.ARBITRARY_TEXT);
                     outStream.writeUTF(String.format(Locale.US, "%s: %s", senderID, msg));
                     outStream.flush();
-                    FLogger.i(TAG, "sent msg with type ARBITRARY_TEXT");
+                    FLogger.i(TAG, sToAddress + "sent msg with type ARBITRARY_TEXT");
                     HelperMethods.displayMsgToUser(context, "msg sent");
                 } catch (IOException e) {
                     FLogger.e(TAG, "sendMessageArbitraryText(). IOE - " + e.getMessage());
@@ -207,7 +212,7 @@ public class MsgClient {
                 try {
                     outStream.writeInt(MessageType.WHO_ARE_YOU_QUESTION);
                     outStream.flush();
-                    FLogger.i(TAG, "sent msg with type WHO_ARE_YOU_QUESTION");
+                    FLogger.i(TAG, sToAddress + "sent msg with type WHO_ARE_YOU_QUESTION");
                 } catch (IOException e) {
                     FLogger.e(TAG, "sendMessageWhoAreYouQuestion(). IOE - " + e.getMessage());
                 }

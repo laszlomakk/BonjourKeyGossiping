@@ -22,6 +22,7 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
             // there was a change of connectivity
             if (isThisANewWifiConnectionThatWeJustEstablished(intent)) {
                 FLogger.i(TAG, "onReceive(). decided to act on intent");
+                debugIntent(intent);
                 Context appContext = context.getApplicationContext();
                 if (!(appContext instanceof CustomApplication)) {
                     FLogger.e(TAG, "onReceive(). wtf. can't access Application.");
@@ -50,16 +51,16 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
     }
 
     private void debugIntent(Intent intent) {
-        FLogger.d(TAG, "action: " + intent.getAction());
-        FLogger.d(TAG, "component: " + intent.getComponent());
+        FLogger.d(TAG, "debugIntent(). action: " + intent.getAction());
+        FLogger.d(TAG, "debugIntent(). component: " + intent.getComponent());
         Bundle extras = intent.getExtras();
         if (null != extras) {
             for (String key: extras.keySet()) {
-                FLogger.d(TAG, "key [" + key + "]: " + extras.get(key));
+                FLogger.d(TAG, "debugIntent(). key [" + key + "]: " + extras.get(key));
             }
         }
         else {
-            FLogger.d(TAG, "no extras");
+            FLogger.d(TAG, "debugIntent(). no extras");
         }
     }
 
