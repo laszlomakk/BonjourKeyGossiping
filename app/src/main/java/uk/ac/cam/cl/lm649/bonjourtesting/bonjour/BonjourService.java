@@ -32,6 +32,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.BonjourDebugActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
@@ -64,7 +65,7 @@ public class BonjourService extends Service {
 
     @Override
     public void onCreate() {
-        Log.i(TAG, "onCreate() called.");
+        FLogger.i(TAG, "onCreate() called.");
         super.onCreate();
         app = (CustomApplication) getApplication();
         context = app;
@@ -76,7 +77,7 @@ public class BonjourService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.i(TAG, "onDestroy() called.");
+        FLogger.i(TAG, "onDestroy() called.");
         stopAndCloseWork();
         super.onDestroy();
     }
@@ -88,35 +89,35 @@ public class BonjourService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "onStartCommand() called.");
+        FLogger.i(TAG, "onStartCommand() called.");
         if (!started){
             started = true;
-            Log.i(TAG, "onStartCommand(). doing start-up.");
+            FLogger.i(TAG, "onStartCommand(). doing start-up.");
             startWork();
             registerConnectivityChangeReceiver();
         } else {
-            Log.w(TAG, "onStartCommand(). already started.");
+            FLogger.w(TAG, "onStartCommand(). already started.");
         }
         return START_STICKY;
     }
 
     private void createJmDNS() throws IOException {
         inetAddressOfThisDevice = NetworkUtil.getWifiIpAddress(context);
-        Log.i(TAG, "Device IP: "+ inetAddressOfThisDevice.getHostAddress());
+        FLogger.i(TAG, "Device IP: "+ inetAddressOfThisDevice.getHostAddress());
         changeServiceState("creating JmDNS");
-        Log.i(TAG, "Creating jmDNS.");
+        FLogger.i(TAG, "Creating jmDNS.");
         jmdns = JmDNS.create(inetAddressOfThisDevice);
     }
 
     private void startDiscovery(){
-        Log.i(TAG, "Starting discovery.");
+        FLogger.i(TAG, "Starting discovery.");
         changeServiceState("starting discovery");
         if (null == jmdns){
-            Log.e(TAG, "startDiscovery(). jmdns is null");
+            FLogger.e(TAG, "startDiscovery(). jmdns is null");
             return;
         }
         if (serviceListener != null){
-            Log.i(TAG, "startDiscovery(). serviceListener wasn't null. Removing prev listener");
+            FLogger.i(TAG, "startDiscovery(). serviceListener wasn't null. Removing prev listener");
             jmdns.removeServiceListener(Constants.SERVICE_TYPE, serviceListener);
         }
         serviceListener = new CustomServiceListener(this);
@@ -125,7 +126,7 @@ public class BonjourService extends Service {
     }
 
     private void registerOurService() throws IOException {
-        Log.i(TAG, "Registering our own service.");
+        FLogger.i(TAG, "Registering our own service.");
         changeServiceState("registering our service");
         if (SaveSettingsData.getInstance(this).isUsingRandomServiceName()) {
             nameOfOurService = Constants.RANDOM_SERVICE_NAMES_START_WITH + HelperMethods.getNRandomDigits(5);
@@ -146,12 +147,12 @@ public class BonjourService extends Service {
 
         nameOfOurService = serviceInfoOfOurService.getName();
         String serviceIsRegisteredNotification = "Registered service. Name ended up being: " + nameOfOurService;
-        Log.i(TAG, serviceIsRegisteredNotification);
+        FLogger.i(TAG, serviceIsRegisteredNotification);
         HelperMethods.displayMsgToUser(context, serviceIsRegisteredNotification);
     }
 
     private void registerConnectivityChangeReceiver() {
-        Log.i(TAG, "Registering ConnectivityChangeReceiver.");
+        FLogger.i(TAG, "Registering ConnectivityChangeReceiver.");
         changeServiceState("registering cc-receiver");
         connectivityChangeReceiver = new ConnectivityChangeReceiver();
         registerReceiver(
@@ -179,7 +180,7 @@ public class BonjourService extends Service {
                     registerOurService();
                     changeServiceState("READY");
                 } catch (IOException e) {
-                    Log.e(TAG, "reregisterOurService() failed to register service.");
+                    FLogger.e(TAG, "reregisterOurService() failed to register service. IOE - " + e.getMessage());
                     e.printStackTrace();
                     changeServiceState("ERROR - rereg failed");
                 }
@@ -188,27 +189,27 @@ public class BonjourService extends Service {
     }
 
     private void startWork() {
-        Log.i(TAG, "startWork() called.");
+        FLogger.i(TAG, "startWork() called.");
         handler.post(new Runnable() {
             @Override
             public void run() {
-                Log.i(TAG, "startWork() is being executed.");
+                FLogger.i(TAG, "startWork() is being executed.");
                 if (null != jmdns) {
-                    Log.e(TAG, "jmdns was not null. This is not a clean start-up...");
+                    FLogger.e(TAG, "jmdns was not null. This is not a clean start-up...");
                 }
                 try {
                     createJmDNS();
                     registerOurService();
                     startDiscovery();
                     changeServiceState("READY");
-                    Log.i(TAG, "startWork() finished without error.");
+                    FLogger.i(TAG, "startWork() finished without error.");
                     HelperMethods.displayMsgToUser(context, "Start-up finished without error");
                 } catch (IOException e) {
-                    Log.e(TAG, "startWork(). Error during start-up: IOE - " + e.getMessage());
+                    FLogger.e(TAG, "startWork(). Error during start-up: IOE - " + e.getMessage());
                     HelperMethods.displayMsgToUser(context, "Error during start-up: IOE");
                     changeServiceState("error during start-up: IOE");
                     e.printStackTrace();
-                    Log.i(TAG, "sleeping for a bit and then retrying...");
+                    FLogger.i(TAG, "sleeping for a bit and then retrying...");
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -221,17 +222,18 @@ public class BonjourService extends Service {
     }
 
     private void stopAndCloseWork() {
-        Log.i(TAG, "stopAndCloseWork() called.");
+        FLogger.i(TAG, "stopAndCloseWork() called.");
         handler.post(new Runnable() {
              @Override
              public void run() {
-                 Log.i(TAG, "stopAndCloseWork() is being executed.");
+                 FLogger.i(TAG, "stopAndCloseWork() is being executed.");
                  if (jmdns != null) {
-                     Log.i(TAG, "Stopping jmDNS...");
+                     FLogger.i(TAG, "Stopping jmDNS...");
                      jmdns.unregisterAllServices();
                      try {
                          jmdns.close();
                      } catch (IOException e) {
+                         FLogger.e(TAG, "error closing jmdns. IOE - " + e.getMessage());
                          e.printStackTrace();
                      } finally {
                          jmdns = null;
@@ -242,7 +244,7 @@ public class BonjourService extends Service {
     }
 
     public void restartWork() {
-        Log.i(TAG, "restartWork() called.");
+        FLogger.i(TAG, "restartWork() called.");
         stopAndCloseWork();
         startWork();
     }

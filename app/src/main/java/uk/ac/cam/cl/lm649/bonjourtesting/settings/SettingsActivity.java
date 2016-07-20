@@ -10,6 +10,7 @@ import android.widget.EditText;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class SettingsActivity extends CustomActivity {
@@ -49,12 +50,12 @@ public class SettingsActivity extends CustomActivity {
         buttonReRegisterService.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "user clicked buttonReRegisterService");
+                FLogger.i(TAG, "user clicked buttonReRegisterService");
                 if (app.isBonjourServiceBound()) {
                     saveContentsOfFieldsToStorage();
                     app.getBonjourService().reregisterOurService();
                 } else {
-                    Log.e(TAG, "bonjourService not bound");
+                    FLogger.e(TAG, "bonjourService not bound");
                     HelperMethods.displayMsgToUser(app, "error: bonjourService not bound");
                 }
             }

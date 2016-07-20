@@ -14,7 +14,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgePoller;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.Logger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
 public class CustomApplication extends Application {
 
@@ -25,14 +25,14 @@ public class CustomApplication extends Application {
         private static final String TAG = "BonjourServiceConn";
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            Log.i(TAG, "onServiceConnected() called.");
+            FLogger.i(TAG, "onServiceConnected() called.");
             BonjourService.BonjourServiceBinder binder = (BonjourService.BonjourServiceBinder) service;
             bonjourService = binder.getService();
             bonjourServiceBound = true;
         }
         @Override
         public void onServiceDisconnected(ComponentName className) {
-            Log.i(TAG, "onServiceDisconnected() called.");
+            FLogger.i(TAG, "onServiceDisconnected() called.");
             bonjourServiceBound = false;
         }
     };
@@ -56,9 +56,9 @@ public class CustomApplication extends Application {
 
     private void initLogger() {
         try {
-            Logger.init(this);
+            FLogger.init(this);
         } catch (IOException e) {
-            Log.e(TAG, "onCreate(). Failed to init Logger.");
+            Log.e(TAG, "onCreate(). Failed to init Logger. IOE - " + e.getMessage());
             HelperMethods.displayMsgToUser(this, "failed to init Logger");
             e.printStackTrace();
         }
@@ -68,14 +68,14 @@ public class CustomApplication extends Application {
         try {
             MsgServer.initInstance();
         } catch (IOException e) {
-            Log.e(TAG, "onCreate(). Failed to init MsgServer.");
+            FLogger.e(TAG, "onCreate(). Failed to init MsgServer. IOE - " + e.getMessage());
             HelperMethods.displayMsgToUser(this, "failed to init MsgServer");
             e.printStackTrace();
         }
     }
 
     private void startBonjourService() {
-        Log.i(TAG, "Starting and binding BonjourService.");
+        FLogger.i(TAG, "Starting and binding BonjourService.");
         Intent intent = new Intent(this, BonjourService.class);
         startService(intent); // explicit start will keep the service alive
         bindService(intent, bonjourServiceConnection, Context.BIND_AUTO_CREATE);

@@ -11,6 +11,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
 public class ActiveBadgePoller {
@@ -53,24 +54,24 @@ public class ActiveBadgePoller {
     }
 
     private void pollActiveBadges() {
-        Log.i(TAG, "pollActiveBadges() called.");
+        FLogger.i(TAG, "pollActiveBadges() called.");
         if (!app.isBonjourServiceBound()) {
-            Log.w(TAG, "bonjourService not bound. This is concerning... going to poll nevertheless");
+            FLogger.w(TAG, "bonjourService not bound. This is concerning... going to poll nevertheless");
         }
         Set<Map.Entry<ServiceStub, MsgClient>> entrySet = MsgServer.getInstance().serviceToMsgClientMap.entrySet();
-        Log.d(TAG, "found " + entrySet.size() + " clients to poll");
+        FLogger.d(TAG, "found " + entrySet.size() + " clients to poll");
         for (Map.Entry<ServiceStub, MsgClient> entry : entrySet) {
             ServiceStub serviceStub = entry.getKey();
             MsgClient msgClient = entry.getValue();
-            Log.d(TAG, "polling mDNS service: " + serviceStub.name);
+            FLogger.d(TAG, "polling mDNS service: " + serviceStub.name);
             msgClient.sendMessageWhoAreYouQuestion();
         }
     }
 
     private void restartBonjourDiscovery() {
-        Log.i(TAG, "restartBonjourDiscovery() called.");
+        FLogger.i(TAG, "restartBonjourDiscovery() called.");
         if (!app.isBonjourServiceBound()) {
-            Log.e(TAG, "bonjourService not bound.");
+            FLogger.e(TAG, "bonjourService not bound.");
             return;
         }
         BonjourService bonjourService = app.getBonjourService();

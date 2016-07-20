@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 
 public class ActiveBadgeActivity extends CustomActivity {
@@ -78,11 +79,11 @@ public class ActiveBadgeActivity extends CustomActivity {
     }
 
     public void updateListView() {
-        Log.v(TAG, "updateListView() called.");
+        FLogger.v(TAG, "updateListView() called.");
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.v(TAG, "updateListView() doing actual update.");
+                FLogger.v(TAG, "updateListView() doing actual update.");
                 listAdapterForDisplayedListOfBadges.clear();
                 for (Badge badge : BadgeDbHelper.getInstance(context).getAllBadges()) {
                     listAdapterForDisplayedListOfBadges.add(badge.toString());

@@ -53,8 +53,8 @@ public class NetworkUtil {
             int ip = wifiinfo.getIpAddress();
             byte[] byteaddr = new byte[] { (byte) (ip & 0xff), (byte) (ip >> 8 & 0xff), (byte) (ip >> 16 & 0xff), (byte) (ip >> 24 & 0xff) };
             ret = InetAddress.getByAddress(byteaddr);
-        } catch (UnknownHostException ex) {
-            Log.e(TAG, String.format("getWifiIpAddress() Error: %s", ex.getMessage()));
+        } catch (UnknownHostException e) {
+            FLogger.e(TAG, String.format("getWifiIpAddress() Error: %s", e.getMessage()));
         }
         return ret;
     }

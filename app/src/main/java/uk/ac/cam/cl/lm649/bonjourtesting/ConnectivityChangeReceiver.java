@@ -8,26 +8,28 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+
 public class ConnectivityChangeReceiver extends BroadcastReceiver {
 
     private static final String TAG = "ConnectivityChangeRec";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i(TAG, "onReceive(). received intent");
+        FLogger.i(TAG, "onReceive(). received intent");
         //debugIntent(intent);
         if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(intent.getAction())) {
             // there was a change of connectivity
             if (isThisANewWifiConnectionThatWeJustEstablished(intent)) {
-                Log.i(TAG, "onReceive(). decided to act on intent");
+                FLogger.i(TAG, "onReceive(). decided to act on intent");
                 Context appContext = context.getApplicationContext();
                 if (!(appContext instanceof CustomApplication)) {
-                    Log.e(TAG, "onReceive(). wtf. can't access Application.");
+                    FLogger.e(TAG, "onReceive(). wtf. can't access Application.");
                     return;
                 }
                 CustomApplication app = (CustomApplication) appContext;
                 if (!app.isBonjourServiceBound()) {
-                    Log.w(TAG, "onReceive(). bonjourService not bound. this is unexpected.");
+                    FLogger.w(TAG, "onReceive(). bonjourService not bound. this is unexpected.");
                     return;
                 }
                 app.getBonjourService().restartWork();
@@ -48,16 +50,16 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
     }
 
     private void debugIntent(Intent intent) {
-        Log.d(TAG, "action: " + intent.getAction());
-        Log.d(TAG, "component: " + intent.getComponent());
+        FLogger.d(TAG, "action: " + intent.getAction());
+        FLogger.d(TAG, "component: " + intent.getComponent());
         Bundle extras = intent.getExtras();
         if (null != extras) {
             for (String key: extras.keySet()) {
-                Log.d(TAG, "key [" + key + "]: " + extras.get(key));
+                FLogger.d(TAG, "key [" + key + "]: " + extras.get(key));
             }
         }
         else {
-            Log.d(TAG, "no extras");
+            FLogger.d(TAG, "no extras");
         }
     }
 

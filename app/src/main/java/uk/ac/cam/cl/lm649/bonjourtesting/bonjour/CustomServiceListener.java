@@ -12,6 +12,7 @@ import javax.jmdns.ServiceListener;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
 public class CustomServiceListener implements ServiceListener {
@@ -27,12 +28,12 @@ public class CustomServiceListener implements ServiceListener {
     @Override
     public void serviceAdded(ServiceEvent event) {
         if (event.getName().equals(bonjourService.getNameOfOurService())){
-            Log.d(TAG, "Discovered our own service: " + event.getInfo());
+            FLogger.d(TAG, "Discovered our own service: " + event.getInfo());
             return;
         }
-        Log.d(TAG, "Service added: " + event.getInfo());
+        FLogger.d(TAG, "Service added: " + event.getInfo());
         if (null == bonjourService.jmdns){
-            Log.e(TAG, "jmDNS is null");
+            FLogger.e(TAG, "jmDNS is null");
             return;
         }
         bonjourService.addServiceToRegistry(event);
@@ -42,7 +43,7 @@ public class CustomServiceListener implements ServiceListener {
 
     @Override
     public void serviceRemoved(ServiceEvent event) {
-        Log.d(TAG, "Service removed: " + event.getInfo());
+        FLogger.d(TAG, "Service removed: " + event.getInfo());
 
         bonjourService.removeServiceFromRegistry(event);
         MsgServer.getInstance().serviceToMsgClientMap.remove(new ServiceStub(event));
@@ -51,10 +52,10 @@ public class CustomServiceListener implements ServiceListener {
     @Override
     public void serviceResolved(ServiceEvent event) {
         if (event.getName().equals(bonjourService.getNameOfOurService())){
-            Log.d(TAG, "Tried to resolve our own service: " + event.getInfo());
+            FLogger.d(TAG, "Tried to resolve our own service: " + event.getInfo());
             return;
         }
-        Log.d(TAG, "Service resolved: " + event.getInfo());
+        FLogger.d(TAG, "Service resolved: " + event.getInfo());
 
         bonjourService.addServiceToRegistry(event);
         MsgClient msgClient = new MsgClient(event.getInfo());

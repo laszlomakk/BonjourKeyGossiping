@@ -24,6 +24,7 @@ import javax.jmdns.ServiceInfo;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
@@ -58,9 +59,10 @@ public class BonjourDebugActivity extends CustomActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 synchronized (displayedServicesLock){
+                    FLogger.i(TAG, "onItemClick() - user clicked on an item in the list");
                     ServiceInfo serviceInfo = servicesFoundArrList.get(position).getInfo();
                     if (null == serviceInfo){
-                        Log.e(TAG, "onItemClick(). error sending msg: serviceInfo is null");
+                        FLogger.e(TAG, "onItemClick(). error sending msg: serviceInfo is null");
                         HelperMethods.displayMsgToUser(context, "error sending msg: serviceInfo is null (1)");
                         return;
                     }
@@ -142,7 +144,7 @@ public class BonjourDebugActivity extends CustomActivity {
     }
 
     private void resetUI(){
-        Log.i(TAG, "Resetting UI.");
+        FLogger.i(TAG, "Resetting UI.");
         refreshTopUI();
         resetListOfDisplayedServices();
     }
@@ -157,26 +159,26 @@ public class BonjourDebugActivity extends CustomActivity {
 
     @Override
     protected void onStart(){
-        Log.i(TAG, "Activity starting up.");
+        FLogger.i(TAG, "Activity starting up.");
         super.onStart();
         updateListView();
     }
 
     @Override
     protected void onStop(){
-        Log.i(TAG, "Activity stopping.");
+        FLogger.i(TAG, "Activity stopping.");
         super.onStop();
         resetUI();
     }
 
     public void updateListView(final TreeMap<ServiceStub, ServiceEvent> serviceRegistry) {
-        Log.v(TAG, "updateListView(TreeMap) called.");
+        FLogger.v(TAG, "updateListView(TreeMap) called.");
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 synchronized (serviceRegistry) {
                     synchronized (displayedServicesLock) {
-                        Log.v(TAG, "updateListView() doing actual update.");
+                        FLogger.v(TAG, "updateListView() doing actual update.");
                         refreshTopUIInternal();
                         listAdapterForDisplayedListOfServices.clear();
                         servicesFoundArrList.clear();
@@ -192,7 +194,7 @@ public class BonjourDebugActivity extends CustomActivity {
     }
 
     private void updateListView() {
-        Log.v(TAG, "updateListView() called.");
+        FLogger.v(TAG, "updateListView() called.");
         if (app.isBonjourServiceBound()) {
             updateListView(app.getBonjourService().getServiceRegistry());
         }

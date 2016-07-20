@@ -27,6 +27,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.Badge;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeDbHelper;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 
@@ -67,7 +68,7 @@ public class MsgClient {
         try {
             workerThreadIncoming.execute(runnable);
         } catch (RejectedExecutionException e) {
-            Log.e(TAG, "MsgClient() 1. runnable was rejected by executor");
+            FLogger.e(TAG, "MsgClient() 1. runnable was rejected by executor - " + e.getMessage());
         }
     }
 
@@ -82,7 +83,7 @@ public class MsgClient {
                     MsgClient.this.socket = new Socket(address, serviceInfo.getPort());
                     init();
                 } catch (IOException e) { // TODO think about this
-                    Log.e(TAG, "Failed to open socket. closing MsgClient. IOE - " + e.getMessage());
+                    FLogger.e(TAG, "Failed to open socket. closing MsgClient. IOE - " + e.getMessage());
                     MsgClient.this.close();
                 }
             }
@@ -90,7 +91,7 @@ public class MsgClient {
         try {
             workerThreadIncoming.execute(runnable);
         } catch (RejectedExecutionException e) {
-            Log.e(TAG, "MsgClient() 2. runnable was rejected by executor");
+            FLogger.e(TAG, "MsgClient() 2. runnable was rejected by executor - " + e.getMessage());
         }
 
     }
@@ -104,7 +105,7 @@ public class MsgClient {
                     new BufferedInputStream(socket.getInputStream()));
             startWaitingForMessages();
         } catch (IOException e) {
-            Log.e(TAG, "init() failed. IOE - " + e.getMessage());
+            FLogger.e(TAG, "init() failed. IOE - " + e.getMessage());
         }
     }
 
@@ -114,9 +115,9 @@ public class MsgClient {
                 receiveMsg();
             }
         } catch (EOFException e) {
-            Log.e(TAG, "startWaitingForMessages(). EOF - " + e.getMessage());
+            FLogger.e(TAG, "startWaitingForMessages(). EOF - " + e.getMessage());
         } catch (IOException e) {
-            Log.e(TAG, "startWaitingForMessages(). IOE - " + e.getMessage());
+            FLogger.e(TAG, "startWaitingForMessages(). IOE - " + e.getMessage());
         }
     }
 
@@ -131,24 +132,24 @@ public class MsgClient {
         switch (msgType) {
             case MessageType.ARBITRARY_TEXT:
                 String text = inStream.readUTF();
-                Log.i(TAG, "received msg with type ARBITRARY_TEXT: " + text);
+                FLogger.i(TAG, "received msg with type ARBITRARY_TEXT: " + text);
                 HelperMethods.displayMsgToUser(CustomApplication.getInstance(), text);
                 break;
             case MessageType.WHO_ARE_YOU_QUESTION:
-                Log.i(TAG, "received msg with type WHO_ARE_YOU_QUESTION");
+                FLogger.i(TAG, "received msg with type WHO_ARE_YOU_QUESTION");
                 SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
                 outStream.writeInt(MessageType.WHO_ARE_YOU_REPLY);
                 outStream.writeUTF(saveBadgeData.getMyBadgeId().toString());
                 outStream.writeUTF(saveBadgeData.getMyBadgeCustomName());
                 outStream.writeUTF(NetworkUtil.getRouterMacAddress(context));
                 outStream.flush();
-                Log.i(TAG, "sent msg with type WHO_ARE_YOU_REPLY");
+                FLogger.i(TAG, "sent msg with type WHO_ARE_YOU_REPLY");
                 break;
             case MessageType.WHO_ARE_YOU_REPLY:
                 String strBadgeId = inStream.readUTF();
                 String customName = inStream.readUTF();
                 String macAddress = inStream.readUTF();
-                Log.i(TAG, "received msg with type WHO_ARE_YOU_REPLY, badgeID: " + strBadgeId
+                FLogger.i(TAG, "received msg with type WHO_ARE_YOU_REPLY, badgeID: " + strBadgeId
                         + ", nick: " + customName + ", MAC: " + macAddress);
                 UUID badgeId = UUID.fromString(strBadgeId);
                 Badge badge = new Badge(badgeId);
@@ -159,7 +160,7 @@ public class MsgClient {
                 if (app.getTopActivity() instanceof ActiveBadgeActivity) ((ActiveBadgeActivity)app.getTopActivity()).updateListView();
                 break;
             default: // unknown
-                Log.e(TAG, "received msg with unknown msgType: " + msgType);
+                FLogger.e(TAG, "received msg with unknown msgType: " + msgType);
                 break;
         }
     }
@@ -171,17 +172,17 @@ public class MsgClient {
                 try {
                     outStreamReadyLatch.await();
                 } catch (InterruptedException e) {
-                    Log.e(TAG, "sendMessageArbitraryText(). latch await interrupted - " + e.getMessage());
+                    FLogger.e(TAG, "sendMessageArbitraryText(). latch await interrupted - " + e.getMessage());
                     return;
                 }
                 try {
                     outStream.writeInt(MessageType.ARBITRARY_TEXT);
                     outStream.writeUTF(String.format(Locale.US, "%s: %s", senderID, msg));
                     outStream.flush();
-                    Log.i(TAG, "sent msg with type ARBITRARY_TEXT");
+                    FLogger.i(TAG, "sent msg with type ARBITRARY_TEXT");
                     HelperMethods.displayMsgToUser(context, "msg sent");
                 } catch (IOException e) {
-                    Log.e(TAG, "sendMessageArbitraryText(). IOE - " + e.getMessage());
+                    FLogger.e(TAG, "sendMessageArbitraryText(). IOE - " + e.getMessage());
                     HelperMethods.displayMsgToUser(context, "error sending msg: IOException");
                 }
             }
@@ -189,7 +190,7 @@ public class MsgClient {
         try {
             workerThreadOutgoing.execute(runnable);
         } catch (RejectedExecutionException e) {
-            Log.e(TAG, "sendMessageArbitraryText(). runnable was rejected by executor");
+            FLogger.e(TAG, "sendMessageArbitraryText(). runnable was rejected by executor - " + e.getMessage());
         }
     }
 
@@ -200,33 +201,33 @@ public class MsgClient {
                 try {
                     outStreamReadyLatch.await();
                 } catch (InterruptedException e) {
-                    Log.e(TAG, "sendMessageWhoAreYouQuestion(). latch await interrupted - " + e.getMessage());
+                    FLogger.e(TAG, "sendMessageWhoAreYouQuestion(). latch await interrupted - " + e.getMessage());
                     return;
                 }
                 try {
                     outStream.writeInt(MessageType.WHO_ARE_YOU_QUESTION);
                     outStream.flush();
-                    Log.i(TAG, "sent msg with type WHO_ARE_YOU_QUESTION");
+                    FLogger.i(TAG, "sent msg with type WHO_ARE_YOU_QUESTION");
                 } catch (IOException e) {
-                    Log.e(TAG, "sendMessageWhoAreYouQuestion(). IOE - " + e.getMessage());
+                    FLogger.e(TAG, "sendMessageWhoAreYouQuestion(). IOE - " + e.getMessage());
                 }
             }
         };
         try {
             workerThreadOutgoing.execute(runnable);
         } catch (RejectedExecutionException e) {
-            Log.e(TAG, "sendMessageWhoAreYouQuestion(). runnable was rejected by executor");
+            FLogger.e(TAG, "sendMessageWhoAreYouQuestion(). runnable was rejected by executor - " + e.getMessage());
         }
     }
 
     private static InetAddress getAddress(ServiceInfo serviceInfoOfDst) {
         if (null == serviceInfoOfDst){
-            Log.e(TAG, "getAddress(). serviceInfo is null");
+            FLogger.e(TAG, "getAddress(). serviceInfo is null");
             return null;
         }
         InetAddress[] arrAddresses = serviceInfoOfDst.getInet4Addresses();
         if (null == arrAddresses || arrAddresses.length < 1){
-            Log.e(TAG, "getAddress(). inappropriate addresses");
+            FLogger.e(TAG, "getAddress(). inappropriate addresses");
             return null;
         }
         return arrAddresses[0];
@@ -234,7 +235,7 @@ public class MsgClient {
 
     public void close() {
         if (closed) {
-            Log.e(TAG, "close() called. but it is already closed!");
+            FLogger.e(TAG, "close() called. but it is already closed!");
             return;
         }
         closed = true;
@@ -245,7 +246,7 @@ public class MsgClient {
             if (null != inStream) inStream.close();
             if (null != socket) socket.close();
         } catch (IOException e) {
-            Log.e(TAG, "close(). trying to close streams and socket, IOE - " + e.getMessage());
+            FLogger.e(TAG, "close(). trying to close streams and socket, IOE - " + e.getMessage());
         }
     }
 

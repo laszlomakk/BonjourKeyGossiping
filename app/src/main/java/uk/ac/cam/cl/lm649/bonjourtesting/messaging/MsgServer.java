@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jmdns.ServiceEvent;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
 public class MsgServer {
@@ -40,7 +41,7 @@ public class MsgServer {
 
     public static synchronized MsgServer getInstance() {
         if (null == INSTANCE) {
-            Log.e(TAG, "getInstance(). trying to get MsgServer before calling initInstance()");
+            FLogger.e(TAG, "getInstance(). trying to get MsgServer before calling initInstance()");
             throw new RuntimeException("MsgServer INSTANCE not yet initialised");
         }
         return INSTANCE;
@@ -48,7 +49,7 @@ public class MsgServer {
 
     public static synchronized void initInstance() throws IOException {
         if (null != INSTANCE) {
-            Log.e(TAG, "initInstance(). trying to reinit already initialised MsgServer");
+            FLogger.e(TAG, "initInstance(). trying to reinit already initialised MsgServer");
             throw new RuntimeException("MsgServer INSTANCE already initialised");
         }
         INSTANCE = new MsgServer();
@@ -61,7 +62,7 @@ public class MsgServer {
                 new MsgClient(clientSocket);
             }
         } catch (IOException e) {
-            Log.e(TAG, "startWaitingForConnections(). error -- closing main thread");
+            FLogger.e(TAG, "startWaitingForConnections(). error -- closing main thread. IOE - " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -71,12 +72,12 @@ public class MsgServer {
     }
 
     public void stop(){
-        Log.i(TAG, "Stopping MsgServer.");
+        FLogger.i(TAG, "Stopping MsgServer.");
         try {
             serverSocket.close();
-            Log.i(TAG, "serverSocket successfully closed.");
+            FLogger.i(TAG, "serverSocket successfully closed.");
         } catch (IOException e) {
-            Log.e(TAG, "error while closing serverSocket");
+            FLogger.e(TAG, "error while closing serverSocket. IOE - " + e.getMessage());
             e.printStackTrace();
         }
     }

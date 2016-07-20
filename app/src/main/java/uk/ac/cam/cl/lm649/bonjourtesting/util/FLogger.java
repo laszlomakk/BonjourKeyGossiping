@@ -14,15 +14,17 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Logger {
+public class FLogger {
 
-    private static final String TAG = "Logger";
+    private static final String TAG = "FLogger";
     private static boolean initialised = false;
     private static BufferedWriter writer;
     private static final ExecutorService workerThread = Executors.newFixedThreadPool(1);
 
     public static final boolean LOGGING_TO_FILE = true;
-    public static final boolean LOGGING_TO_LOGCAT = false;
+    public static final boolean LOGGING_TO_LOGCAT = true;
+
+    public static final LogLevel LOGGING_TO_FILE_MINIMUM_LOGLEVEL = LogLevel.DEBUG;
 
     public static void init(Context context) throws IOException {
         File file = openFile(context);
@@ -34,8 +36,8 @@ public class Logger {
             throw e;
         }
         initialised = true;
-        Logger.i(TAG, "--------------------------------------------------");
-        Logger.i(TAG, "init() finished.");
+        FLogger.i(TAG, "--------------------------------------------------");
+        FLogger.i(TAG, "init() finished.");
     }
 
     private static File openFile(Context context) throws IOException {
@@ -65,7 +67,7 @@ public class Logger {
                     writer.newLine();
                     writer.flush(); // TODO perhaps inefficient
                 } catch (IOException e) {
-                    Log.e(TAG, "log(). failed to write to file.");
+                    Log.e(TAG, "log(). failed to write to file. IOE - " + e.getMessage());
                     e.printStackTrace();
                 }
             }
@@ -73,13 +75,33 @@ public class Logger {
     }
 
     private enum LogLevel {
-        VERBOSE, DEBUG, INFO, WARN, ERROR
+        VERBOSE, DEBUG, INFO, WARN, ERROR;
+        static int getPriority(LogLevel logLevel) {
+            switch (logLevel) {
+                case VERBOSE:
+                    return 1;
+                case DEBUG:
+                    return 2;
+                case INFO:
+                    return 3;
+                case WARN:
+                    return 4;
+                case ERROR:
+                    return 5;
+                default:
+                    Log.e(TAG, "unknown loglevel: " + logLevel.name());
+                    return 0;
+            }
+        }
     }
 
     private static void printLine(LogLevel logLevel, String tag, String msg) {
+        if (LogLevel.getPriority(logLevel) < LogLevel.getPriority(LOGGING_TO_FILE_MINIMUM_LOGLEVEL)) {
+            return;
+        }
         String timeStamp = new SimpleDateFormat("yyyy.MM.dd-HH.mm.ss", Locale.US).format(new Timestamp(System.currentTimeMillis()));
         String rawLine = String.format(Locale.US, "%s %s/%s: %s",
-                timeStamp, logLevel.name(), tag, msg);
+                timeStamp, logLevel.name().charAt(0), tag, msg);
         printRawLine(rawLine);
     }
 
