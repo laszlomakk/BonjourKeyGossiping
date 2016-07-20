@@ -68,7 +68,11 @@ public class BonjourDebugActivity extends CustomActivity {
                     if (app.isBonjourServiceBound()){
                         String serviceName = app.getBonjourService().getNameOfOurService();
                         MsgClient msgClient = MsgServer.getInstance().serviceToMsgClientMap.get(new ServiceStub(serviceInfo));
-                        msgClient.sendMessageArbitraryText(serviceName, msg);
+                        if (null == msgClient) {
+                            HelperMethods.displayMsgToUser(context, "error: msgClient not found");
+                        } else {
+                            msgClient.sendMessageArbitraryText(serviceName, msg);
+                        }
                     } else {
                         HelperMethods.displayMsgToUser(context, "error: bonjourService not bound");
                     }
