@@ -10,6 +10,7 @@ import android.util.Log;
 
 import java.io.IOException;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgePoller;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
@@ -47,9 +48,15 @@ public class CustomApplication extends Application {
     public void onCreate() {
         Log.i(TAG, "onCreate() called.");
         super.onCreate();
-
         INSTANCE = this;
 
+        initLogger();
+        initMsgServer();
+        ActiveBadgePoller.getInstance();
+        startBonjourService();
+    }
+
+    private void initLogger() {
         try {
             Logger.init(this);
         } catch (IOException e) {
@@ -57,7 +64,9 @@ public class CustomApplication extends Application {
             HelperMethods.displayMsgToUser(this, "failed to init Logger");
             e.printStackTrace();
         }
+    }
 
+    private void initMsgServer() {
         try {
             MsgServer.initInstance();
         } catch (IOException e) {
@@ -65,7 +74,9 @@ public class CustomApplication extends Application {
             HelperMethods.displayMsgToUser(this, "failed to init MsgServer");
             e.printStackTrace();
         }
+    }
 
+    private void startBonjourService() {
         Log.i(TAG, "Starting and binding BonjourService.");
         Intent intent = new Intent(this, BonjourService.class);
         startService(intent); // explicit start will keep the service alive

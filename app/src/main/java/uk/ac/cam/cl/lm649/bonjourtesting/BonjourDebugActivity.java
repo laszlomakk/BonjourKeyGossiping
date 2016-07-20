@@ -185,7 +185,7 @@ public class BonjourDebugActivity extends Activity {
             public void run() {
                 synchronized (serviceRegistry) {
                     synchronized (displayedServicesLock) {
-                        Log.d(TAG, "updateListView() doing actual update.");
+                        Log.v(TAG, "updateListView() doing actual update.");
                         refreshTopUIInternal();
                         listAdapterForDisplayedListOfServices.clear();
                         servicesFoundArrList.clear();

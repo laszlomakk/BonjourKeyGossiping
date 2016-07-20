@@ -113,7 +113,7 @@ public class BonjourService extends Service {
         }
         serviceListener = new CustomServiceListener(this);
         jmdns.addServiceListener(Constants.SERVICE_TYPE, serviceListener);
-        HelperMethods.displayMsgToUser(context, "Starting discovery...");
+        //HelperMethods.displayMsgToUser(context, "Starting discovery...");
     }
 
     private void registerOurService() throws IOException {

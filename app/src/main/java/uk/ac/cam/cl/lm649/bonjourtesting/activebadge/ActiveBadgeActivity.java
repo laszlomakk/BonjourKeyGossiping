@@ -89,7 +89,7 @@ public class ActiveBadgeActivity extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "updateListView() doing actual update.");
+                Log.v(TAG, "updateListView() doing actual update.");
                 listAdapterForDisplayedListOfBadges.clear();
                 for (Badge badge : BadgeDbHelper.getInstance(context).getAllBadges()) {
                     listAdapterForDisplayedListOfBadges.add(badge.toString());

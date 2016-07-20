@@ -52,7 +52,6 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
         ContentValues values = createContentValuesFromBadge(badge);
 
         db.insert(BadgeEntry.TABLE_NAME, null, values);
-        //db.close();
     }
 
     private ContentValues createContentValuesFromBadge(Badge badge) {
@@ -83,7 +82,6 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
         Badge badge = createBadgeFromCursor(cursor);
 
         cursor.close();
-        //db.close();
         return badge;
     }
 
@@ -98,7 +96,8 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
     public List<Badge> getAllBadges() {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        String selectQuery = "SELECT  * FROM " + BadgeEntry.TABLE_NAME;
+        String selectQuery = "SELECT  * FROM " + BadgeEntry.TABLE_NAME
+                + " ORDER BY " + BadgeEntry.COLUMN_NAME_TIMESTAMP + " DESC";
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         List<Badge> badgeList = new ArrayList<>();
@@ -110,7 +109,6 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
         }
 
         cursor.close();
-        //db.close();
         return badgeList;
     }
 
@@ -122,7 +120,6 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
         int count = cursor.getCount();
 
         cursor.close();
-        //db.close();
         return count;
     }
 
@@ -133,13 +130,9 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
         db.update(BadgeEntry.TABLE_NAME,
                 values, BadgeEntry.COLUMN_NAME_BADGE_ID + " = ?",
                 new String[] { badge.getBadgeId().toString() });
-
-        //db.close();
     }
 
     public void smartUpdateBadge(Badge newBadge) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
         Badge oldBadge = getBadge(newBadge.getBadgeId());
         if (null == oldBadge) {
             // badge not yet in db
@@ -157,8 +150,6 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
 
             updateBadge(mergedBadge);
         }
-
-        //db.close();
     }
 
     public void deleteBadge(Badge badge) {
@@ -167,8 +158,6 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
         db.delete(BadgeEntry.TABLE_NAME,
                 BadgeEntry.COLUMN_NAME_BADGE_ID + " = ?",
                 new String[] { badge.getBadgeId().toString() });
-
-        //db.close();
     }
 
 }
