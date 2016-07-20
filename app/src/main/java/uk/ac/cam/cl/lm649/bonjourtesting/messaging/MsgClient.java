@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -117,10 +118,16 @@ public class MsgClient {
     private void startWaitingForMessages(){
         try {
             while (true) {
+                if (Thread.currentThread().isInterrupted()) {
+                    FLogger.i(TAG, "startWaitingForMessages() interrupted. finishing.");
+                    break;
+                }
                 receiveMsg();
             }
         } catch (EOFException e) {
-            FLogger.e(TAG, "startWaitingForMessages(). EOF - " + e.getMessage());
+            FLogger.i(TAG, "startWaitingForMessages(). EOF - " + e.getMessage());
+        } catch (SocketException e) {
+            FLogger.w(TAG, "startWaitingForMessages(). SockExc - " + e.getMessage());
         } catch (IOException e) {
             FLogger.e(TAG, "startWaitingForMessages(). IOE - " + e.getMessage());
         }
@@ -245,7 +252,7 @@ public class MsgClient {
         }
         closed = true;
         workerThreadOutgoing.shutdown();
-        workerThreadIncoming.shutdown();
+        workerThreadIncoming.shutdownNow();
         try {
             if (null != outStream) outStream.close();
             if (null != inStream) inStream.close();
