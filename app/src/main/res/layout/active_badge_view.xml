@@ -41,10 +41,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Custom Name: "
+                    android:text="Nick: "
                     android:textColor="@color/colorPrimaryDark"
                     android:id="@+id/customNameText"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:layout_below="@id/badgeIdText"
                     android:layout_alignParentLeft="true"/>
                 <TextView
@@ -52,7 +52,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorPrimaryDark"
                     android:id="@+id/customName"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:layout_below="@id/badgeId"
                     android:layout_toRightOf="@+id/customNameText"/>
 
@@ -63,7 +63,7 @@
                     android:text="router_MAC: "
                     android:textColor="@color/colorPrimaryDark"
                     android:id="@+id/routerMacText"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:layout_below="@id/customNameText"
                     android:layout_alignParentLeft="true"/>
                 <TextView
@@ -71,7 +71,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorPrimaryDark"
                     android:id="@+id/routerMac"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:layout_below="@id/customName"
                     android:layout_toRightOf="@+id/routerMacText"/>
 
