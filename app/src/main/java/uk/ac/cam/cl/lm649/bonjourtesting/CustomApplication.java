@@ -29,20 +29,18 @@ public class CustomApplication extends Application {
             BonjourService.BonjourServiceBinder binder = (BonjourService.BonjourServiceBinder) service;
             bonjourService = binder.getService();
             bonjourServiceBound = true;
-            if (null != bonjourDebugActivity) bonjourService.attachBonjourDebugActivity(bonjourDebugActivity);
         }
         @Override
         public void onServiceDisconnected(ComponentName className) {
             Log.i(TAG, "onServiceDisconnected() called.");
             bonjourServiceBound = false;
-            bonjourService.attachBonjourDebugActivity(null);
         }
     };
 
     private BonjourService bonjourService;
     private boolean bonjourServiceBound = false;
 
-    private BonjourDebugActivity bonjourDebugActivity = null;
+    private CustomActivity topActivity = null;
 
     @Override
     public void onCreate() {
@@ -91,9 +89,12 @@ public class CustomApplication extends Application {
         return bonjourServiceBound;
     }
 
-    public void setBonjourDebugActivity(BonjourDebugActivity bonjourDebugActivity) {
-        this.bonjourDebugActivity = bonjourDebugActivity;
-        if (bonjourServiceBound) bonjourService.attachBonjourDebugActivity(bonjourDebugActivity);
+    public void setTopActivity(CustomActivity topActivity) {
+        this.topActivity = topActivity;
+    }
+
+    public CustomActivity getTopActivity() {
+        return topActivity;
     }
 
     public static CustomApplication getInstance() {

@@ -5,7 +5,6 @@
 
 package uk.ac.cam.cl.lm649.bonjourtesting;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,11 +27,9 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
-public class BonjourDebugActivity extends Activity {
+public class BonjourDebugActivity extends CustomActivity {
 
     private static final String TAG = "BonjourDebugActivity";
-    private Context context;
-    private CustomApplication app;
 
     private ArrayAdapter<String> listAdapterForDisplayedListOfServices;
     private ArrayList<ServiceEvent> servicesFoundArrList = new ArrayList<>();
@@ -47,10 +44,7 @@ public class BonjourDebugActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = getApplicationContext();
-        app = (CustomApplication) getApplication();
         setupUI();
-        app.setBonjourDebugActivity(this);
     }
 
     private void setupUI(){
@@ -162,19 +156,12 @@ public class BonjourDebugActivity extends Activity {
         Log.i(TAG, "Activity starting up.");
         super.onStart();
         updateListView();
-
-        if (app.isBonjourServiceBound()) {
-            app.getBonjourService().attachBonjourDebugActivity(this);
-        } else {
-            textViewAppState.setText("Waiting for BonjourService.");
-        }
     }
 
     @Override
     protected void onStop(){
         Log.i(TAG, "Activity stopping.");
         super.onStop();
-        if (app.isBonjourServiceBound()) app.getBonjourService().attachBonjourDebugActivity(null);
         resetUI();
     }
 

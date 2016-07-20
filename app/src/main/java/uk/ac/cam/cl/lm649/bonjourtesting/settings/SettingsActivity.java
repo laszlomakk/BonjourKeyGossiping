@@ -1,6 +1,5 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.settings;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -8,16 +7,15 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends CustomActivity {
 
     private static final String TAG = "SettingsActivity";
 
-    private CustomApplication app;
     private SaveSettingsData saveSettingsData;
     private SaveBadgeData saveBadgeData;
 
@@ -30,7 +28,6 @@ public class SettingsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_view);
-        app = (CustomApplication) getApplication();
 
         saveSettingsData = SaveSettingsData.getInstance(this);
         saveBadgeData = SaveBadgeData.getInstance(this);

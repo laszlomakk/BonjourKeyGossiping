@@ -1,7 +1,5 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.activebadge;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,16 +9,13 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 
-public class ActiveBadgeActivity extends Activity {
+public class ActiveBadgeActivity extends CustomActivity {
 
     private static final String TAG = "ActiveBadgeActivity";
-
-    private CustomApplication app;
-    private Context context;
 
     private ArrayAdapter<String> listAdapterForDisplayedListOfBadges;
 
@@ -32,8 +27,6 @@ public class ActiveBadgeActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        app = (CustomApplication) getApplication();
-        context = app;
 
         setupUI();
     }

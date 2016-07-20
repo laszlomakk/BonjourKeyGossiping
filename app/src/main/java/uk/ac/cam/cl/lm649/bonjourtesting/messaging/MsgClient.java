@@ -20,7 +20,9 @@ import java.util.concurrent.RejectedExecutionException;
 
 import javax.jmdns.ServiceInfo;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.BonjourDebugActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgeActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.Badge;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeDbHelper;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
@@ -33,6 +35,7 @@ public class MsgClient {
     private static final String TAG = "MsgClient";
     private Socket socket = null;
 
+    private CustomApplication app;
     private Context context;
     private SaveSettingsData saveSettingsData;
 
@@ -46,7 +49,8 @@ public class MsgClient {
     private boolean closed = false;
 
     private MsgClient() {
-        context = CustomApplication.getInstance();
+        app = CustomApplication.getInstance();
+        context = app;
         saveSettingsData = SaveSettingsData.getInstance(context);
     }
 
@@ -153,6 +157,7 @@ public class MsgClient {
                 badge.setRouterMac(macAddress);
                 badge.setTimestamp(System.currentTimeMillis());
                 BadgeDbHelper.getInstance(context).smartUpdateBadge(badge);
+                if (app.getTopActivity() instanceof ActiveBadgeActivity) ((ActiveBadgeActivity)app.getTopActivity()).updateListView();
                 break;
             default: // unknown
                 Log.e(TAG, "received msg with unknown msgType: " + msgType);

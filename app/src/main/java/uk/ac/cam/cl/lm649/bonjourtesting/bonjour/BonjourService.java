@@ -27,6 +27,7 @@ import javax.jmdns.ServiceInfo;
 import uk.ac.cam.cl.lm649.bonjourtesting.ConnectivityChangeReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.BonjourDebugActivity;
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
@@ -36,8 +37,8 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 public class BonjourService extends Service {
 
     private static final String TAG = "BonjourService";
+    private CustomApplication app;
     private Context context;
-    private BonjourDebugActivity bonjourDebugActivity;
     private String strServiceState = "-";
 
     private final IBinder binder = new BonjourServiceBinder();
@@ -63,7 +64,8 @@ public class BonjourService extends Service {
     public void onCreate() {
         Log.i(TAG, "onCreate() called.");
         super.onCreate();
-        context = getApplicationContext();
+        app = (CustomApplication) getApplication();
+        context = app;
     }
 
     @Override
@@ -134,7 +136,7 @@ public class BonjourService extends Service {
         serviceInfoOfOurService = ServiceInfo.create(Constants.SERVICE_TYPE, nameOfOurService, port, payload);
         jmdns.registerService(serviceInfoOfOurService);
 
-        if (null != bonjourDebugActivity) bonjourDebugActivity.refreshTopUI();
+        if (app.getTopActivity() instanceof BonjourDebugActivity) ((BonjourDebugActivity)app.getTopActivity()).refreshTopUI();
 
         nameOfOurService = serviceInfoOfOurService.getName();
         String serviceIsRegisteredNotification = "Registered service. Name ended up being: " + nameOfOurService;
@@ -231,16 +233,11 @@ public class BonjourService extends Service {
         startWork();
     }
 
-    public void attachBonjourDebugActivity(BonjourDebugActivity bonjourDebugActivity) {
-        this.bonjourDebugActivity = bonjourDebugActivity;
-        if (null != bonjourDebugActivity) bonjourDebugActivity.updateListView(serviceRegistry);
-    }
-
     protected void addServiceToRegistry(final ServiceEvent event) {
         synchronized (serviceRegistry){
             ServiceStub serviceStub = new ServiceStub(event);
             serviceRegistry.put(serviceStub, event);
-            if (null != bonjourDebugActivity) bonjourDebugActivity.updateListView(serviceRegistry);
+            if (app.getTopActivity() instanceof BonjourDebugActivity) ((BonjourDebugActivity)app.getTopActivity()).updateListView(serviceRegistry);
         }
     }
 
@@ -248,13 +245,13 @@ public class BonjourService extends Service {
         synchronized (serviceRegistry) {
             ServiceStub serviceStub = new ServiceStub(event);
             serviceRegistry.remove(serviceStub);
-            if (null != bonjourDebugActivity) bonjourDebugActivity.updateListView(serviceRegistry);
+            if (app.getTopActivity() instanceof BonjourDebugActivity) ((BonjourDebugActivity)app.getTopActivity()).updateListView(serviceRegistry);
         }
     }
 
     private void changeServiceState(final String state) {
         strServiceState = state;
-        if (null != bonjourDebugActivity) bonjourDebugActivity.refreshTopUI();
+        if (app.getTopActivity() instanceof BonjourDebugActivity) ((BonjourDebugActivity)app.getTopActivity()).refreshTopUI();
     }
 
     public String getIPAddress() {
