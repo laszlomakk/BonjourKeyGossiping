@@ -37,6 +37,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".LicensesActivity">
+            <intent-filter>
+                <action android:name="uk.ac.cam.cl.lm649.bonjourtesting.LICENSES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <service android:name=".bonjour.BonjourService"
             android:exported="false"/>

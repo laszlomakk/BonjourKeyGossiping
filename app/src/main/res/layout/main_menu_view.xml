@@ -33,4 +33,12 @@
         android:id="@+id/buttonSettings"
         android:layout_gravity="center_horizontal"
         android:layout_margin="10sp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Licenses"
+        android:id="@+id/buttonLicenses"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="10sp" />
 </LinearLayout>

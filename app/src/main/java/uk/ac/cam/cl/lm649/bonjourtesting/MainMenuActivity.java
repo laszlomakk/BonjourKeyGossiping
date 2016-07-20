@@ -40,5 +40,13 @@ public class MainMenuActivity extends Activity {
                 startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.SETTINGS"));
             }
         });
+
+        Button btnLicenses = (Button) findViewById(R.id.buttonLicenses);
+        btnLicenses.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.LICENSES"));
+            }
+        });
     }
 }
