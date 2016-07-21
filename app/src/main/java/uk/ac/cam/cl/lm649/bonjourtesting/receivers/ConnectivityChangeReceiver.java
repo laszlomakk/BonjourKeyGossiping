@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting;
+package uk.ac.cam.cl.lm649.bonjourtesting.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,7 +8,9 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class ConnectivityChangeReceiver extends BroadcastReceiver {
 
@@ -16,13 +18,13 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        FLogger.i(TAG, "onReceive(). received intent");
-        //debugIntent(intent);
+        FLogger.i(TAG, "onReceive(). received intent.  action: " + intent.getAction());
+        // HelperMethods.debugIntent(TAG, intent);
         if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(intent.getAction())) {
             // there was a change of connectivity
             if (isThisANewWifiConnectionThatWeJustEstablished(intent)) {
                 FLogger.i(TAG, "onReceive(). decided to act on intent");
-                debugIntent(intent);
+                HelperMethods.debugIntent(TAG, intent);
                 Context appContext = context.getApplicationContext();
                 if (!(appContext instanceof CustomApplication)) {
                     FLogger.e(TAG, "onReceive(). wtf. can't access Application.");
@@ -49,20 +51,6 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
             return false;
         }
         return true;
-    }
-
-    private void debugIntent(Intent intent) {
-        FLogger.d(TAG, "debugIntent(). action: " + intent.getAction());
-        FLogger.d(TAG, "debugIntent(). component: " + intent.getComponent());
-        Bundle extras = intent.getExtras();
-        if (null != extras) {
-            for (String key: extras.keySet()) {
-                FLogger.d(TAG, "debugIntent(). key [" + key + "]: " + extras.get(key));
-            }
-        }
-        else {
-            FLogger.d(TAG, "debugIntent(). no extras");
-        }
     }
 
 }

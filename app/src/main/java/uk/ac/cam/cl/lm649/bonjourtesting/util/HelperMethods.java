@@ -6,8 +6,10 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.util;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -105,9 +107,24 @@ public class HelperMethods {
         handler.post(new Runnable() {
             @Override
             public void run() {
+                FLogger.d(TAG, "displayed toast to user with msg: " + msg);
                 Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public static void debugIntent(String logTag, Intent intent) {
+        FLogger.d(logTag, "debugIntent(). action: " + intent.getAction());
+        FLogger.d(logTag, "debugIntent(). component: " + intent.getComponent());
+        Bundle extras = intent.getExtras();
+        if (null != extras) {
+            for (String key: extras.keySet()) {
+                FLogger.d(logTag, "debugIntent(). key [" + key + "]: " + extras.get(key));
+            }
+        }
+        else {
+            FLogger.d(logTag, "debugIntent(). no extras");
+        }
     }
 
 }

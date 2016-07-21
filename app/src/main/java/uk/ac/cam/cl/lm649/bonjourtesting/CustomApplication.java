@@ -4,7 +4,10 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -13,6 +16,7 @@ import java.io.IOException;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgePoller;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
+import uk.ac.cam.cl.lm649.bonjourtesting.receivers.LoggingBroadcastReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
@@ -52,6 +56,7 @@ public class CustomApplication extends Application {
         initMsgServer();
         ActiveBadgePoller.getInstance();
         startBonjourService();
+        registerReceivers();
     }
 
     private void initLogger() {
@@ -79,6 +84,17 @@ public class CustomApplication extends Application {
         Intent intent = new Intent(this, BonjourService.class);
         startService(intent); // explicit start will keep the service alive
         bindService(intent, bonjourServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void registerReceivers() { // docs say these receivers can't be set in the manifest
+        LoggingBroadcastReceiver loggingBroadcastReceiver = new LoggingBroadcastReceiver();
+        registerReceiver(loggingBroadcastReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+        registerReceiver(loggingBroadcastReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
+
+        if (Build.VERSION.SDK_INT >= 17) {
+            registerReceiver(loggingBroadcastReceiver, new IntentFilter(Intent.ACTION_USER_BACKGROUND));
+            registerReceiver(loggingBroadcastReceiver, new IntentFilter(Intent.ACTION_USER_FOREGROUND));
+        }
     }
 
     public BonjourService getBonjourService() {
