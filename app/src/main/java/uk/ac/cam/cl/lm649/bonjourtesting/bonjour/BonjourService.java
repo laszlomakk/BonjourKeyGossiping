@@ -149,7 +149,7 @@ public class BonjourService extends Service {
         nameOfOurService = serviceInfoOfOurService.getName();
         String serviceIsRegisteredNotification = "Registered service. Name ended up being: " + nameOfOurService;
         FLogger.i(TAG, serviceIsRegisteredNotification);
-        HelperMethods.displayMsgToUser(context, serviceIsRegisteredNotification);
+        //HelperMethods.displayMsgToUser(context, serviceIsRegisteredNotification);
     }
 
     private void registerConnectivityChangeReceiver() {
@@ -203,7 +203,7 @@ public class BonjourService extends Service {
                     registerOurService();
                     startDiscovery();
                     changeServiceState("READY");
-                    HelperMethods.displayMsgToUser(context, "Start-up finished without error");
+                    HelperMethods.displayMsgToUser(context, "BonjourService started w/o error");
                     if (iHaveRestartSemaphore) {
                         FLogger.i(TAG, "startWork() finished without error. Releasing restartSemaphore.");
                         restartSemaphore.release();
