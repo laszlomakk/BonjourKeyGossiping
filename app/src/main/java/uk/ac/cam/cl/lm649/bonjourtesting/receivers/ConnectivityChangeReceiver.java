@@ -33,6 +33,11 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
                 CustomApplication app = (CustomApplication) appContext;
                 if (!app.isBonjourServiceBound()) {
                     FLogger.w(TAG, "onReceive(). bonjourService not bound. this is unexpected.");
+                    // note: after this receiver is registered on application startup,
+                    // if there is an active wifi connection, a "network_state_changed" intent
+                    // will be received, which then would normally result in calling restartWork()
+                    // in BonjourService -- in this particular scenario,
+                    // ending up in this branch IS what we expect
                     return;
                 }
                 FLogger.i(TAG, "onReceive(). calling bonjourService.restartWork()");
