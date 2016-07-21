@@ -33,7 +33,8 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
                     FLogger.w(TAG, "onReceive(). bonjourService not bound. this is unexpected.");
                     return;
                 }
-                app.getBonjourService().restartWork();
+                FLogger.i(TAG, "onReceive(). calling bonjourService.restartWork()");
+                app.getBonjourService().restartWork(false);
             }
         }
     }

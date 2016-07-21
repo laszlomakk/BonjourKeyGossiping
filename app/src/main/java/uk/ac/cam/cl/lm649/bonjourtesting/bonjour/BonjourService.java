@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
@@ -93,7 +94,7 @@ public class BonjourService extends Service {
         if (!started){
             started = true;
             FLogger.i(TAG, "onStartCommand(). doing start-up.");
-            startWork();
+            startWork(false);
             registerConnectivityChangeReceiver();
         } else {
             FLogger.w(TAG, "onStartCommand(). already started.");
@@ -188,8 +189,8 @@ public class BonjourService extends Service {
         });
     }
 
-    private void startWork() {
-        FLogger.i(TAG, "startWork() called.");
+    private void startWork(final boolean iHaveRestartSemaphore) {
+        FLogger.i(TAG, "startWork() called. Caller has restartSemaphore: " + iHaveRestartSemaphore);
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -202,19 +203,24 @@ public class BonjourService extends Service {
                     registerOurService();
                     startDiscovery();
                     changeServiceState("READY");
-                    FLogger.i(TAG, "startWork() finished without error.");
                     HelperMethods.displayMsgToUser(context, "Start-up finished without error");
+                    if (iHaveRestartSemaphore) {
+                        FLogger.i(TAG, "startWork() finished without error. Releasing restartSemaphore.");
+                        restartSemaphore.release();
+                    } else {
+                        FLogger.i(TAG, "startWork() finished without error. Don't have restartSemaphore to release.");
+                    }
                 } catch (IOException e) {
                     FLogger.e(TAG, "startWork(). Error during start-up: IOE - " + e.getMessage());
                     HelperMethods.displayMsgToUser(context, "Error during start-up: IOE");
                     changeServiceState("error during start-up: IOE");
                     e.printStackTrace();
-                    FLogger.i(TAG, "sleeping for a bit and then retrying...");
+                    FLogger.i(TAG, "sleeping for a bit and then retrying start-up...");
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            FLogger.i(TAG, "sleep ended. retrying start-up...");
-                            restartWork();
+                            FLogger.i(TAG, "sleep ended. retrying start-up... We have restartSemaphore: " + iHaveRestartSemaphore);
+                            restartWork(iHaveRestartSemaphore);
                         }
                     }, 15_000);
                 }
@@ -244,10 +250,20 @@ public class BonjourService extends Service {
         });
     }
 
-    public void restartWork() {
-        FLogger.i(TAG, "restartWork() called.");
+    private Semaphore restartSemaphore = new Semaphore(1);
+    public void restartWork(boolean iHaveRestartSemaphore) {
+        FLogger.i(TAG, "restartWork() called. Caller has restartSemaphore: " + iHaveRestartSemaphore);
+        if (!iHaveRestartSemaphore) {
+            if (restartSemaphore.tryAcquire()) {
+                FLogger.i(TAG, "restartWork() acquired restartSemaphore. Going forward.");
+            } else {
+                FLogger.i(TAG, "restartWork() could not acquire restartSemaphore. Cancelling restart.");
+                return;
+            }
+        }
+
         stopAndCloseWork();
-        startWork();
+        startWork(true);
     }
 
     protected void addServiceToRegistry(final ServiceEvent event) {
