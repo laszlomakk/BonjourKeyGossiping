@@ -250,7 +250,11 @@ public class BonjourService extends Service {
         });
     }
 
-    private Semaphore restartSemaphore = new Semaphore(1);
+    private Semaphore restartSemaphore = new Semaphore(2);
+    // only allow two restarts to be queued
+    // without this, restarts could theoretically queue up e.g. during sleep and then result in a restart loop
+    // we need to allow two though, as if an important event occurs while a restart is going on,
+    // another restart might be needed
     public void restartWork(boolean iHaveRestartSemaphore) {
         FLogger.i(TAG, "restartWork() called. Caller has restartSemaphore: " + iHaveRestartSemaphore);
         if (!iHaveRestartSemaphore) {
