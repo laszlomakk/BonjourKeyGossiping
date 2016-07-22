@@ -54,7 +54,7 @@ public class FLogger {
         return logFile;
     }
 
-    private static void printRawLine(final String rawLine){
+    private static void printRawLine(final String rawLine, final long logLineTime){
         if (!initialised) {
             Log.e(TAG, "log(). error - Logger has not been initialised.");
             return;
@@ -63,8 +63,17 @@ public class FLogger {
             @Override
             public void run() {
                 try {
+                    long curTime = System.currentTimeMillis();
+                    if (curTime - logLineTime > 60_000) {
+                        // write time of printing
+                        writer.append("// current time reported by device: ");
+                        writer.append(getTimeStamp(curTime));
+                        writer.newLine();
+                    }
+                    // write intended log line
                     writer.append(rawLine);
                     writer.newLine();
+
                     writer.flush(); // TODO perhaps inefficient
                 } catch (IOException e) {
                     Log.e(TAG, "log(). failed to write to file. IOE - " + e.getMessage());
@@ -99,11 +108,16 @@ public class FLogger {
         if (LogLevel.getPriority(logLevel) < LogLevel.getPriority(LOGGING_TO_FILE_MINIMUM_LOGLEVEL)) {
             return;
         }
-        String timeStamp = new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss.SSS", Locale.US)
-                .format(new Timestamp(System.currentTimeMillis()));
+        long time = System.currentTimeMillis();
+        String strTimeStamp = getTimeStamp(time);
         String rawLine = String.format(Locale.US, "%s %s/%s: %s",
-                timeStamp, logLevel.name().charAt(0), tag, msg);
-        printRawLine(rawLine);
+                strTimeStamp, logLevel.name().charAt(0), tag, msg);
+        printRawLine(rawLine, time);
+    }
+
+    private static String getTimeStamp(long time) {
+        return new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss.SSS", Locale.US)
+                .format(new Timestamp(time));
     }
 
     public static void v(String tag, String msg) {

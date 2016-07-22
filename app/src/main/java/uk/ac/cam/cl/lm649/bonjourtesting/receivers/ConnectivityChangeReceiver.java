@@ -8,9 +8,13 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.net.InetAddress;
+import java.util.Locale;
+
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 
 public class ConnectivityChangeReceiver extends BroadcastReceiver {
 
@@ -22,6 +26,11 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
         // HelperMethods.debugIntent(TAG, intent);
         if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(intent.getAction())) {
             // there was a change of connectivity
+            String ipAddress = NetworkUtil.getWifiIpAddress(context).getHostAddress();
+            String routerMac = NetworkUtil.getRouterMacAddress(context);
+            FLogger.i(TAG, String.format(Locale.US,
+                    "onReceive(). our current IP address is: %s, the router MAC is: %s",
+                    ipAddress, routerMac));
             if (isThisANewWifiConnectionThatWeJustEstablished(intent)) {
                 FLogger.i(TAG, "onReceive(). decided to act on intent");
                 HelperMethods.debugIntent(TAG, intent);
