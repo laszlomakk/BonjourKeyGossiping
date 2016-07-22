@@ -12,7 +12,7 @@
         android:layout_gravity="center_horizontal"
         android:checked="false"
         android:layout_below="@+id/textViewFixedServiceNameText"
-        android:layout_toEndOf="@+id/textViewFixedServiceNameText"
+        android:layout_toRightOf="@+id/textViewFixedServiceNameText"
         android:layout_marginTop="24sp" />
 
     <TextView
@@ -23,7 +23,7 @@
         android:id="@+id/textViewFixedServiceNameText"
         android:layout_gravity="center_horizontal"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
         android:layout_marginTop="24sp"
         android:layout_marginLeft="16sp" />
 
@@ -39,7 +39,48 @@
         android:minWidth="140sp"
         android:minLines="1"
         android:layout_alignTop="@+id/textViewFixedServiceNameText"
-        android:layout_alignEnd="@+id/checkBoxRandomServiceName"
-        android:maxLines="1" />
+        android:layout_alignRight="@+id/checkBoxRandomServiceName"
+        android:maxLines="1"
+        android:inputType="text" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Re-Register Service"
+        android:id="@+id/buttonReRegisterService"
+        android:layout_below="@+id/checkBoxRandomServiceName"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="14sp" />
+
+
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Badge Name:"
+        android:id="@+id/textViewBadgeCustomNameText"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/buttonReRegisterService"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="30sp"
+        android:layout_marginLeft="16sp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text=""
+        android:id="@+id/editTextBadgeCustomNameInput"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="20sp"
+        android:enabled="true"
+        android:minWidth="140sp"
+        android:minLines="1"
+        android:layout_alignTop="@+id/textViewBadgeCustomNameText"
+        android:layout_alignRight="@+id/checkBoxRandomServiceName"
+        android:maxLines="1"
+        android:inputType="text" />
 
 </RelativeLayout>

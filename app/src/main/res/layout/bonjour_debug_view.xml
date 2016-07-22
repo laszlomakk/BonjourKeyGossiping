@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".BonjourDebugActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/colorAlternateBg"
+            android:layout_weight="0.30">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="6sp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="State: "
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/badgeIdText"
+                    android:textSize="18sp"
+                    android:layout_alignParentLeft="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/appState"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_toRightOf="@+id/badgeIdText"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Your local IP is: "
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/customNameText"
+                    android:textSize="18sp"
+                    android:layout_below="@id/badgeIdText"
+                    android:layout_alignParentLeft="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/deviceIp"
+                    android:textSize="18sp"
+                    android:layout_below="@id/appState"
+                    android:layout_toRightOf="@+id/customNameText"/>
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Listening on port: "
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/routerMacText"
+                    android:textSize="14sp"
+                    android:layout_below="@id/customNameText"
+                    android:layout_alignParentLeft="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/localPort"
+                    android:textSize="14sp"
+                    android:layout_below="@id/deviceIp"
+                    android:layout_toRightOf="@+id/routerMacText"/>
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:text="Your registered service:"
+                    android:id="@+id/ownServiceText"
+                    android:textSize="18sp"
+                    android:paddingTop="4sp"
+                    android:layout_below="@id/routerMacText"
+                    android:layout_alignParentLeft="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/ownService"
+                    android:textSize="14sp"
+                    android:layout_below="@+id/ownServiceText"/>
+
+
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:id="@+id/settingsButton"
+                    android:src="@android:drawable/ic_menu_preferences" />
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentRight="true"
+                    android:id="@+id/refreshButton"
+                    android:src="@android:drawable/stat_notify_sync"
+                    android:layout_below="@+id/settingsButton"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:text="nServ:"
+                    android:id="@+id/numberOfServicesFoundText"
+                    android:layout_toLeftOf="@+id/numberOfServicesFound"
+                    android:textSize="14sp"
+                    android:layout_below="@+id/refreshButton"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/numberOfServicesFound"
+                    android:layout_alignParentRight="true"
+                    android:textSize="14sp"
+                    android:layout_below="@+id/refreshButton"
+                    android:layout_marginLeft="4sp"/>
+
+            </RelativeLayout>
+
+        </ScrollView>
+
+        <ListView android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:id="@+id/mainListView"
+            android:layout_weight="0.70">
+        </ListView>
+
+    </LinearLayout>
+
+</RelativeLayout>

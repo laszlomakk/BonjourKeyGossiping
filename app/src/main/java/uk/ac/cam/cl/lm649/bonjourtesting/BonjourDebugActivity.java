@@ -5,7 +5,6 @@
 
 package uk.ac.cam.cl.lm649.bonjourtesting;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,14 +22,15 @@ import java.util.TreeMap;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
-public class MainActivity extends Activity {
+public class BonjourDebugActivity extends CustomActivity {
 
-    private static final String TAG = "MainActivity";
-    private Context context;
-    private CustomApplication app;
+    private static final String TAG = "BonjourDebugActivity";
 
     private ArrayAdapter<String> listAdapterForDisplayedListOfServices;
     private ArrayList<ServiceEvent> servicesFoundArrList = new ArrayList<>();
@@ -45,35 +45,40 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = getApplicationContext();
-        app = (CustomApplication) getApplication();
         setupUI();
-        app.setMainActivity(this);
     }
 
     private void setupUI(){
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.bonjour_debug_view);
 
         // listView for displaying the services we find on the network
         ListView listView = (ListView) findViewById(R.id.mainListView);
-        listAdapterForDisplayedListOfServices = new ArrayAdapter<>(this, R.layout.row_in_list, new ArrayList<String>());
+        listAdapterForDisplayedListOfServices = new ArrayAdapter<>(this, R.layout.bonjour_debug_row_in_list, new ArrayList<String>());
         listView.setAdapter(listAdapterForDisplayedListOfServices);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 synchronized (displayedServicesLock){
+                    FLogger.i(TAG, "onItemClick() - user clicked on an item in the list");
                     ServiceInfo serviceInfo = servicesFoundArrList.get(position).getInfo();
                     if (null == serviceInfo){
-                        Log.e(TAG, "onItemClick(). error sending msg: serviceInfo is null");
-                        displayMsgToUser("error sending msg: serviceInfo is null (1)");
+                        FLogger.e(TAG, "onItemClick(). error sending msg: serviceInfo is null");
+                        HelperMethods.displayMsgToUser(context, "error sending msg: serviceInfo is null (1)");
                         return;
                     }
                     String msg = "Hy there! I see your payload is " + serviceInfo.getNiceTextString();
                     if (app.isBonjourServiceBound()){
                         String serviceName = app.getBonjourService().getNameOfOurService();
-                        MsgServer.sendMessage(MainActivity.this, serviceInfo, serviceName, msg);
+                        MsgClient msgClient = MsgServer.getInstance().serviceToMsgClientMap.get(new ServiceStub(serviceInfo));
+                        if (null == msgClient) {
+                            FLogger.e(TAG, "onItemClick(). msgClient not found");
+                            HelperMethods.displayMsgToUser(context, "error: msgClient not found");
+                        } else {
+                            msgClient.sendMessageArbitraryText(serviceName, msg);
+                        }
                     } else {
-                        displayMsgToUser("error: bonjourService not bound");
+                        FLogger.e(TAG, "onItemClick(). bonjourService not bound");
+                        HelperMethods.displayMsgToUser(context, "error: bonjourService not bound");
                     }
                 }
             }
@@ -122,7 +127,7 @@ public class MainActivity extends Activity {
         textViewAppState.setText(appStateText);
 
         String deviceIP = "999.999.999.999";
-        if (app.isBonjourServiceBound()) deviceIP = app.getBonjourService().getIPAdress();
+        if (app.isBonjourServiceBound()) deviceIP = app.getBonjourService().getIPAddress();
         textViewDeviceIp.setText(deviceIP);
 
         textViewLocalPort.setText(String.format(Locale.US,"%d",MsgServer.getInstance().getPort()));
@@ -141,7 +146,7 @@ public class MainActivity extends Activity {
     }
 
     private void resetUI(){
-        Log.i(TAG, "Resetting UI.");
+        FLogger.i(TAG, "Resetting UI.");
         refreshTopUI();
         resetListOfDisplayedServices();
     }
@@ -156,39 +161,24 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onStart(){
-        Log.i(TAG, "Activity starting up.");
         super.onStart();
-        MsgServer.getInstance().attachActivity(this);
         updateListView();
-
-        if (app.isBonjourServiceBound()) {
-            app.getBonjourService().attachActivity(this);
-        } else {
-            textViewAppState.setText("Waiting for BonjourService.");
-        }
     }
 
     @Override
     protected void onStop(){
-        Log.i(TAG, "Activity stopping.");
         super.onStop();
-        MsgServer.getInstance().attachActivity(null);
-        if (app.isBonjourServiceBound()) app.getBonjourService().attachActivity(null);
         resetUI();
     }
 
-    public void displayMsgToUser(final String msg) {
-        HelperMethods.displayMsgToUser(context, msg);
-    }
-
     public void updateListView(final TreeMap<ServiceStub, ServiceEvent> serviceRegistry) {
-        Log.v(TAG, "updateListView(TreeMap) called.");
+        FLogger.v(TAG, "updateListView(TreeMap) called.");
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 synchronized (serviceRegistry) {
                     synchronized (displayedServicesLock) {
-                        Log.d(TAG, "updateListView() doing actual update.");
+                        FLogger.v(TAG, "updateListView() doing actual update.");
                         refreshTopUIInternal();
                         listAdapterForDisplayedListOfServices.clear();
                         servicesFoundArrList.clear();
@@ -204,7 +194,7 @@ public class MainActivity extends Activity {
     }
 
     private void updateListView() {
-        Log.v(TAG, "updateListView() called.");
+        FLogger.v(TAG, "updateListView() called.");
         if (app.isBonjourServiceBound()) {
             updateListView(app.getBonjourService().getServiceRegistry());
         }

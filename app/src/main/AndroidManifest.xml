@@ -4,7 +4,12 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <!-- for logging to file -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="18" />
+
+    <!-- for automatic startup -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".CustomApplication"
@@ -13,10 +18,16 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainMenuActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".BonjourDebugActivity">
+            <intent-filter>
+                <action android:name="uk.ac.cam.cl.lm649.bonjourtesting.BONJOURDEBUG" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity android:name=".settings.SettingsActivity">
@@ -25,9 +36,49 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".activebadge.ActiveBadgeActivity">
+            <intent-filter>
+                <action android:name="uk.ac.cam.cl.lm649.bonjourtesting.ACTIVEBADGE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".LicensesActivity">
+            <intent-filter>
+                <action android:name="uk.ac.cam.cl.lm649.bonjourtesting.LICENSES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <service android:name=".bonjour.BonjourService"
             android:exported="false"/>
+
+        <receiver
+            android:name=".receivers.LoggingBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+                <action android:name="android.intent.action.ACTION_BATTERY_LOW"/>
+                <action android:name="android.intent.action.ACTION_BATTERY_OKAY"/>
+                <action android:name="android.intent.action.ACTION_MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.ACTION_AIRPLANE_MODE_CHANGED"/>
+                <action android:name="android.intent.action.ACTION_SHUTDOWN"/>
+                <action android:name="android.intent.action.ACTION_USER_PRESENT"/>
+            </intent-filter>
+        </receiver>
+
+
+        <receiver
+            android:name=".receivers.BootCompletedReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -9,27 +9,28 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
-import android.util.Log;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.ConnectivityChangeReceiver;
+import uk.ac.cam.cl.lm649.bonjourtesting.receivers.ConnectivityChangeReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
-import uk.ac.cam.cl.lm649.bonjourtesting.MainActivity;
-import uk.ac.cam.cl.lm649.bonjourtesting.MsgServer;
+import uk.ac.cam.cl.lm649.bonjourtesting.BonjourDebugActivity;
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
@@ -37,8 +38,8 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 public class BonjourService extends Service {
 
     private static final String TAG = "BonjourService";
+    private CustomApplication app;
     private Context context;
-    private MainActivity mainActivity;
     private String strServiceState = "-";
 
     private final IBinder binder = new BonjourServiceBinder();
@@ -57,19 +58,24 @@ public class BonjourService extends Service {
     private String nameOfOurService = "";
     private ServiceInfo serviceInfoOfOurService;
 
-    private final ExecutorService workerThread = Executors.newFixedThreadPool(1);
+    private Handler handler;
     private boolean started = false;
 
     @Override
     public void onCreate() {
-        Log.i(TAG, "onCreate() called.");
+        FLogger.i(TAG, "onCreate() called.");
         super.onCreate();
-        context = getApplicationContext();
+        app = (CustomApplication) getApplication();
+        context = app;
+
+        HandlerThread thread = new HandlerThread("BonjServ-handler");
+        thread.start();
+        handler = new Handler(thread.getLooper());
     }
 
     @Override
     public void onDestroy() {
-        Log.i(TAG, "onDestroy() called.");
+        FLogger.i(TAG, "onDestroy() called.");
         stopAndCloseWork();
         super.onDestroy();
     }
@@ -81,44 +87,44 @@ public class BonjourService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "onStartCommand() called.");
+        FLogger.i(TAG, "onStartCommand() called.");
         if (!started){
             started = true;
-            Log.i(TAG, "onStartCommand(). doing start-up.");
-            startWork();
+            FLogger.i(TAG, "onStartCommand(). doing start-up.");
+            startWork(false);
             registerConnectivityChangeReceiver();
         } else {
-            Log.w(TAG, "onStartCommand(). already started.");
+            FLogger.w(TAG, "onStartCommand(). already started.");
         }
         return START_STICKY;
     }
 
     private void createJmDNS() throws IOException {
-        Log.i(TAG, "Creating jmDNS.");
         inetAddressOfThisDevice = NetworkUtil.getWifiIpAddress(context);
-        Log.i(TAG, "Device IP: "+ inetAddressOfThisDevice.getHostAddress());
+        FLogger.i(TAG, "Device IP: "+ inetAddressOfThisDevice.getHostAddress());
         changeServiceState("creating JmDNS");
+        FLogger.i(TAG, "Creating jmDNS.");
         jmdns = JmDNS.create(inetAddressOfThisDevice);
     }
 
     private void startDiscovery(){
-        Log.i(TAG, "Starting discovery.");
+        FLogger.i(TAG, "Starting discovery.");
         changeServiceState("starting discovery");
         if (null == jmdns){
-            Log.e(TAG, "startDiscovery(). jmdns is null");
+            FLogger.e(TAG, "startDiscovery(). jmdns is null");
             return;
         }
         if (serviceListener != null){
-            Log.i(TAG, "startDiscovery(). serviceListener wasn't null. Removing prev listener");
+            FLogger.i(TAG, "startDiscovery(). serviceListener wasn't null. Removing prev listener");
             jmdns.removeServiceListener(Constants.SERVICE_TYPE, serviceListener);
         }
         serviceListener = new CustomServiceListener(this);
         jmdns.addServiceListener(Constants.SERVICE_TYPE, serviceListener);
-        HelperMethods.displayMsgToUser(context, "Starting discovery...");
+        //HelperMethods.displayMsgToUser(context, "Starting discovery...");
     }
 
     private void registerOurService() throws IOException {
-        Log.i(TAG, "Registering our own service.");
+        FLogger.i(TAG, "Registering our own service.");
         changeServiceState("registering our service");
         if (SaveSettingsData.getInstance(this).isUsingRandomServiceName()) {
             nameOfOurService = Constants.RANDOM_SERVICE_NAMES_START_WITH + HelperMethods.getNRandomDigits(5);
@@ -135,16 +141,16 @@ public class BonjourService extends Service {
         serviceInfoOfOurService = ServiceInfo.create(Constants.SERVICE_TYPE, nameOfOurService, port, payload);
         jmdns.registerService(serviceInfoOfOurService);
 
-        if (null != mainActivity) mainActivity.refreshTopUI();
+        if (app.getTopActivity() instanceof BonjourDebugActivity) ((BonjourDebugActivity)app.getTopActivity()).refreshTopUI();
 
         nameOfOurService = serviceInfoOfOurService.getName();
         String serviceIsRegisteredNotification = "Registered service. Name ended up being: " + nameOfOurService;
-        Log.i(TAG, serviceIsRegisteredNotification);
-        HelperMethods.displayMsgToUser(context, serviceIsRegisteredNotification);
+        FLogger.i(TAG, serviceIsRegisteredNotification);
+        //HelperMethods.displayMsgToUser(context, serviceIsRegisteredNotification);
     }
 
     private void registerConnectivityChangeReceiver() {
-        Log.i(TAG, "Registering ConnectivityChangeReceiver.");
+        FLogger.i(TAG, "Registering ConnectivityChangeReceiver.");
         changeServiceState("registering cc-receiver");
         connectivityChangeReceiver = new ConnectivityChangeReceiver();
         registerReceiver(
@@ -153,7 +159,7 @@ public class BonjourService extends Service {
     }
 
     public void restartDiscovery() {
-        workerThread.execute(new Runnable() {
+        handler.post(new Runnable() {
             @Override
             public void run() {
                 serviceRegistry.clear();
@@ -164,7 +170,7 @@ public class BonjourService extends Service {
     }
 
     public void reregisterOurService() {
-        workerThread.execute(new Runnable() {
+        handler.post(new Runnable() {
             @Override
             public void run() {
                 jmdns.unregisterAllServices();
@@ -172,7 +178,7 @@ public class BonjourService extends Service {
                     registerOurService();
                     changeServiceState("READY");
                 } catch (IOException e) {
-                    Log.e(TAG, "reregisterOurService() failed to register service.");
+                    FLogger.e(TAG, "reregisterOurService() failed to register service. IOE - " + e.getMessage());
                     e.printStackTrace();
                     changeServiceState("ERROR - rereg failed");
                 }
@@ -180,41 +186,58 @@ public class BonjourService extends Service {
         });
     }
 
-    private void startWork() {
-        Log.i(TAG, "startWork() called.");
-        workerThread.execute(new Runnable() {
+    private void startWork(final boolean iHaveRestartSemaphore) {
+        FLogger.i(TAG, "startWork() called. Caller has restartSemaphore: " + iHaveRestartSemaphore);
+        handler.post(new Runnable() {
             @Override
             public void run() {
-                Log.i(TAG, "startWork() is being executed.");
+                FLogger.i(TAG, "startWork() is being executed.");
                 if (null != jmdns) {
-                    Log.e(TAG, "jmdns was not null. This is not a clean start-up...");
+                    FLogger.e(TAG, "jmdns was not null. This is not a clean start-up...");
                 }
                 try {
                     createJmDNS();
                     registerOurService();
                     startDiscovery();
                     changeServiceState("READY");
-                    Log.i(TAG, "startWork() finished without error.");
+                    HelperMethods.displayMsgToUser(context, "BonjourService started w/o error");
+                    if (iHaveRestartSemaphore) {
+                        FLogger.i(TAG, "startWork() finished without error. Releasing restartSemaphore.");
+                        restartSemaphore.release();
+                    } else {
+                        FLogger.i(TAG, "startWork() finished without error. Don't have restartSemaphore to release.");
+                    }
                 } catch (IOException e) {
-                    Log.e(TAG, "startWork(). Error during start-up.");
+                    FLogger.e(TAG, "startWork(). Error during start-up: IOE - " + e.getMessage());
+                    HelperMethods.displayMsgToUser(context, "Error during start-up: IOE");
+                    changeServiceState("error during start-up: IOE");
                     e.printStackTrace();
+                    FLogger.i(TAG, "sleeping for a bit and then retrying start-up...");
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            FLogger.i(TAG, "sleep ended. retrying start-up... We have restartSemaphore: " + iHaveRestartSemaphore);
+                            restartWork(iHaveRestartSemaphore);
+                        }
+                    }, 15_000);
                 }
             }
         });
     }
 
     private void stopAndCloseWork() {
-        Log.i(TAG, "stopAndCloseWork() called.");
-        workerThread.execute(new Runnable() {
+        FLogger.i(TAG, "stopAndCloseWork() called.");
+        handler.post(new Runnable() {
              @Override
              public void run() {
-                 Log.i(TAG, "stopAndCloseWork() is being executed.");
+                 FLogger.i(TAG, "stopAndCloseWork() is being executed.");
                  if (jmdns != null) {
-                     Log.i(TAG, "Stopping jmDNS...");
+                     FLogger.i(TAG, "Stopping jmDNS...");
                      jmdns.unregisterAllServices();
                      try {
                          jmdns.close();
                      } catch (IOException e) {
+                         FLogger.e(TAG, "error closing jmdns. IOE - " + e.getMessage());
                          e.printStackTrace();
                      } finally {
                          jmdns = null;
@@ -224,22 +247,31 @@ public class BonjourService extends Service {
         });
     }
 
-    public void restartWork() {
-        Log.i(TAG, "restartWork() called.");
-        stopAndCloseWork();
-        startWork();
-    }
+    private Semaphore restartSemaphore = new Semaphore(2);
+    // only allow two restarts to be queued
+    // without this, restarts could theoretically queue up e.g. during sleep and then result in a restart loop
+    // we need to allow two though, as if an important event occurs while a restart is going on,
+    // another restart might be needed
+    public void restartWork(boolean iHaveRestartSemaphore) {
+        FLogger.i(TAG, "restartWork() called. Caller has restartSemaphore: " + iHaveRestartSemaphore);
+        if (!iHaveRestartSemaphore) {
+            if (restartSemaphore.tryAcquire()) {
+                FLogger.i(TAG, "restartWork() acquired restartSemaphore. Going forward.");
+            } else {
+                FLogger.i(TAG, "restartWork() could not acquire restartSemaphore. Cancelling restart.");
+                return;
+            }
+        }
 
-    public void attachActivity(MainActivity mainActivity) {
-        this.mainActivity = mainActivity;
-        if (null != mainActivity) mainActivity.updateListView(serviceRegistry);
+        stopAndCloseWork();
+        startWork(true);
     }
 
     protected void addServiceToRegistry(final ServiceEvent event) {
         synchronized (serviceRegistry){
             ServiceStub serviceStub = new ServiceStub(event);
             serviceRegistry.put(serviceStub, event);
-            if (null != mainActivity) mainActivity.updateListView(serviceRegistry);
+            if (app.getTopActivity() instanceof BonjourDebugActivity) ((BonjourDebugActivity)app.getTopActivity()).updateListView(serviceRegistry);
         }
     }
 
@@ -247,16 +279,16 @@ public class BonjourService extends Service {
         synchronized (serviceRegistry) {
             ServiceStub serviceStub = new ServiceStub(event);
             serviceRegistry.remove(serviceStub);
-            if (null != mainActivity) mainActivity.updateListView(serviceRegistry);
+            if (app.getTopActivity() instanceof BonjourDebugActivity) ((BonjourDebugActivity)app.getTopActivity()).updateListView(serviceRegistry);
         }
     }
 
     private void changeServiceState(final String state) {
         strServiceState = state;
-        if (null != mainActivity) mainActivity.refreshTopUI();
+        if (app.getTopActivity() instanceof BonjourDebugActivity) ((BonjourDebugActivity)app.getTopActivity()).refreshTopUI();
     }
 
-    public String getIPAdress() {
+    public String getIPAddress() {
         String ret = "999.999.999.999";
         if (null != inetAddressOfThisDevice) ret = inetAddressOfThisDevice.getHostAddress();
         return ret;
