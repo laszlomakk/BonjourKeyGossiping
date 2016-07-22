@@ -18,7 +18,10 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 
 public class ConnectivityChangeReceiver extends BroadcastReceiver {
 
-    private static final String TAG = "ConnectivityChangeRec";
+    private static final String TAG = "ConnChangeReceiver";
+
+    private String prevIpAddress = null;
+    private String prevRouterMac = null;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -31,7 +34,10 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
             FLogger.i(TAG, String.format(Locale.US,
                     "onReceive(). our current IP address is: %s, the router MAC is: %s",
                     ipAddress, routerMac));
-            if (isThisANewWifiConnectionThatWeJustEstablished(intent)) {
+            boolean addressChanged = isOurIpOrRouterMacDifferentThanLastTime(ipAddress, routerMac);
+            prevIpAddress = ipAddress;
+            prevRouterMac = routerMac;
+            if (isThisANewWifiConnectionThatWeJustEstablished(intent) && addressChanged) {
                 FLogger.i(TAG, "onReceive(). decided to act on intent");
                 HelperMethods.debugIntent(TAG, intent);
                 Context appContext = context.getApplicationContext();
@@ -51,6 +57,8 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
                 }
                 FLogger.i(TAG, "onReceive(). calling bonjourService.restartWork()");
                 app.getBonjourService().restartWork(false);
+            } else {
+                FLogger.i(TAG, "onReceive(). decided NOT to act on intent");
             }
         }
     }
@@ -58,13 +66,31 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
     private boolean isThisANewWifiConnectionThatWeJustEstablished(Intent intent) {
         NetworkInfo netInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
         if (null == netInfo || !netInfo.isConnected()) {
+            FLogger.d(TAG, "intent not of isConnected type, no need to act");
             return false;
         }
         Bundle extras = intent.getExtras();
         if (null == extras || null == extras.get("bssid")) {
+            FLogger.d(TAG, "intent is of 'noisy' isConnected type, no need to act");
             return false;
         }
+        FLogger.d(TAG, "intent seems to suggest a genuinely new connection");
         return true;
+    }
+
+    private boolean isOurIpOrRouterMacDifferentThanLastTime(String ipAddress, String routerMac) {
+        boolean ret;
+        if (null == prevIpAddress || !prevIpAddress.equals(ipAddress)) {
+            FLogger.d(TAG, "we have a different IP address than last time");
+            ret = true;
+        } else if (null == prevRouterMac || !prevRouterMac.equals(routerMac)) {
+            FLogger.d(TAG, "the router MAC is different than last time");
+            ret = true;
+        } else {
+            FLogger.d(TAG, "we have the same IP and the router MAC is the same as last time");
+            ret = false;
+        }
+        return ret;
     }
 
 }
