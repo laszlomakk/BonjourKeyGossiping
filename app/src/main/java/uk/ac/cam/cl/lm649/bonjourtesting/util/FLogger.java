@@ -67,7 +67,7 @@ public class FLogger {
                     if (curTime - logLineTime > 60_000) {
                         // write time of printing
                         writer.append("// current time reported by device: ");
-                        writer.append(getTimeStamp(curTime));
+                        writer.append(HelperMethods.getTimeStamp(curTime));
                         writer.newLine();
                     }
                     // write intended log line
@@ -109,15 +109,10 @@ public class FLogger {
             return;
         }
         long time = System.currentTimeMillis();
-        String strTimeStamp = getTimeStamp(time);
+        String strTimeStamp = HelperMethods.getTimeStamp(time);
         String rawLine = String.format(Locale.US, "%s %s/%s: %s",
                 strTimeStamp, logLevel.name().charAt(0), tag, msg);
         printRawLine(rawLine, time);
-    }
-
-    private static String getTimeStamp(long time) {
-        return new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss.SSS", Locale.US)
-                .format(new Timestamp(time));
     }
 
     public static void v(String tag, String msg) {

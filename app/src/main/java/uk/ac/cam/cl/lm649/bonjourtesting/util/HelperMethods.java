@@ -19,6 +19,9 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.Random;
 
 import javax.jmdns.ServiceEvent;
@@ -125,6 +128,11 @@ public class HelperMethods {
         else {
             FLogger.d(logTag, "debugIntent(). no extras");
         }
+    }
+
+    public static String getTimeStamp(long time) {
+        return new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss.SSS", Locale.US)
+                .format(new Timestamp(time));
     }
 
 }

@@ -11,6 +11,8 @@
     <!-- for automatic startup -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <application
         android:name=".CustomApplication"
         android:allowBackup="true"
@@ -51,6 +53,8 @@
 
         <service android:name=".bonjour.BonjourService"
             android:exported="false"/>
+        <service android:name=".activebadge.ActiveBadgePollerService"
+            android:exported="false"/>
 
         <receiver
             android:name=".receivers.LoggingBroadcastReceiver"
@@ -67,8 +71,6 @@
                 <action android:name="android.intent.action.ACTION_USER_PRESENT"/>
             </intent-filter>
         </receiver>
-
-
         <receiver
             android:name=".receivers.BootCompletedReceiver"
             android:enabled="true"
@@ -79,6 +81,11 @@
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".receivers.TimeToPollReceiver"
+            android:enabled="true"
+            android:exported="false">
+        </receiver>
+
     </application>
 
 </manifest>

@@ -6,14 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
 import java.io.IOException;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgePoller;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgePollerService;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.LoggingBroadcastReceiver;
@@ -54,7 +53,7 @@ public class CustomApplication extends Application {
 
         initLogger();
         initMsgServer();
-        ActiveBadgePoller.getInstance();
+        ActiveBadgePollerService.schedulePolling(this);
         startBonjourService();
         registerReceivers();
     }
