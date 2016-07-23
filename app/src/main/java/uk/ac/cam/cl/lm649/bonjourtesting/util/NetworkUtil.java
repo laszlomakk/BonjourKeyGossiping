@@ -1,6 +1,7 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.util;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -63,6 +64,17 @@ public class NetworkUtil {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         return wifiInfo.getBSSID();
+    }
+
+    public static NetworkInfo.State getWifiState(Intent intent) {
+        NetworkInfo netInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+        if (null == netInfo) return null;
+        return netInfo.getState();
+    }
+
+    public static String getWifiStateString(Intent intent) {
+        NetworkInfo.State state = getWifiState(intent);
+        return null == state ? "null" : state.name();
     }
 
 }
