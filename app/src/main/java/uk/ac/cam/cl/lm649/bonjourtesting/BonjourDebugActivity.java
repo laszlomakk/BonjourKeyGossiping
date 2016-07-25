@@ -26,6 +26,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.JmdnsUtil;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
 public class BonjourDebugActivity extends CustomActivity {
@@ -135,8 +136,8 @@ public class BonjourDebugActivity extends CustomActivity {
         String ownServiceText = "-";
         if (app.isBonjourServiceBound() && null != app.getBonjourService().getServiceInfoOfOurService()) {
             ServiceInfo serviceInfo = app.getBonjourService().getServiceInfoOfOurService();
-            ownServiceText = HelperMethods.getNameAndTypeString(serviceInfo)
-                    + HelperMethods.getPayloadString(serviceInfo);
+            ownServiceText = JmdnsUtil.getNameAndTypeString(serviceInfo)
+                    + JmdnsUtil.getPayloadString(serviceInfo);
         }
         textViewOwnService.setText(ownServiceText);
 
@@ -183,7 +184,7 @@ public class BonjourDebugActivity extends CustomActivity {
                         listAdapterForDisplayedListOfServices.clear();
                         servicesFoundArrList.clear();
                         for (ServiceEvent serviceEvent : serviceRegistry.values()) {
-                            listAdapterForDisplayedListOfServices.add(HelperMethods.getDetailedString(serviceEvent));
+                            listAdapterForDisplayedListOfServices.add(JmdnsUtil.getDetailedString(serviceEvent));
                             servicesFoundArrList.add(serviceEvent);
                         }
                         listAdapterForDisplayedListOfServices.notifyDataSetChanged();

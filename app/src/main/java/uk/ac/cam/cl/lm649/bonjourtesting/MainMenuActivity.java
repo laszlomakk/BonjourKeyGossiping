@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class MainMenuActivity extends CustomActivity {
 
@@ -12,10 +15,10 @@ public class MainMenuActivity extends CustomActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_menu_view);
 
-        setupButtons();
+        setupUI();
     }
 
-    private void setupButtons() {
+    private void setupUI() {
         Button btnActiveBadge = (Button) findViewById(R.id.buttonActiveBadge);
         btnActiveBadge.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,5 +50,8 @@ public class MainMenuActivity extends CustomActivity {
                 startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.LICENSES"));
             }
         });
+
+        TextView tvVersionNumber = (TextView) findViewById(R.id.textViewVersionNumber);
+        tvVersionNumber.setText(HelperMethods.getVersionName(this));
     }
 }

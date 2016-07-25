@@ -54,6 +54,9 @@ public class CustomApplication extends Application {
         INSTANCE = this;
 
         initLogger();
+
+        FLogger.i(TAG, "application version: " + HelperMethods.getVersionName(this));
+
         initMsgServer();
         ActiveBadgePollerService.schedulePolling(this);
         startBonjourService();
