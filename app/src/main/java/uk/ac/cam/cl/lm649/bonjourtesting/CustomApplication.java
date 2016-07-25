@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgePollerService;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
+import uk.ac.cam.cl.lm649.bonjourtesting.receivers.DeviceIdleBroadcastReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.LoggingBroadcastReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
@@ -85,7 +87,7 @@ public class CustomApplication extends Application {
         bindService(intent, bonjourServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    private void registerReceivers() { // docs say these receivers can't be set in the manifest
+    private void registerReceivers() { // docs/forums say these receivers can't be set in the manifest
         LoggingBroadcastReceiver loggingBroadcastReceiver = new LoggingBroadcastReceiver();
         registerReceiver(loggingBroadcastReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
         registerReceiver(loggingBroadcastReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
@@ -93,6 +95,13 @@ public class CustomApplication extends Application {
         if (Build.VERSION.SDK_INT >= 17) {
             registerReceiver(loggingBroadcastReceiver, new IntentFilter(Intent.ACTION_USER_BACKGROUND));
             registerReceiver(loggingBroadcastReceiver, new IntentFilter(Intent.ACTION_USER_FOREGROUND));
+        }
+        if (Build.VERSION.SDK_INT >= 21) {
+            registerReceiver(loggingBroadcastReceiver, new IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED));
+        }
+        if (Build.VERSION.SDK_INT >= 23) {
+            DeviceIdleBroadcastReceiver deviceIdleBroadcastReceiver = new DeviceIdleBroadcastReceiver();
+            registerReceiver(deviceIdleBroadcastReceiver, new IntentFilter(PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED));
         }
     }
 
