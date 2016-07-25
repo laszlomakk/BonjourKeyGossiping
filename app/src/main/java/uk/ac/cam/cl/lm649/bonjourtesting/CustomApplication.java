@@ -11,8 +11,11 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 
+import ch.qos.logback.classic.Level;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgePollerService;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
@@ -57,6 +60,7 @@ public class CustomApplication extends Application {
 
         FLogger.i(TAG, "application version: " + HelperMethods.getVersionName(this));
 
+        configJmDnsLogLevel();
         initMsgServer();
         ActiveBadgePollerService.schedulePolling(this);
         startBonjourService();
@@ -106,6 +110,18 @@ public class CustomApplication extends Application {
             DeviceIdleBroadcastReceiver deviceIdleBroadcastReceiver = new DeviceIdleBroadcastReceiver();
             registerReceiver(deviceIdleBroadcastReceiver, new IntentFilter(PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED));
         }
+    }
+
+    private void configJmDnsLogLevel() {
+        org.slf4j.Logger rootLogger = LoggerFactory.getLogger(
+                ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+        if (rootLogger instanceof ch.qos.logback.classic.Logger) {
+            ch.qos.logback.classic.Logger root2 = (ch.qos.logback.classic.Logger) rootLogger;
+            root2.setLevel(Level.DEBUG);
+        } else {
+            Log.e(TAG, "configJmDnsLogLevel(). Didn't recognise slf4j binding type...");
+        }
+
     }
 
     public BonjourService getBonjourService() {
