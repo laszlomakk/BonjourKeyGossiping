@@ -1,7 +1,6 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -136,7 +135,7 @@ public class MsgClient {
     private class MessageType {
         public static final int ARBITRARY_TEXT = 0;
         public static final int WHO_ARE_YOU_QUESTION = 1;
-        public static final int WHO_ARE_YOU_REPLY = 2;
+        public static final int THIS_IS_MY_IDENTITY = 2;
     }
 
     private void receiveMsg() throws IOException {
@@ -149,19 +148,13 @@ public class MsgClient {
                 break;
             case MessageType.WHO_ARE_YOU_QUESTION:
                 FLogger.i(TAG, sFromAddress + "received msg with type WHO_ARE_YOU_QUESTION");
-                SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
-                outStream.writeInt(MessageType.WHO_ARE_YOU_REPLY);
-                outStream.writeUTF(saveBadgeData.getMyBadgeId().toString());
-                outStream.writeUTF(saveBadgeData.getMyBadgeCustomName());
-                outStream.writeUTF(NetworkUtil.getRouterMacAddress(context));
-                outStream.flush();
-                FLogger.i(TAG, sToAddress + "sent msg with type WHO_ARE_YOU_REPLY");
+                sendMessageThisIsMyIdentity();
                 break;
-            case MessageType.WHO_ARE_YOU_REPLY:
+            case MessageType.THIS_IS_MY_IDENTITY:
                 String strBadgeId = inStream.readUTF();
                 String customName = inStream.readUTF();
                 String macAddress = inStream.readUTF();
-                FLogger.i(TAG, sFromAddress + "received msg with type WHO_ARE_YOU_REPLY, badgeID: "
+                FLogger.i(TAG, sFromAddress + "received msg with type THIS_IS_MY_IDENTITY, badgeID: "
                         + strBadgeId + ", nick: " + customName + ", MAC: " + macAddress);
                 UUID badgeId = UUID.fromString(strBadgeId);
                 Badge badge = new Badge(badgeId);
@@ -229,6 +222,36 @@ public class MsgClient {
             workerThreadOutgoing.execute(runnable);
         } catch (RejectedExecutionException e) {
             FLogger.e(TAG, "sendMessageWhoAreYouQuestion(). runnable was rejected by executor - " + e.getMessage());
+        }
+    }
+
+    public void sendMessageThisIsMyIdentity(){
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run(){
+                try {
+                    outStreamReadyLatch.await();
+                } catch (InterruptedException e) {
+                    FLogger.e(TAG, "sendMessageThisIsMyIdentity(). latch await interrupted - " + e.getMessage());
+                    return;
+                }
+                try {
+                    SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
+                    outStream.writeInt(MessageType.THIS_IS_MY_IDENTITY);
+                    outStream.writeUTF(saveBadgeData.getMyBadgeId().toString());
+                    outStream.writeUTF(saveBadgeData.getMyBadgeCustomName());
+                    outStream.writeUTF(NetworkUtil.getRouterMacAddress(context));
+                    outStream.flush();
+                    FLogger.i(TAG, sToAddress + "sent msg with type THIS_IS_MY_IDENTITY");
+                } catch (IOException e) {
+                    FLogger.e(TAG, "sendMessageThisIsMyIdentity(). IOE - " + e.getMessage());
+                }
+            }
+        };
+        try {
+            workerThreadOutgoing.execute(runnable);
+        } catch (RejectedExecutionException e) {
+            FLogger.e(TAG, "sendMessageThisIsMyIdentity(). runnable was rejected by executor - " + e.getMessage());
         }
     }
 

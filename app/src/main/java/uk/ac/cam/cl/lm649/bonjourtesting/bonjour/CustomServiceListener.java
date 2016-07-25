@@ -62,6 +62,7 @@ public class CustomServiceListener implements ServiceListener {
         MsgClient oldMsgClient = MsgServer.getInstance().serviceToMsgClientMap.put(new ServiceStub(event), msgClient);
         if (null != oldMsgClient) oldMsgClient.close();
         msgClient.sendMessageWhoAreYouQuestion();
+        msgClient.sendMessageThisIsMyIdentity();
     }
 
 }
