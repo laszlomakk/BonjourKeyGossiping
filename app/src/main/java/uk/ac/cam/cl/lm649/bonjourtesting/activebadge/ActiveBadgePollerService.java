@@ -43,7 +43,7 @@ public class ActiveBadgePollerService extends IntentService {
         wakeLock.acquire();
 
         try {
-            restartBonjourDiscovery();
+            doPolling();
             FLogger.i(TAG, "onHandleIntent(). Sleeping for a bit while keeping WakeLocks. " +
                     "Hoping for other threads to progress.");
             Thread.sleep(TIME_TO_KEEP_DEVICE_AWAKE);
@@ -59,8 +59,7 @@ public class ActiveBadgePollerService extends IntentService {
         }
     }
 
-    private void restartBonjourDiscovery() {
-        FLogger.i(TAG, "restartBonjourDiscovery() called.");
+    private void doPolling() {
         if (!app.isBonjourServiceBound()) {
             FLogger.e(TAG, "bonjourService not bound.");
             return;

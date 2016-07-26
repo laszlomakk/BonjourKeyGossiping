@@ -19,6 +19,9 @@ public class CustomServiceListener implements ServiceListener {
 
     private static final String TAG = "CustomServiceListener";
     private BonjourService bonjourService;
+
+    private boolean discoveredOurOwnService = false;
+
     private static final long SERVICE_RESOLUTION_TIMEOUT_MSEC = 8000;
 
     protected CustomServiceListener(BonjourService bonjourService){
@@ -29,6 +32,7 @@ public class CustomServiceListener implements ServiceListener {
     public void serviceAdded(ServiceEvent event) {
         if (event.getName().equals(bonjourService.getNameOfOurService())){
             FLogger.d(TAG, "Discovered our own service: " + event.getInfo());
+            discoveredOurOwnService = true;
             return;
         }
         FLogger.d(TAG, "Service added: " + event.getInfo());
@@ -63,6 +67,10 @@ public class CustomServiceListener implements ServiceListener {
         if (null != oldMsgClient) oldMsgClient.close();
         msgClient.sendMessageWhoAreYouQuestion();
         msgClient.sendMessageThisIsMyIdentity();
+    }
+
+    public boolean getDiscoveredOurOwnService() {
+        return discoveredOurOwnService;
     }
 
 }

@@ -113,6 +113,9 @@ public class BonjourService extends Service {
     private void startDiscovery(){
         FLogger.i(TAG, "Starting discovery.");
         changeServiceState("starting discovery");
+        synchronized (serviceRegistry) {
+            serviceRegistry.clear();
+        }
         if (null == jmdns){
             FLogger.e(TAG, "startDiscovery(). jmdns is null");
             return;
@@ -162,14 +165,23 @@ public class BonjourService extends Service {
     }
 
     public void restartDiscovery() {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                serviceRegistry.clear();
-                startDiscovery();
-                changeServiceState("READY");
-            }
-        });
+        FLogger.i(TAG, "restartDiscovery() called.");
+        if (null != serviceListener && serviceListener.getDiscoveredOurOwnService()) {
+            FLogger.i(TAG, "restartDiscovery(). service seems to be working correctly, " +
+                    "as we DISCOVERED ourselves last time. Proceeding with normal operation: discovery.");
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    startDiscovery();
+                    changeServiceState("READY");
+                }
+            });
+        } else {
+            FLogger.w(TAG, "restartDiscovery(). we DID NOT DISCOVER our own mDNS service since last " +
+                    "discovery restart. Calling restartWork() instead.");
+            restartWork(false);
+        }
+
     }
 
     public void reregisterOurService() {
