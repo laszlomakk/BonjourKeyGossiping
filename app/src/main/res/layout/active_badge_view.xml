@@ -80,15 +80,16 @@
                 <ImageButton
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:id="@+id/changeSortOrderButton"
-                    android:layout_toLeftOf="@+id/refreshButton"
-                    android:src="@android:drawable/ic_menu_sort_alphabetically" />
-                <ImageButton
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
                     android:layout_alignParentRight="true"
                     android:id="@+id/refreshButton"
                     android:src="@android:drawable/stat_notify_sync" />
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:id="@+id/changeSortOrderButton"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/refreshButton"
+                    android:src="@android:drawable/ic_menu_sort_alphabetically" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -97,7 +98,7 @@
                     android:id="@+id/nBadgesInListText"
                     android:layout_toLeftOf="@+id/nBadgesInList"
                     android:textSize="14sp"
-                    android:layout_below="@+id/refreshButton"/>
+                    android:layout_below="@+id/changeSortOrderButton"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -105,7 +106,7 @@
                     android:id="@+id/nBadgesInList"
                     android:layout_alignParentRight="true"
                     android:textSize="14sp"
-                    android:layout_below="@+id/refreshButton"
+                    android:layout_below="@+id/changeSortOrderButton"
                     android:layout_marginLeft="4sp"/>
 
             </RelativeLayout>
