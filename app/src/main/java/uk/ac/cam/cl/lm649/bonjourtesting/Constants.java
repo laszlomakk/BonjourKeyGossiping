@@ -1,5 +1,7 @@
 package uk.ac.cam.cl.lm649.bonjourtesting;
 
+import ch.qos.logback.classic.Level;
+
 public class Constants {
 
     private Constants(){}
@@ -10,5 +12,7 @@ public class Constants {
 
     public static final boolean FIXED_DNS_TXT_RECORD = false;
     public static final String DNS_TXT_RECORD = "cherry topped ice cream";
+
+    public static final Level JmDnsLogLevel = Level.ERROR;
 
 }

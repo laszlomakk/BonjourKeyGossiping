@@ -117,7 +117,7 @@ public class CustomApplication extends Application {
                 ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
         if (rootLogger instanceof ch.qos.logback.classic.Logger) {
             ch.qos.logback.classic.Logger root2 = (ch.qos.logback.classic.Logger) rootLogger;
-            root2.setLevel(Level.DEBUG);
+            root2.setLevel(Constants.JmDnsLogLevel);
         } else {
             Log.e(TAG, "configJmDnsLogLevel(). Didn't recognise slf4j binding type...");
         }
