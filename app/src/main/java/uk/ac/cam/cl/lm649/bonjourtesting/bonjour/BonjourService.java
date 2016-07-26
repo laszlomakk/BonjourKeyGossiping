@@ -17,6 +17,7 @@ import android.os.IBinder;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Locale;
 import java.util.TreeMap;
 import java.util.concurrent.Semaphore;
 
@@ -41,6 +42,8 @@ public class BonjourService extends Service {
     private CustomApplication app;
     private Context context;
     private String strServiceState = "-";
+
+    private static final long TIME_TO_WAIT_BETWEEN_STARTUP_RETRIES = 15_000;
 
     private final IBinder binder = new BonjourServiceBinder();
 
@@ -200,7 +203,7 @@ public class BonjourService extends Service {
                     registerOurService();
                     startDiscovery();
                     changeServiceState("READY");
-                    HelperMethods.displayMsgToUser(context, "BonjourService started w/o error");
+                    //HelperMethods.displayMsgToUser(context, "BonjourService started w/o error");
                     if (iHaveRestartSemaphore) {
                         FLogger.i(TAG, "startWork() finished without error. Releasing restartSemaphore.");
                         restartSemaphore.release();
@@ -209,17 +212,19 @@ public class BonjourService extends Service {
                     }
                 } catch (IOException e) {
                     FLogger.e(TAG, "startWork(). Error during start-up: IOE - " + e.getMessage());
-                    HelperMethods.displayMsgToUser(context, "Error during start-up: IOE");
+                    //HelperMethods.displayMsgToUser(context, "Error during start-up: IOE");
                     changeServiceState("error during start-up: IOE");
                     e.printStackTrace();
-                    FLogger.i(TAG, "sleeping for a bit and then retrying start-up...");
+                    FLogger.i(TAG, String.format(
+                            Locale.US, "sleeping for %d seconds and then retrying start-up...",
+                            TIME_TO_WAIT_BETWEEN_STARTUP_RETRIES/1000));
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             FLogger.i(TAG, "sleep ended. retrying start-up... We have restartSemaphore: " + iHaveRestartSemaphore);
                             restartWork(iHaveRestartSemaphore);
                         }
-                    }, 15_000);
+                    }, TIME_TO_WAIT_BETWEEN_STARTUP_RETRIES);
                 }
             }
         });
