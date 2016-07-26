@@ -48,4 +48,9 @@ public class Badge {
         return String.format(Locale.US, "badgeID: %s\nnick: %s\nrouter_MAC: %s\ntime: %s",
                 badgeId.toString(), customName, routerMac, new Date(timestamp));
     }
+
+    public enum SortOrder {
+        MOST_RECENT_FIRST, ALPHABETICAL
+    }
+
 }

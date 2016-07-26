@@ -11,10 +11,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+
 import static uk.ac.cam.cl.lm649.bonjourtesting.activebadge.DbContract.BadgeEntry;
 
 public class BadgeDbHelper extends SQLiteOpenHelper {
 
+    private static final String TAG = "BadgeDbHelper";
     private static BadgeDbHelper INSTANCE = null;
 
     private BadgeDbHelper(Context context) {
@@ -93,11 +96,23 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
         return badge;
     }
 
-    public List<Badge> getAllBadges() {
+    public List<Badge> getAllBadges(Badge.SortOrder sortOrder) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        String selectQuery = "SELECT  * FROM " + BadgeEntry.TABLE_NAME
-                + " ORDER BY " + BadgeEntry.COLUMN_NAME_TIMESTAMP + " DESC";
+        String orderBy = "";
+        switch (sortOrder) {
+            case MOST_RECENT_FIRST:
+                orderBy = " ORDER BY " + BadgeEntry.COLUMN_NAME_TIMESTAMP + " DESC";
+                break;
+            case ALPHABETICAL:
+                orderBy = " ORDER BY " + BadgeEntry.COLUMN_NAME_CUSTOM_NAME + " ASC";
+                break;
+            default:
+                FLogger.e(TAG, "unknown badge sort order: " + sortOrder.name());
+                break;
+        }
+
+        String selectQuery = "SELECT  * FROM " + BadgeEntry.TABLE_NAME + orderBy;
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         List<Badge> badgeList = new ArrayList<>();

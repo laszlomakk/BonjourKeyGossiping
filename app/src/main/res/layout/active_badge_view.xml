@@ -80,6 +80,12 @@
                 <ImageButton
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:id="@+id/changeSortOrderButton"
+                    android:layout_toLeftOf="@+id/refreshButton"
+                    android:src="@android:drawable/ic_menu_sort_alphabetically" />
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_alignParentRight="true"
                     android:id="@+id/refreshButton"
                     android:src="@android:drawable/stat_notify_sync" />

@@ -25,6 +25,7 @@ public class ActiveBadgeActivity extends CustomActivity {
     private ArrayAdapter<String> listAdapterForDisplayedListOfBadges;
     private ArrayList<Badge> badgesArrList = new ArrayList<>();
     private final Object displayedBadgesLock = new Object();
+    private Badge.SortOrder badgeSortOrder = Badge.SortOrder.MOST_RECENT_FIRST;
 
     private TextView textViewBadgeId;
     private TextView textViewCustomName;
@@ -82,6 +83,26 @@ public class ActiveBadgeActivity extends CustomActivity {
         textViewRouterMac = (TextView) findViewById(R.id.routerMac) ;
         textViewNumBadgesInList = (TextView) findViewById(R.id.nBadgesInList);
 
+        // change sort order button
+        findViewById(R.id.changeSortOrderButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch(badgeSortOrder) {
+                    case MOST_RECENT_FIRST:
+                        badgeSortOrder = Badge.SortOrder.ALPHABETICAL;
+                        break;
+                    case ALPHABETICAL:
+                        badgeSortOrder = Badge.SortOrder.MOST_RECENT_FIRST;
+                        break;
+                    default:
+                        FLogger.e(TAG, "unknown badge sort order: " + badgeSortOrder.name());
+                        badgeSortOrder = Badge.SortOrder.MOST_RECENT_FIRST;
+                        break;
+                }
+                updateListView();
+            }
+        });
+
         // refresh button
         findViewById(R.id.refreshButton).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,7 +147,7 @@ public class ActiveBadgeActivity extends CustomActivity {
                     FLogger.v(TAG, "updateListView() doing actual update.");
                     listAdapterForDisplayedListOfBadges.clear();
                     badgesArrList.clear();
-                    for (Badge badge : BadgeDbHelper.getInstance(context).getAllBadges()) {
+                    for (Badge badge : BadgeDbHelper.getInstance(context).getAllBadges(badgeSortOrder)) {
                         listAdapterForDisplayedListOfBadges.add(badge.toString());
                         badgesArrList.add(badge);
                     }
