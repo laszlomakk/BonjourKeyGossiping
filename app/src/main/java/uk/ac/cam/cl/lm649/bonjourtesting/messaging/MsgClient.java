@@ -151,16 +151,8 @@ public class MsgClient {
                 sendMessageThisIsMyIdentity();
                 break;
             case MessageType.THIS_IS_MY_IDENTITY:
-                String strBadgeId = inStream.readUTF();
-                String customName = inStream.readUTF();
-                String macAddress = inStream.readUTF();
-                FLogger.i(TAG, sFromAddress + "received msg with type THIS_IS_MY_IDENTITY, badgeID: "
-                        + strBadgeId + ", nick: " + customName + ", MAC: " + macAddress);
-                UUID badgeId = UUID.fromString(strBadgeId);
-                Badge badge = new Badge(badgeId);
-                badge.setCustomName(customName);
-                badge.setRouterMac(macAddress);
-                badge.setTimestamp(System.currentTimeMillis());
+                Badge badge = Badge.createFromStream(inStream);
+                FLogger.i(TAG, sFromAddress + "received msg with type THIS_IS_MY_IDENTITY, " + badge.toString());
                 BadgeDbHelper.getInstance(context).smartUpdateBadge(badge);
                 if (app.getTopActivity() instanceof ActiveBadgeActivity) ((ActiveBadgeActivity)app.getTopActivity()).updateListView();
                 break;
@@ -237,10 +229,13 @@ public class MsgClient {
                 }
                 try {
                     SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
+                    Badge myBadge = new Badge(saveBadgeData.getMyBadgeId());
+                    myBadge.setCustomName(saveBadgeData.getMyBadgeCustomName());
+                    myBadge.setRouterMac(NetworkUtil.getRouterMacAddress(context));
+                    myBadge.setTimestamp(System.currentTimeMillis());
+
                     outStream.writeInt(MessageType.THIS_IS_MY_IDENTITY);
-                    outStream.writeUTF(saveBadgeData.getMyBadgeId().toString());
-                    outStream.writeUTF(saveBadgeData.getMyBadgeCustomName());
-                    outStream.writeUTF(NetworkUtil.getRouterMacAddress(context));
+                    myBadge.serialiseToStream(outStream);
                     outStream.flush();
                     FLogger.i(TAG, sToAddress + "sent msg with type THIS_IS_MY_IDENTITY");
                 } catch (IOException e) {
