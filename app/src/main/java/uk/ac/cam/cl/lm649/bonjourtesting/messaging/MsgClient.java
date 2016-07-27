@@ -176,6 +176,7 @@ public class MsgClient {
                         //        + sFromAddress + ")");
                     }
                 }
+                if (app.getTopActivity() instanceof ActiveBadgeActivity) ((ActiveBadgeActivity)app.getTopActivity()).updateListView();
                 break;
             default: // unknown
                 FLogger.e(TAG, sFromAddress + "received msg with unknown msgType: " + msgType);
