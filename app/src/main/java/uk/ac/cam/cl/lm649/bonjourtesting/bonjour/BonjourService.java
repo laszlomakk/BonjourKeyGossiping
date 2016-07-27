@@ -61,6 +61,8 @@ public class BonjourService extends Service {
     private String nameOfOurService = "";
     private ServiceInfo serviceInfoOfOurService;
 
+    private SaveSettingsData saveSettingsData;
+
     private Handler handler;
     private boolean started = false;
 
@@ -70,6 +72,8 @@ public class BonjourService extends Service {
         super.onCreate();
         app = (CustomApplication) getApplication();
         context = app;
+
+        saveSettingsData = SaveSettingsData.getInstance(context);
 
         HandlerThread thread = new HandlerThread("BonjServ-handler");
         thread.start();
@@ -115,6 +119,7 @@ public class BonjourService extends Service {
         changeServiceState("starting discovery");
         synchronized (serviceRegistry) {
             serviceRegistry.clear();
+            if (app.getTopActivity() instanceof BonjourDebugActivity) ((BonjourDebugActivity)app.getTopActivity()).updateListView(serviceRegistry);
         }
         if (null == jmdns){
             FLogger.e(TAG, "startDiscovery(). jmdns is null");
@@ -122,10 +127,10 @@ public class BonjourService extends Service {
         }
         if (serviceListener != null){
             FLogger.i(TAG, "startDiscovery(). serviceListener wasn't null. Removing prev listener");
-            jmdns.removeServiceListener(Constants.SERVICE_TYPE, serviceListener);
+            jmdns.removeServiceListener(saveSettingsData.getServiceType(), serviceListener);
         }
         serviceListener = new CustomServiceListener(this);
-        jmdns.addServiceListener(Constants.SERVICE_TYPE, serviceListener);
+        jmdns.addServiceListener(saveSettingsData.getServiceType(), serviceListener);
         //HelperMethods.displayMsgToUser(context, "Starting discovery...");
     }
 
@@ -144,7 +149,7 @@ public class BonjourService extends Service {
             payload = HelperMethods.getRandomString();
         }
         int port = MsgServer.getInstance().getPort();
-        serviceInfoOfOurService = ServiceInfo.create(Constants.SERVICE_TYPE, nameOfOurService, port, payload);
+        serviceInfoOfOurService = ServiceInfo.create(saveSettingsData.getServiceType(), nameOfOurService, port, payload);
         jmdns.registerService(serviceInfoOfOurService);
 
         if (app.getTopActivity() instanceof BonjourDebugActivity) ((BonjourDebugActivity)app.getTopActivity()).refreshTopUI();

@@ -4,17 +4,6 @@
     android:layout_height="match_parent">
 
 
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="use random instead"
-        android:id="@+id/checkBoxRandomServiceName"
-        android:layout_gravity="center_horizontal"
-        android:checked="false"
-        android:layout_below="@+id/textViewFixedServiceNameText"
-        android:layout_toRightOf="@+id/textViewFixedServiceNameText"
-        android:layout_marginTop="24sp" />
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,21 +25,61 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginLeft="20sp"
         android:enabled="true"
-        android:minWidth="140sp"
+        android:minWidth="200dp"
         android:minLines="1"
+        android:layout_toRightOf="@+id/textViewFixedServiceNameText"
         android:layout_alignTop="@+id/textViewFixedServiceNameText"
-        android:layout_alignRight="@+id/checkBoxRandomServiceName"
+        android:maxLines="1"
+        android:inputType="text" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="use random instead"
+        android:id="@+id/checkBoxRandomServiceName"
+        android:layout_gravity="center_horizontal"
+        android:checked="false"
+        android:layout_below="@+id/textViewFixedServiceNameText"
+        android:layout_toRightOf="@+id/textViewFixedServiceNameText"
+        android:layout_alignLeft="@+id/editTextFixedServiceNameInput"
+        android:layout_marginTop="24sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Service Type:"
+        android:id="@+id/textViewServiceTypeText"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/checkBoxRandomServiceName"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="24sp"
+        android:layout_marginLeft="16sp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="servType"
+        android:id="@+id/editTextServiceTypeInput"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="20sp"
+        android:enabled="true"
+        android:minWidth="200dp"
+        android:minLines="1"
+        android:layout_toRightOf="@+id/textViewServiceTypeText"
+        android:layout_alignTop="@+id/textViewServiceTypeText"
         android:maxLines="1"
         android:inputType="text" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Re-Register Service"
-        android:id="@+id/buttonReRegisterService"
-        android:layout_below="@+id/checkBoxRandomServiceName"
+        android:text="Restart BonjourService"
+        android:id="@+id/buttonRestartBonjourService"
+        android:layout_below="@+id/textViewServiceTypeText"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="14sp" />
+        android:layout_margin="20dp" />
 
 
 
@@ -62,9 +91,9 @@
         android:text="Badge Name:"
         android:id="@+id/textViewBadgeCustomNameText"
         android:layout_gravity="center_horizontal"
-        android:layout_below="@+id/buttonReRegisterService"
+        android:layout_below="@+id/buttonRestartBonjourService"
         android:layout_alignParentLeft="true"
-        android:layout_marginTop="30sp"
+        android:layout_marginTop="35dp"
         android:layout_marginLeft="16sp" />
 
     <EditText
@@ -76,10 +105,10 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginLeft="20sp"
         android:enabled="true"
-        android:minWidth="140sp"
+        android:minWidth="200dp"
         android:minLines="1"
         android:layout_alignTop="@+id/textViewBadgeCustomNameText"
-        android:layout_alignRight="@+id/checkBoxRandomServiceName"
+        android:layout_toRightOf="@+id/textViewBadgeCustomNameText"
         android:maxLines="1"
         android:inputType="text" />
 
