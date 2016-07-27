@@ -13,7 +13,6 @@ import java.util.ArrayList;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbHelper;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbTableBadges;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
@@ -24,9 +23,9 @@ public class ActiveBadgeActivity extends CustomActivity {
     private static final String TAG = "ActiveBadgeActivity";
 
     private ArrayAdapter<String> listAdapterForDisplayedListOfBadges;
-    private ArrayList<Badge> badgesArrList = new ArrayList<>();
+    private ArrayList<BadgeStatus> badgesArrList = new ArrayList<>();
     private final Object displayedBadgesLock = new Object();
-    private Badge.SortOrder badgeSortOrder = Badge.SortOrder.MOST_RECENT_FIRST;
+    private BadgeStatus.SortOrder badgeSortOrder = BadgeStatus.SortOrder.MOST_RECENT_ALIVE_FIRST;
 
     private TextView textViewBadgeId;
     private TextView textViewCustomName;
@@ -52,8 +51,8 @@ public class ActiveBadgeActivity extends CustomActivity {
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 synchronized (displayedBadgesLock) {
                     FLogger.i(TAG, "onItemClick() - user clicked on an item in the list");
-                    final Badge badge = badgesArrList.get(position);
-                    if (null == badge){
+                    final BadgeStatus badgeStatus = badgesArrList.get(position);
+                    if (null == badgeStatus){
                         FLogger.e(TAG, "onItemClick(). clicked badge is null ??");
                         HelperMethods.displayMsgToUser(context, "error: clicked badge is null");
                         return true;
@@ -62,8 +61,8 @@ public class ActiveBadgeActivity extends CustomActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             FLogger.i(TAG, "user deleted badge from DB");
-                            FLogger.d(TAG, "deleted badge had details: " + badge.toString());
-                            DbTableBadges.deleteBadge(badge);
+                            FLogger.d(TAG, "deleted badge had details: " + badgeStatus.toString());
+                            DbTableBadges.deleteBadge(badgeStatus.getBadgeCore().getBadgeId());
                             updateListView();
                         }
                     };
@@ -89,15 +88,15 @@ public class ActiveBadgeActivity extends CustomActivity {
             @Override
             public void onClick(View v) {
                 switch(badgeSortOrder) {
-                    case MOST_RECENT_FIRST:
-                        badgeSortOrder = Badge.SortOrder.ALPHABETICAL;
+                    case MOST_RECENT_ALIVE_FIRST:
+                        badgeSortOrder = BadgeStatus.SortOrder.ALPHABETICAL;
                         break;
                     case ALPHABETICAL:
-                        badgeSortOrder = Badge.SortOrder.MOST_RECENT_FIRST;
+                        badgeSortOrder = BadgeStatus.SortOrder.MOST_RECENT_ALIVE_FIRST;
                         break;
                     default:
                         FLogger.e(TAG, "unknown badge sort order: " + badgeSortOrder.name());
-                        badgeSortOrder = Badge.SortOrder.MOST_RECENT_FIRST;
+                        badgeSortOrder = BadgeStatus.SortOrder.MOST_RECENT_ALIVE_FIRST;
                         break;
                 }
                 updateListView();
@@ -148,9 +147,9 @@ public class ActiveBadgeActivity extends CustomActivity {
                     FLogger.v(TAG, "updateListView() doing actual update.");
                     listAdapterForDisplayedListOfBadges.clear();
                     badgesArrList.clear();
-                    for (Badge badge : DbTableBadges.getAllBadges(badgeSortOrder)) {
-                        listAdapterForDisplayedListOfBadges.add(badge.toString());
-                        badgesArrList.add(badge);
+                    for (BadgeStatus badgeStatus : DbTableBadges.getAllBadges(badgeSortOrder)) {
+                        listAdapterForDisplayedListOfBadges.add(badgeStatus.toString());
+                        badgesArrList.add(badgeStatus);
                     }
                     listAdapterForDisplayedListOfBadges.notifyDataSetChanged();
                     refreshTopUIInternal();

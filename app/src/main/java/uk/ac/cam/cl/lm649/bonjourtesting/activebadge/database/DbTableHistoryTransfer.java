@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.Locale;
 import java.util.UUID;
 
 import static uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbContract.HistoryTransferEntry;
@@ -13,6 +14,14 @@ public final class DbTableHistoryTransfer {
     private static final String TAG = "DbTableHistoryTransfer";
 
     private DbTableHistoryTransfer() {}
+
+    protected static String constructQueryToCreateTable() {
+        return String.format(Locale.US,
+                "CREATE TABLE %s(%s TEXT PRIMARY KEY, %s INTEGER)",
+                HistoryTransferEntry.TABLE_NAME,
+                HistoryTransferEntry.COLUMN_NAME_BADGE_ID,
+                HistoryTransferEntry.COLUMN_NAME_TIMESTAMP_LAST_HISTORY_TRANSFER);
+    }
 
     public static void addEntry(UUID badgeId, long timestamp) {
         SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
@@ -25,7 +34,7 @@ public final class DbTableHistoryTransfer {
     private static ContentValues createContentValues(UUID badgeId, long timestamp) {
         ContentValues values = new ContentValues();
         values.put(HistoryTransferEntry.COLUMN_NAME_BADGE_ID, badgeId.toString());
-        values.put(HistoryTransferEntry.COLUMN_NAME_HISTORY_TRANSFER_TIMESTAMP, timestamp);
+        values.put(HistoryTransferEntry.COLUMN_NAME_TIMESTAMP_LAST_HISTORY_TRANSFER, timestamp);
         return values;
     }
 
@@ -34,7 +43,7 @@ public final class DbTableHistoryTransfer {
 
         Cursor cursor = db.query(HistoryTransferEntry.TABLE_NAME,
                 new String[] {
-                        HistoryTransferEntry.COLUMN_NAME_HISTORY_TRANSFER_TIMESTAMP
+                        HistoryTransferEntry.COLUMN_NAME_TIMESTAMP_LAST_HISTORY_TRANSFER
                 }, HistoryTransferEntry.COLUMN_NAME_BADGE_ID + "=?",
                 new String[] { badgeId.toString() }, null, null, null, null);
         if (null == cursor || cursor.getCount() == 0) {

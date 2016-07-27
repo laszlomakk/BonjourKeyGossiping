@@ -25,8 +25,8 @@ import javax.jmdns.ServiceInfo;
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgeActivity;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.Badge;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbHelper;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeCore;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeStatus;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbTableBadges;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbTableHistoryTransfer;
@@ -159,20 +159,20 @@ public class MsgClient {
                 sendMessageThisIsMyIdentity();
                 break;
             case MessageType.THIS_IS_MY_IDENTITY:
-                Badge badge = Badge.createFromStream(inStream);
-                FLogger.i(TAG, sFromAddress + "received msg with type THIS_IS_MY_IDENTITY, " + badge.toString());
-                DbTableBadges.smartUpdateBadge(badge);
+                BadgeStatus badgeStatus = BadgeStatus.createFromStream(inStream);
+                FLogger.i(TAG, sFromAddress + "received msg with type THIS_IS_MY_IDENTITY, " + badgeStatus.toString());
+                DbTableBadges.smartUpdateBadge(badgeStatus);
                 if (app.getTopActivity() instanceof ActiveBadgeActivity) ((ActiveBadgeActivity)app.getTopActivity()).updateListView();
-                considerDoingAHistoryTransfer(badge.getBadgeId());
+                considerDoingAHistoryTransfer(badgeStatus.getBadgeCore().getBadgeId());
                 break;
             case MessageType.HISTORY_TRANSFER:
                 int numBadges = inStream.readInt();
                 FLogger.i(TAG, sFromAddress + "received msg with type HISTORY_TRANSFER, containing "
                         + numBadges + " badges");
                 for (int badgeIndex = 0; badgeIndex < numBadges; badgeIndex++) {
-                    Badge badge2 = Badge.createFromStream(inStream);
-                    if (!saveBadgeData.getMyBadgeId().equals(badge2.getBadgeId())) {
-                        DbTableBadges.smartUpdateBadge(badge2);
+                    BadgeStatus badgeStatus2 = BadgeStatus.createFromStream(inStream);
+                    if (!saveBadgeData.getMyBadgeId().equals(badgeStatus2.getBadgeCore().getBadgeId())) {
+                        DbTableBadges.smartUpdateBadge(badgeStatus2);
                     } else {
                         // FLogger.e(TAG, "received history transfer included our own badge! (came from "
                         //        + sFromAddress + ")");
@@ -251,13 +251,14 @@ public class MsgClient {
                     return;
                 }
                 try {
-                    Badge myBadge = new Badge(saveBadgeData.getMyBadgeId());
-                    myBadge.setCustomName(saveBadgeData.getMyBadgeCustomName());
-                    myBadge.setRouterMac(NetworkUtil.getRouterMacAddress(context));
-                    myBadge.setTimestamp(System.currentTimeMillis());
+                    BadgeCore myBadgeCore = new BadgeCore(saveBadgeData.getMyBadgeId());
+                    myBadgeCore.setCustomName(saveBadgeData.getMyBadgeCustomName());
+                    BadgeStatus badgeStatus = new BadgeStatus(myBadgeCore);
+                    badgeStatus.setRouterMac(NetworkUtil.getRouterMacAddress(context));
+                    badgeStatus.setTimestampLastSeenAlive(System.currentTimeMillis());
 
                     outStream.writeInt(MessageType.THIS_IS_MY_IDENTITY);
-                    myBadge.serialiseToStream(outStream);
+                    badgeStatus.serialiseToStream(outStream);
                     outStream.flush();
                     FLogger.i(TAG, sToAddress + "sent msg with type THIS_IS_MY_IDENTITY");
                 } catch (IOException e) {
@@ -300,15 +301,15 @@ public class MsgClient {
                 }
                 try {
                     outStream.writeInt(MessageType.HISTORY_TRANSFER);
-                    List<Badge> badges = DbTableBadges.getAllBadges(Badge.SortOrder.MOST_RECENT_FIRST);
-                    outStream.writeInt(badges.size());
-                    for (Badge badge : badges) {
-                        badge.serialiseToStream(outStream);
+                    List<BadgeStatus> badgeStatuses = DbTableBadges.getAllBadges(BadgeStatus.SortOrder.MOST_RECENT_ALIVE_FIRST);
+                    outStream.writeInt(badgeStatuses.size());
+                    for (BadgeStatus badgeStatus : badgeStatuses) {
+                        badgeStatus.serialiseToStream(outStream);
                     }
                     outStream.flush();
                     DbTableHistoryTransfer.smartUpdateEntry(badgeIdOfReceiver, System.currentTimeMillis());
                     FLogger.i(TAG, sToAddress + "sent msg with type HISTORY_TRANSFER, containing "
-                            + badges.size() + " badges");
+                            + badgeStatuses.size() + " badges");
                 } catch (IOException e) {
                     FLogger.e(TAG, "sendMessageHistoryTransfer(). IOE - " + e.getMessage());
                 }
