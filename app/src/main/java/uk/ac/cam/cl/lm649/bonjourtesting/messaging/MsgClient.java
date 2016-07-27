@@ -42,7 +42,6 @@ public class MsgClient {
 
     private CustomApplication app;
     private Context context;
-    private SaveSettingsData saveSettingsData;
     private SaveBadgeData saveBadgeData;
 
     private final ExecutorService workerThreadIncoming = Executors.newFixedThreadPool(1);
@@ -60,7 +59,6 @@ public class MsgClient {
     private MsgClient() {
         app = CustomApplication.getInstance();
         context = app;
-        saveSettingsData = SaveSettingsData.getInstance(context);
         saveBadgeData = SaveBadgeData.getInstance(context);
     }
 
@@ -288,7 +286,6 @@ public class MsgClient {
         }
     }
 
-    // TODO only send "new" history
     public void sendMessageHistoryTransfer(final UUID badgeIdOfReceiver){
         final Runnable runnable = new Runnable() {
             @Override
