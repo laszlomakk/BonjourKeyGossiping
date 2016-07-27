@@ -15,4 +15,6 @@ public class Constants {
 
     public static final Level JmDnsLogLevel = Level.ERROR;
 
+    public static final long HISTORY_TRANSFER_TO_SAME_CLIENT_COOLDOWN = 5 * 60 * 1000;
+
 }

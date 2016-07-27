@@ -1,6 +1,7 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -11,6 +12,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -20,11 +22,14 @@ import java.util.concurrent.RejectedExecutionException;
 
 import javax.jmdns.ServiceInfo;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgeActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.Badge;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeDbHelper;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbHelper;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbTableBadges;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbTableHistoryTransfer;
 import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
@@ -38,6 +43,7 @@ public class MsgClient {
     private CustomApplication app;
     private Context context;
     private SaveSettingsData saveSettingsData;
+    private SaveBadgeData saveBadgeData;
 
     private final ExecutorService workerThreadIncoming = Executors.newFixedThreadPool(1);
     private final ExecutorService workerThreadOutgoing = Executors.newFixedThreadPool(1);
@@ -55,6 +61,7 @@ public class MsgClient {
         app = CustomApplication.getInstance();
         context = app;
         saveSettingsData = SaveSettingsData.getInstance(context);
+        saveBadgeData = SaveBadgeData.getInstance(context);
     }
 
     protected MsgClient(Socket socket) {
@@ -136,6 +143,7 @@ public class MsgClient {
         public static final int ARBITRARY_TEXT = 0;
         public static final int WHO_ARE_YOU_QUESTION = 1;
         public static final int THIS_IS_MY_IDENTITY = 2;
+        public static final int HISTORY_TRANSFER = 3;
     }
 
     private void receiveMsg() throws IOException {
@@ -153,8 +161,23 @@ public class MsgClient {
             case MessageType.THIS_IS_MY_IDENTITY:
                 Badge badge = Badge.createFromStream(inStream);
                 FLogger.i(TAG, sFromAddress + "received msg with type THIS_IS_MY_IDENTITY, " + badge.toString());
-                BadgeDbHelper.getInstance(context).smartUpdateBadge(badge);
+                DbTableBadges.smartUpdateBadge(badge);
                 if (app.getTopActivity() instanceof ActiveBadgeActivity) ((ActiveBadgeActivity)app.getTopActivity()).updateListView();
+                considerDoingAHistoryTransfer(badge.getBadgeId());
+                break;
+            case MessageType.HISTORY_TRANSFER:
+                int numBadges = inStream.readInt();
+                FLogger.i(TAG, sFromAddress + "received msg with type HISTORY_TRANSFER, containing "
+                        + numBadges + " badges");
+                for (int badgeIndex = 0; badgeIndex < numBadges; badgeIndex++) {
+                    Badge badge2 = Badge.createFromStream(inStream);
+                    if (!saveBadgeData.getMyBadgeId().equals(badge2.getBadgeId())) {
+                        DbTableBadges.smartUpdateBadge(badge2);
+                    } else {
+                        // FLogger.e(TAG, "received history transfer included our own badge! (came from "
+                        //        + sFromAddress + ")");
+                    }
+                }
                 break;
             default: // unknown
                 FLogger.e(TAG, sFromAddress + "received msg with unknown msgType: " + msgType);
@@ -228,7 +251,6 @@ public class MsgClient {
                     return;
                 }
                 try {
-                    SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
                     Badge myBadge = new Badge(saveBadgeData.getMyBadgeId());
                     myBadge.setCustomName(saveBadgeData.getMyBadgeCustomName());
                     myBadge.setRouterMac(NetworkUtil.getRouterMacAddress(context));
@@ -247,6 +269,55 @@ public class MsgClient {
             workerThreadOutgoing.execute(runnable);
         } catch (RejectedExecutionException e) {
             FLogger.e(TAG, "sendMessageThisIsMyIdentity(). runnable was rejected by executor - " + e.getMessage());
+        }
+    }
+
+    public void considerDoingAHistoryTransfer(final UUID badgeIdOfReceiver) {
+        Log.d(TAG, "considering doing a historyTransfer to " + badgeIdOfReceiver.toString());
+        Long lastTimeWeSentHistoryToThatBadge = DbTableHistoryTransfer.getTimestamp(badgeIdOfReceiver);
+        long curTime = System.currentTimeMillis();
+        if (null == lastTimeWeSentHistoryToThatBadge
+                || curTime - lastTimeWeSentHistoryToThatBadge > Constants.HISTORY_TRANSFER_TO_SAME_CLIENT_COOLDOWN) {
+            Log.d(TAG, "decided to do historyTransfer to " + badgeIdOfReceiver.toString());
+            sendMessageHistoryTransfer(badgeIdOfReceiver);
+        } else {
+            long timeElapsed = curTime - lastTimeWeSentHistoryToThatBadge;
+            Log.d(TAG, "won't do historyTransfer to " + badgeIdOfReceiver.toString()
+                    + ", last transfer was " + timeElapsed/1000 + " seconds ago ");
+        }
+    }
+
+    // TODO only send "new" history
+    public void sendMessageHistoryTransfer(final UUID badgeIdOfReceiver){
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run(){
+                try {
+                    outStreamReadyLatch.await();
+                } catch (InterruptedException e) {
+                    FLogger.e(TAG, "sendMessageHistoryTransfer(). latch await interrupted - " + e.getMessage());
+                    return;
+                }
+                try {
+                    outStream.writeInt(MessageType.HISTORY_TRANSFER);
+                    List<Badge> badges = DbTableBadges.getAllBadges(Badge.SortOrder.MOST_RECENT_FIRST);
+                    outStream.writeInt(badges.size());
+                    for (Badge badge : badges) {
+                        badge.serialiseToStream(outStream);
+                    }
+                    outStream.flush();
+                    DbTableHistoryTransfer.smartUpdateEntry(badgeIdOfReceiver, System.currentTimeMillis());
+                    FLogger.i(TAG, sToAddress + "sent msg with type HISTORY_TRANSFER, containing "
+                            + badges.size() + " badges");
+                } catch (IOException e) {
+                    FLogger.e(TAG, "sendMessageHistoryTransfer(). IOE - " + e.getMessage());
+                }
+            }
+        };
+        try {
+            workerThreadOutgoing.execute(runnable);
+        } catch (RejectedExecutionException e) {
+            FLogger.e(TAG, "sendMessageHistoryTransfer(). runnable was rejected by executor - " + e.getMessage());
         }
     }
 

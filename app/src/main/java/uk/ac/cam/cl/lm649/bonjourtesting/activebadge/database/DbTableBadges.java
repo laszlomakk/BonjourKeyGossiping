@@ -1,63 +1,33 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.activebadge;
+package uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.Badge;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
-import static uk.ac.cam.cl.lm649.bonjourtesting.activebadge.DbContract.BadgeEntry;
+import static uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbContract.BadgeEntry;
 
-public class BadgeDbHelper extends SQLiteOpenHelper {
+public final class DbTableBadges {
 
-    private static final String TAG = "BadgeDbHelper";
-    private static BadgeDbHelper INSTANCE = null;
+    private static final String TAG = "DbTableBadges";
+    
+    private DbTableBadges() {}
 
-    private BadgeDbHelper(Context context) {
-        super(context, DbContract.DATABASE_NAME, null, DbContract.DATABASE_VERSION);
-    }
-
-    public static synchronized BadgeDbHelper getInstance(Context context) {
-        if (null == INSTANCE) {
-            INSTANCE = new BadgeDbHelper(context);
-        }
-        return INSTANCE;
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        String CREATE_BADGES_TABLE = String.format(Locale.US,
-                "CREATE TABLE %s(%s TEXT PRIMARY KEY, %s TEXT, %s TEXT, %s INTEGER)",
-                BadgeEntry.TABLE_NAME,
-                BadgeEntry.COLUMN_NAME_BADGE_ID,
-                BadgeEntry.COLUMN_NAME_CUSTOM_NAME,
-                BadgeEntry.COLUMN_NAME_ROUTER_MAC,
-                BadgeEntry.COLUMN_NAME_TIMESTAMP);
-        db.execSQL(CREATE_BADGES_TABLE);
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + BadgeEntry.TABLE_NAME);
-        onCreate(db);
-    }
-
-    public void addBadge(Badge badge) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public static void addBadge(Badge badge) {
+        SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
 
         ContentValues values = createContentValuesFromBadge(badge);
 
         db.insert(BadgeEntry.TABLE_NAME, null, values);
     }
 
-    private ContentValues createContentValuesFromBadge(Badge badge) {
+    private static ContentValues createContentValuesFromBadge(Badge badge) {
         ContentValues values = new ContentValues();
         values.put(BadgeEntry.COLUMN_NAME_BADGE_ID, badge.getBadgeId().toString());
         values.put(BadgeEntry.COLUMN_NAME_CUSTOM_NAME, badge.getCustomName());
@@ -66,8 +36,8 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
         return values;
     }
 
-    public Badge getBadge(UUID badgeId) {
-        SQLiteDatabase db = this.getReadableDatabase();
+    public static Badge getBadge(UUID badgeId) {
+        SQLiteDatabase db = DbHelper.getInstance().getReadableDatabase();
 
         Cursor cursor = db.query(BadgeEntry.TABLE_NAME,
                 new String[] {
@@ -88,7 +58,7 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
         return badge;
     }
 
-    private Badge createBadgeFromCursor(Cursor cursor) {
+    private static Badge createBadgeFromCursor(Cursor cursor) {
         Badge badge = new Badge(UUID.fromString(cursor.getString(0)));
         badge.setCustomName(cursor.getString(1));
         badge.setRouterMac(cursor.getString(2));
@@ -96,8 +66,8 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
         return badge;
     }
 
-    public List<Badge> getAllBadges(Badge.SortOrder sortOrder) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public static List<Badge> getAllBadges(Badge.SortOrder sortOrder) {
+        SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
 
         String orderBy = "";
         switch (sortOrder) {
@@ -127,8 +97,8 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
         return badgeList;
     }
 
-    public int getBadgesCount() {
-        SQLiteDatabase db = this.getReadableDatabase();
+    public static int getBadgesCount() {
+        SQLiteDatabase db = DbHelper.getInstance().getReadableDatabase();
 
         String countQuery = "SELECT  * FROM " + BadgeEntry.TABLE_NAME;
         Cursor cursor = db.rawQuery(countQuery, null);
@@ -138,8 +108,8 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public void updateBadge(Badge badge) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public static void updateBadge(Badge badge) {
+        SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
 
         ContentValues values = createContentValuesFromBadge(badge);
         db.update(BadgeEntry.TABLE_NAME,
@@ -147,32 +117,24 @@ public class BadgeDbHelper extends SQLiteOpenHelper {
                 new String[] { badge.getBadgeId().toString() });
     }
 
-    public void smartUpdateBadge(Badge newBadge) {
+    public static void smartUpdateBadge(Badge newBadge) {
         Badge oldBadge = getBadge(newBadge.getBadgeId());
         if (null == oldBadge) {
             // badge not yet in db
             addBadge(newBadge);
         } else {
-            // badge already in db, merge
-            Badge mergedBadge = new Badge(newBadge.getBadgeId());
-            if (null != newBadge.getCustomName() && !"".equals(newBadge.getCustomName())) {
-                mergedBadge.setCustomName(newBadge.getCustomName());
-            } else {
-                mergedBadge.setCustomName(oldBadge.getCustomName());
+            if (newBadge.getTimestamp() > oldBadge.getTimestamp()) {
+                updateBadge(newBadge);
             }
-            mergedBadge.setRouterMac(newBadge.getRouterMac());
-            mergedBadge.setTimestamp(newBadge.getTimestamp());
-
-            updateBadge(mergedBadge);
         }
     }
 
-    public void deleteBadge(Badge badge) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public static void deleteBadge(Badge badge) {
+        SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
 
         db.delete(BadgeEntry.TABLE_NAME,
                 BadgeEntry.COLUMN_NAME_BADGE_ID + " = ?",
                 new String[] { badge.getBadgeId().toString() });
     }
-
+    
 }

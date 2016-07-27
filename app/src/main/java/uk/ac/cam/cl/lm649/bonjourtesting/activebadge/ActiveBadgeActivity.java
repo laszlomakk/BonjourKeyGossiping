@@ -3,7 +3,6 @@ package uk.ac.cam.cl.lm649.bonjourtesting.activebadge;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -14,6 +13,8 @@ import java.util.ArrayList;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbHelper;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbTableBadges;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
@@ -62,7 +63,7 @@ public class ActiveBadgeActivity extends CustomActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             FLogger.i(TAG, "user deleted badge from DB");
                             FLogger.d(TAG, "deleted badge had details: " + badge.toString());
-                            BadgeDbHelper.getInstance(app).deleteBadge(badge);
+                            DbTableBadges.deleteBadge(badge);
                             updateListView();
                         }
                     };
@@ -147,7 +148,7 @@ public class ActiveBadgeActivity extends CustomActivity {
                     FLogger.v(TAG, "updateListView() doing actual update.");
                     listAdapterForDisplayedListOfBadges.clear();
                     badgesArrList.clear();
-                    for (Badge badge : BadgeDbHelper.getInstance(context).getAllBadges(badgeSortOrder)) {
+                    for (Badge badge : DbTableBadges.getAllBadges(badgeSortOrder)) {
                         listAdapterForDisplayedListOfBadges.add(badge.toString());
                         badgesArrList.add(badge);
                     }
