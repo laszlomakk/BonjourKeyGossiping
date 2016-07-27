@@ -301,13 +301,17 @@ public class MsgClient {
                 }
                 try {
                     outStream.writeInt(MessageType.HISTORY_TRANSFER);
-                    List<BadgeStatus> badgeStatuses = DbTableBadges.getAllBadges(BadgeStatus.SortOrder.MOST_RECENT_ALIVE_FIRST);
+                    long curTime = System.currentTimeMillis();
+                    Long timeStampLastHistoryTransfer = DbTableHistoryTransfer.getTimestamp(badgeIdOfReceiver);
+                    List<BadgeStatus> badgeStatuses = DbTableBadges.getBadgesUpdatedSince(timeStampLastHistoryTransfer);
                     outStream.writeInt(badgeStatuses.size());
                     for (BadgeStatus badgeStatus : badgeStatuses) {
+                        FLogger.v(TAG, "historyTransfer to " + badgeIdOfReceiver + " contains badge:\n"
+                                + badgeStatus.toString());
                         badgeStatus.serialiseToStream(outStream);
                     }
                     outStream.flush();
-                    DbTableHistoryTransfer.smartUpdateEntry(badgeIdOfReceiver, System.currentTimeMillis());
+                    DbTableHistoryTransfer.smartUpdateEntry(badgeIdOfReceiver, curTime);
                     FLogger.i(TAG, sToAddress + "sent msg with type HISTORY_TRANSFER, containing "
                             + badgeStatuses.size() + " badges");
                 } catch (IOException e) {

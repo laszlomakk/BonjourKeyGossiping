@@ -124,6 +124,31 @@ public final class DbTableBadges {
         return badgeList;
     }
 
+    public static List<BadgeStatus> getBadgesUpdatedSince(Long updateTime) {
+        SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
+
+        String whereClause = "";
+        if (null != updateTime) {
+            whereClause = " WHERE " + BadgeEntry.COLUMN_NAME_TIMESTAMP_LAST_UPDATED_IN_DB
+                    + " > " + updateTime;
+        }
+
+        String selectQuery = "SELECT * FROM " + BadgeEntry.TABLE_NAME
+                + whereClause;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        List<BadgeStatus> badgeList = new ArrayList<>();
+        if (cursor.moveToFirst()) {
+            do {
+                BadgeStatus badge = createEntryFromCursor(cursor).badgeStatus;
+                badgeList.add(badge);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        return badgeList;
+    }
+
     public static int getEntriesCount() {
         SQLiteDatabase db = DbHelper.getInstance().getReadableDatabase();
 
