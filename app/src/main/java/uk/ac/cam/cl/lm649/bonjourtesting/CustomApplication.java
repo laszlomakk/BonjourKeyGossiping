@@ -62,9 +62,10 @@ public class CustomApplication extends Application {
 
         configJmDnsLogLevel();
         initMsgServer();
-        ActiveBadgePollerService.schedulePolling(this);
         startBonjourService();
         registerReceivers();
+
+        Simulator.getInstance();
     }
 
     private void initLogger() {

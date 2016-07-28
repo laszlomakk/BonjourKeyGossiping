@@ -248,7 +248,7 @@ public class BonjourService extends Service {
         });
     }
 
-    private void stopAndCloseWork() {
+    public void stopAndCloseWork() {
         FLogger.i(TAG, "stopAndCloseWork() called.");
         handler.post(new Runnable() {
              @Override

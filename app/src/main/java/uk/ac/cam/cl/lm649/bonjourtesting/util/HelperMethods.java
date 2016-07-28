@@ -89,4 +89,16 @@ public class HelperMethods {
         return versionName;
     }
 
+    /**
+     * @return uniform random long A, such that min <= A < max
+     */
+    public static long getRandomLongBetween(long min, long max) {
+        Random random = new Random();
+        long diff = max - min;
+        long ret = random.nextLong() % diff;
+        if (ret < 0) ret += diff;
+        ret += min;
+        return ret;
+    }
+
 }
