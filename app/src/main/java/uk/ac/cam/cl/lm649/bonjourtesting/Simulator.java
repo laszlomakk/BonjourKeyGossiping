@@ -7,6 +7,7 @@ import android.os.HandlerThread;
 import java.io.IOException;
 import java.util.Random;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgePollerService;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
@@ -44,8 +45,8 @@ public class Simulator {
     }
 
     private void simulateAPerson() {
-        final long appearsAtTime = HelperMethods.getRandomLongBetween(1 * MINUTE, 3 * MINUTE);
-        final long staysForTime = HelperMethods.getRandomLongBetween(1 * MINUTE, 3 * MINUTE);
+        final long appearsAtTime = HelperMethods.getRandomLongBetween(10 * MINUTE, 20 * MINUTE);
+        final long staysForTime = HelperMethods.getRandomLongBetween(10 * MINUTE, 30 * MINUTE);
         final long disappearsAtTime = appearsAtTime + staysForTime;
         FLogger.i(TAG, "simulateAPerson(). appearsAtTime: " + appearsAtTime/MINUTE
                 + ", staysForTime: " + staysForTime/MINUTE);
@@ -53,7 +54,7 @@ public class Simulator {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                appearOnNetworkWithNewId();
+                appearOnNetworkWithNewId(staysForTime);
             }
         }, appearsAtTime);
 
@@ -66,7 +67,7 @@ public class Simulator {
         }, disappearsAtTime);
     }
 
-    private void appearOnNetworkWithNewId() {
+    private void appearOnNetworkWithNewId(final long staysForTime) {
         FLogger.i(TAG, "appearOnNetworkWithNewId() called.");
 
         SaveBadgeData.getInstance(context).deleteMyBadge();
@@ -85,6 +86,22 @@ public class Simulator {
             return;
         }
         bonjourService.restartWork(false);
+
+        Thread poller = new Thread() {
+            @Override
+            public void run() {
+                long numPolls = staysForTime / ActiveBadgePollerService.POLL_PERIOD - 1;
+                for (int poll = 0; poll < numPolls; poll++) {
+                    ActiveBadgePollerService.schedulePolling(context);
+                    try {
+                        Thread.sleep(ActiveBadgePollerService.POLL_PERIOD);
+                    } catch (InterruptedException e) {
+                        FLogger.e(TAG, "appearOnNetworkWithNewId(). Sleep between polls interrupted - " + e.getMessage());
+                    }
+                }
+            }
+        };
+        poller.start();
     }
 
     private void disappearFromNetwork() {
