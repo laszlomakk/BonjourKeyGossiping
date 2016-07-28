@@ -14,10 +14,13 @@ import android.widget.TextView;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
+import uk.ac.cam.cl.lm649.bonjourtesting.settings.SettingsActivity;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class MainMenuActivity extends CustomActivity {
 
+    private static final String TAG = "MainMenuActivity";
     private Context context;
 
     @Override
@@ -64,6 +67,7 @@ public class MainMenuActivity extends CustomActivity {
         btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FLogger.i(TAG, "user clicked Settings button");
                 LayoutInflater li = LayoutInflater.from(context);
                 View promptView = li.inflate(R.layout.settings_custom_name_prompt, null);
                 final EditText userInput = (EditText) promptView.findViewById(R.id.editTextCustomNameInput);
@@ -73,11 +77,8 @@ public class MainMenuActivity extends CustomActivity {
                         .setPositiveButton(android.R.string.yes,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,int id) {
-                                        SaveSettingsData saveSettingsData = SaveSettingsData.getInstance(context);
-                                        saveSettingsData.saveCustomServiceName(userInput.getText().toString());
-                                        saveSettingsData.saveUsingRandomServiceName(false);
-                                        SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
-                                        saveBadgeData.saveMyBadgeCustomName(userInput.getText().toString());
+                                        SettingsActivity.quickRenameBadgeAndService(
+                                                context, userInput.getText().toString());
 
                                         BonjourService bonjourService = app.getBonjourService();
                                         if (null != bonjourService) {

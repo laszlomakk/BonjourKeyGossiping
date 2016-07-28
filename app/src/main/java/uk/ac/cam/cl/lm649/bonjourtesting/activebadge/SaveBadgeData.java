@@ -6,9 +6,12 @@ import android.content.SharedPreferences;
 import java.util.UUID;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.SaveData;
 
 public class SaveBadgeData extends SaveData {
+
+    private static final String TAG = "SaveBadgeData";
 
     private static SaveBadgeData INSTANCE = null;
 
@@ -26,6 +29,13 @@ public class SaveBadgeData extends SaveData {
         return INSTANCE;
     }
 
+    public void deleteMyBadge() {
+        FLogger.i(TAG, "deleteMyBadge() called.");
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
+    }
+
     private void saveMyBadgeId(UUID badgeId) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         String strId = badgeId.toString();
@@ -38,6 +48,7 @@ public class SaveBadgeData extends SaveData {
         UUID ret;
         if ("".equals(strId)) {
             ret = UUID.randomUUID();
+            FLogger.i(TAG, "Generated a new badgeId for us: " + ret.toString());
             saveMyBadgeId(ret);
         } else {
             ret = UUID.fromString(strId);

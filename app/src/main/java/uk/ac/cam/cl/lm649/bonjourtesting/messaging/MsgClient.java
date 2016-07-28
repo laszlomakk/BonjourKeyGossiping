@@ -260,7 +260,7 @@ public class MsgClient {
                     outStream.writeInt(MessageType.THIS_IS_MY_IDENTITY);
                     badgeStatus.serialiseToStream(outStream);
                     outStream.flush();
-                    FLogger.i(TAG, sToAddress + "sent msg with type THIS_IS_MY_IDENTITY");
+                    FLogger.i(TAG, sToAddress + "sent msg with type THIS_IS_MY_IDENTITY:\n" + myBadgeCore.toString());
                 } catch (IOException e) {
                     FLogger.e(TAG, "sendMessageThisIsMyIdentity(). IOE - " + e.getMessage());
                 }
@@ -305,7 +305,7 @@ public class MsgClient {
                     List<BadgeStatus> badgeStatuses = DbTableBadges.getBadgesUpdatedSince(timeStampLastHistoryTransfer);
                     outStream.writeInt(badgeStatuses.size());
                     for (BadgeStatus badgeStatus : badgeStatuses) {
-                        FLogger.v(TAG, "historyTransfer to " + badgeIdOfReceiver + " contains badge:\n"
+                        FLogger.d(TAG, "historyTransfer to " + badgeIdOfReceiver + " contains badge:\n"
                                 + badgeStatus.toString());
                         badgeStatus.serialiseToStream(outStream);
                     }
