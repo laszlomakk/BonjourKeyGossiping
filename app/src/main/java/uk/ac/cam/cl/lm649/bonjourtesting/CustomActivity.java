@@ -32,4 +32,21 @@ public class CustomActivity extends Activity {
         FLogger.i(TAG, "Activity stopping. (" + this.getClass().getSimpleName() + ")");
         super.onStop();
     }
+
+    public void forceRefreshUI() {}
+
+    public static void forceRefreshUIInTopActivity() {
+        CustomApplication app = CustomApplication.getInstance();
+        if (null == app) {
+            FLogger.e(TAG, "forceRefreshUIInTopActivity(). app is null");
+            return;
+        }
+        CustomActivity topAct = app.getTopActivity();
+        if (null == topAct) {
+            FLogger.e(TAG, "forceRefreshUIInTopActivity(). topAct is null");
+            return;
+        }
+        topAct.forceRefreshUI();
+    }
+
 }

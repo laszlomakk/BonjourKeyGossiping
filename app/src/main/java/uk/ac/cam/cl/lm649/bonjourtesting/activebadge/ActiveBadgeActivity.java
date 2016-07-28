@@ -158,4 +158,9 @@ public class ActiveBadgeActivity extends CustomActivity {
         });
     }
 
+    @Override
+    public void forceRefreshUI() {
+        updateListView();
+    }
+
 }

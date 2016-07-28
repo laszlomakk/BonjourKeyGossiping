@@ -9,6 +9,7 @@ import android.widget.EditText;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
@@ -54,12 +55,13 @@ public class SettingsActivity extends CustomActivity {
             @Override
             public void onClick(View v) {
                 FLogger.i(TAG, "user clicked buttonRestartBonjourService");
-                if (app.isBonjourServiceBound()) {
+                BonjourService bonjourService = app.getBonjourService();
+                if (null != bonjourService) {
                     saveContentsOfFieldsToStorage();
-                    app.getBonjourService().restartWork(false);
+                    bonjourService.restartWork(false);
                 } else {
-                    FLogger.e(TAG, "bonjourService not bound");
-                    HelperMethods.displayMsgToUser(app, "error: bonjourService not bound");
+                    FLogger.e(TAG, "bonjourService is null.");
+                    HelperMethods.displayMsgToUser(app, "error: bonjourService is null");
                 }
             }
         });

@@ -22,6 +22,7 @@ import java.util.TreeMap;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
@@ -68,8 +69,9 @@ public class BonjourDebugActivity extends CustomActivity {
                         return;
                     }
                     String msg = "Hy there! I see your payload is " + serviceInfo.getNiceTextString();
-                    if (app.isBonjourServiceBound()){
-                        String serviceName = app.getBonjourService().getNameOfOurService();
+                    BonjourService bonjourService = app.getBonjourService();
+                    if (null != bonjourService){
+                        String serviceName = bonjourService.getNameOfOurService();
                         MsgClient msgClient = MsgServer.getInstance().serviceToMsgClientMap.get(new ServiceStub(serviceInfo));
                         if (null == msgClient) {
                             FLogger.e(TAG, "onItemClick(). msgClient not found");
@@ -78,8 +80,8 @@ public class BonjourDebugActivity extends CustomActivity {
                             msgClient.sendMessageArbitraryText(serviceName, msg);
                         }
                     } else {
-                        FLogger.e(TAG, "onItemClick(). bonjourService not bound");
-                        HelperMethods.displayMsgToUser(context, "error: bonjourService not bound");
+                        FLogger.e(TAG, "onItemClick(). bonjourService is null.");
+                        HelperMethods.displayMsgToUser(context, "error: bonjourService is null");
                     }
                 }
             }
@@ -106,7 +108,8 @@ public class BonjourDebugActivity extends CustomActivity {
             public void onClick(View v) {
                 refreshTopUI();
                 updateListView();
-                if (app.isBonjourServiceBound()) app.getBonjourService().restartDiscovery();
+                BonjourService bonjourService = app.getBonjourService();
+                if (null != bonjourService) bonjourService.restartDiscovery();
             }
         });
 
@@ -123,26 +126,28 @@ public class BonjourDebugActivity extends CustomActivity {
     }
 
     private void refreshTopUIInternal() {
+        BonjourService bonjourService = app.getBonjourService();
+
         String appStateText = "-";
-        if (app.isBonjourServiceBound()) appStateText = app.getBonjourService().getStrServiceState();
+        if (null != bonjourService) appStateText = bonjourService.getStrServiceState();
         textViewAppState.setText(appStateText);
 
         String deviceIP = "999.999.999.999";
-        if (app.isBonjourServiceBound()) deviceIP = app.getBonjourService().getIPAddress();
+        if (null != bonjourService) deviceIP = bonjourService.getIPAddress();
         textViewDeviceIp.setText(deviceIP);
 
         textViewLocalPort.setText(String.format(Locale.US,"%d",MsgServer.getInstance().getPort()));
 
         String ownServiceText = "-";
-        if (app.isBonjourServiceBound() && null != app.getBonjourService().getServiceInfoOfOurService()) {
-            ServiceInfo serviceInfo = app.getBonjourService().getServiceInfoOfOurService();
+        if (null != bonjourService && null != bonjourService.getServiceInfoOfOurService()) {
+            ServiceInfo serviceInfo = bonjourService.getServiceInfoOfOurService();
             ownServiceText = JmdnsUtil.getNameAndTypeString(serviceInfo)
                     + JmdnsUtil.getPayloadString(serviceInfo);
         }
         textViewOwnService.setText(ownServiceText);
 
         String numServicesText = "-";
-        if (app.isBonjourServiceBound()) numServicesText = "" + app.getBonjourService().getServiceRegistry().size();
+        if (null != bonjourService) numServicesText = "" + bonjourService.getServiceRegistry().size();
         textViewNumServicesFound.setText(numServicesText);
     }
 
@@ -196,9 +201,15 @@ public class BonjourDebugActivity extends CustomActivity {
 
     private void updateListView() {
         FLogger.v(TAG, "updateListView() called.");
-        if (app.isBonjourServiceBound()) {
-            updateListView(app.getBonjourService().getServiceRegistry());
+        BonjourService bonjourService = app.getBonjourService();
+        if (null != bonjourService) {
+            updateListView(bonjourService.getServiceRegistry());
         }
+    }
+
+    @Override
+    public void forceRefreshUI() {
+        updateListView();
     }
 
 }

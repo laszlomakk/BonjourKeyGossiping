@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
@@ -78,8 +79,9 @@ public class MainMenuActivity extends CustomActivity {
                                         SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
                                         saveBadgeData.saveMyBadgeCustomName(userInput.getText().toString());
 
-                                        if (app.isBonjourServiceBound()) {
-                                            app.getBonjourService().restartWork(false);
+                                        BonjourService bonjourService = app.getBonjourService();
+                                        if (null != bonjourService) {
+                                            bonjourService.restartWork(false);
                                         }
                                     }
                                 })

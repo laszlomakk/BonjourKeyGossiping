@@ -25,6 +25,7 @@ import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.ConnectivityChangeReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.BonjourDebugActivity;
@@ -119,7 +120,7 @@ public class BonjourService extends Service {
         changeServiceState("starting discovery");
         synchronized (serviceRegistry) {
             serviceRegistry.clear();
-            if (app.getTopActivity() instanceof BonjourDebugActivity) ((BonjourDebugActivity)app.getTopActivity()).updateListView(serviceRegistry);
+            CustomActivity.forceRefreshUIInTopActivity();
         }
         if (null == jmdns){
             FLogger.e(TAG, "startDiscovery(). jmdns is null");
@@ -152,7 +153,7 @@ public class BonjourService extends Service {
         serviceInfoOfOurService = ServiceInfo.create(saveSettingsData.getServiceType(), nameOfOurService, port, payload);
         jmdns.registerService(serviceInfoOfOurService);
 
-        if (app.getTopActivity() instanceof BonjourDebugActivity) ((BonjourDebugActivity)app.getTopActivity()).refreshTopUI();
+        CustomActivity.forceRefreshUIInTopActivity();
 
         nameOfOurService = serviceInfoOfOurService.getName();
         String serviceIsRegisteredNotification = "Registered service. Name ended up being: " + nameOfOurService;
@@ -293,7 +294,7 @@ public class BonjourService extends Service {
         synchronized (serviceRegistry){
             ServiceStub serviceStub = new ServiceStub(event);
             serviceRegistry.put(serviceStub, event);
-            if (app.getTopActivity() instanceof BonjourDebugActivity) ((BonjourDebugActivity)app.getTopActivity()).updateListView(serviceRegistry);
+            CustomActivity.forceRefreshUIInTopActivity();
         }
     }
 
@@ -301,13 +302,13 @@ public class BonjourService extends Service {
         synchronized (serviceRegistry) {
             ServiceStub serviceStub = new ServiceStub(event);
             serviceRegistry.remove(serviceStub);
-            if (app.getTopActivity() instanceof BonjourDebugActivity) ((BonjourDebugActivity)app.getTopActivity()).updateListView(serviceRegistry);
+            CustomActivity.forceRefreshUIInTopActivity();
         }
     }
 
     private void changeServiceState(final String state) {
         strServiceState = state;
-        if (app.getTopActivity() instanceof BonjourDebugActivity) ((BonjourDebugActivity)app.getTopActivity()).refreshTopUI();
+        CustomActivity.forceRefreshUIInTopActivity();
     }
 
     public String getIPAddress() {

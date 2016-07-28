@@ -60,11 +60,11 @@ public class ActiveBadgePollerService extends IntentService {
     }
 
     private void doPolling() {
-        if (!app.isBonjourServiceBound()) {
-            FLogger.e(TAG, "bonjourService not bound.");
+        BonjourService bonjourService = app.getBonjourService();
+        if (null == bonjourService) {
+            FLogger.e(TAG, "bonjourService is null.");
             return;
         }
-        BonjourService bonjourService = app.getBonjourService();
         bonjourService.restartDiscovery();
     }
 

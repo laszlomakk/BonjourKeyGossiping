@@ -12,6 +12,7 @@ import java.net.InetAddress;
 import java.util.Locale;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
+import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
@@ -55,8 +56,9 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
             return;
         }
         CustomApplication app = (CustomApplication) appContext;
-        if (!app.isBonjourServiceBound()) {
-            FLogger.w(TAG, "restartBonjourService(). bonjourService not bound. this is unexpected.");
+        BonjourService bonjourService = app.getBonjourService();
+        if (null == bonjourService) {
+            FLogger.w(TAG, "restartBonjourService(). bonjourService is null. this is unexpected.");
             // note: after this receiver is registered on application startup,
             // if there is an active wifi connection, a "network_state_changed" intent
             // will be received, which then would normally result in calling restartWork()
@@ -65,7 +67,7 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
             return;
         }
         FLogger.i(TAG, "restartBonjourService(). calling bonjourService.restartWork()");
-        app.getBonjourService().restartWork(false);
+        bonjourService.restartWork(false);
     }
 
     private boolean isThisANewWifiConnectionThatWeJustEstablished(Intent intent) {

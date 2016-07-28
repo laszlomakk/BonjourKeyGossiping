@@ -9,13 +9,13 @@ import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import ch.qos.logback.classic.Level;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgePollerService;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
@@ -124,18 +124,16 @@ public class CustomApplication extends Application {
 
     }
 
+    @Nullable
     public BonjourService getBonjourService() {
-        return bonjourService;
-    }
-
-    public boolean isBonjourServiceBound() {
-        return bonjourServiceBound;
+        return bonjourServiceBound ? bonjourService : null;
     }
 
     public void setTopActivity(CustomActivity topActivity) {
         this.topActivity = topActivity;
     }
 
+    @Nullable
     public CustomActivity getTopActivity() {
         return topActivity;
     }

@@ -23,6 +23,7 @@ import java.util.concurrent.RejectedExecutionException;
 import javax.jmdns.ServiceInfo;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgeActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeCore;
@@ -160,7 +161,7 @@ public class MsgClient {
                 BadgeStatus badgeStatus = BadgeStatus.createFromStream(inStream);
                 FLogger.i(TAG, sFromAddress + "received msg with type THIS_IS_MY_IDENTITY, " + badgeStatus.toString());
                 DbTableBadges.smartUpdateBadge(badgeStatus);
-                if (app.getTopActivity() instanceof ActiveBadgeActivity) ((ActiveBadgeActivity)app.getTopActivity()).updateListView();
+                CustomActivity.forceRefreshUIInTopActivity();
                 considerDoingAHistoryTransfer(badgeStatus.getBadgeCore().getBadgeId());
                 break;
             case MessageType.HISTORY_TRANSFER:
@@ -176,7 +177,7 @@ public class MsgClient {
                         //        + sFromAddress + ")");
                     }
                 }
-                if (app.getTopActivity() instanceof ActiveBadgeActivity) ((ActiveBadgeActivity)app.getTopActivity()).updateListView();
+                CustomActivity.forceRefreshUIInTopActivity();
                 break;
             default: // unknown
                 FLogger.e(TAG, sFromAddress + "received msg with unknown msgType: " + msgType);
