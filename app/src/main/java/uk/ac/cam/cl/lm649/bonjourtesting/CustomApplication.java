@@ -58,14 +58,27 @@ public class CustomApplication extends Application {
 
         initLogger();
 
-        FLogger.i(TAG, "application version: " + HelperMethods.getVersionName(this));
+        FLogger.i(TAG, "application version: " + HelperMethods.getVersionNameWithOPMode(this));
 
         configJmDnsLogLevel();
-        initMsgServer();
-        startBonjourService();
         registerReceivers();
 
-        Simulator.getInstance();
+        startupOperationalCore();
+    }
+
+    private void startupOperationalCore() {
+        switch (Constants.APP_OPERATING_MODE) {
+            case NORMAL:
+                initMsgServer();
+                ActiveBadgePollerService.schedulePolling(this);
+                startBonjourService();
+                break;
+            case SIMULATION:
+                initMsgServer();
+                startBonjourService();
+                Simulator.getInstance();
+                break;
+        }
     }
 
     private void initLogger() {
@@ -80,7 +93,7 @@ public class CustomApplication extends Application {
 
     private void initMsgServer() {
         try {
-            MsgServer.initInstance();
+            MsgServer.getInstance().start();
         } catch (IOException e) {
             FLogger.e(TAG, "onCreate(). Failed to init MsgServer. IOE - " + e.getMessage());
             HelperMethods.displayMsgToUser(this, "failed to init MsgServer");
@@ -88,11 +101,17 @@ public class CustomApplication extends Application {
         }
     }
 
-    private void startBonjourService() {
+    protected void startBonjourService() {
         FLogger.i(TAG, "Starting and binding BonjourService.");
         Intent intent = new Intent(this, BonjourService.class);
         startService(intent); // explicit start will keep the service alive
         bindService(intent, bonjourServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    protected void stopBonjourService() {
+        FLogger.i(TAG, "Stopping BonjourService.");
+        Intent intent = new Intent(this, BonjourService.class);
+        stopService(intent);
     }
 
     private void registerReceivers() { // docs/forums say these receivers can't be set in the manifest

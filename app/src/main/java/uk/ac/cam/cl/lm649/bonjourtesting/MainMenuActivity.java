@@ -39,7 +39,7 @@ public class MainMenuActivity extends CustomActivity {
         setupLicensesButton();
 
         TextView tvVersionNumber = (TextView) findViewById(R.id.textViewVersionNumber);
-        tvVersionNumber.setText(HelperMethods.getVersionName(this));
+        tvVersionNumber.setText(HelperMethods.getVersionNameWithOPMode(this));
     }
 
     private void setupActiveBadgeButton() {

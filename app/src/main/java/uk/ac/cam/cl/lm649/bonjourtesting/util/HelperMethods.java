@@ -28,6 +28,8 @@ import java.util.Random;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
+
 public class HelperMethods {
 
     private static final String TAG = "HelperMethods";
@@ -87,6 +89,21 @@ public class HelperMethods {
                     "getVersionName(). PackageManager.NameNotFoundException: " + e.getMessage());
         }
         return versionName;
+    }
+
+    public static String getVersionNameWithOPMode(Context context) {
+        String opMode = "";
+        switch (Constants.APP_OPERATING_MODE) {
+            case NORMAL:
+                break;
+            case SIMULATION:
+                opMode = "-sim";
+                break;
+            default:
+                opMode = "-???";
+                break;
+        }
+        return getVersionName(context) + opMode;
     }
 
     /**
