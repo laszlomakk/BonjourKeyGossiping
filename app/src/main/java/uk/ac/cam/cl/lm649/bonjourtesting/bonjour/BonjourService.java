@@ -28,7 +28,6 @@ import javax.jmdns.ServiceInfo;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.ConnectivityChangeReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
-import uk.ac.cam.cl.lm649.bonjourtesting.BonjourDebugActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
@@ -84,7 +83,12 @@ public class BonjourService extends Service {
     @Override
     public void onDestroy() {
         FLogger.i(TAG, "onDestroy() called.");
+        unregisterReceiver(connectivityChangeReceiver);
         stopAndCloseWork();
+        synchronized (serviceRegistry) {
+            serviceRegistry.clear();
+        }
+        started = false;
         super.onDestroy();
     }
 

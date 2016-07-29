@@ -112,4 +112,17 @@
         android:maxLines="1"
         android:inputType="text" />
 
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Master Switch"
+        android:id="@+id/masterSwitch"
+        android:layout_marginTop="50dp"
+        android:layout_below="@+id/editTextBadgeCustomNameInput"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:checked="true"
+        android:textSize="26dp"
+        android:layout_marginLeft="20dp" />
+
 </RelativeLayout>

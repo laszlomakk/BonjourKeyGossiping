@@ -14,6 +14,7 @@ public class SaveSettingsData extends SaveData {
     private static final String SAVE_LOCATION_FOR_CUSTOM_SERVICE_NAME = "custom_service_name";
     private static final String SAVE_LOCATION_FOR_RANDOM_SERVICE_NAME = "service_name_is_random";
     private static final String SAVE_LOCATION_FOR_SERVICE_TYPE = "service_type";
+    private static final String SAVE_LOCATION_FOR_APP_OPERATIONAL_CORE_ENABLED = "app_operations_enabled";
 
     private SaveSettingsData(Context context) {
         super(context, context.getString(R.string.settings_save_location));
@@ -44,6 +45,16 @@ public class SaveSettingsData extends SaveData {
 
     public String getServiceType(){
         return sharedPreferences.getString(SAVE_LOCATION_FOR_SERVICE_TYPE, Constants.DEFAULT_SERVICE_TYPE);
+    }
+
+    public void saveAppOperationalCoreEnabled(boolean bool) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(SAVE_LOCATION_FOR_APP_OPERATIONAL_CORE_ENABLED, bool);
+        editor.apply();
+    }
+
+    public boolean isAppOperationalCoreEnabled() {
+        return sharedPreferences.getBoolean(SAVE_LOCATION_FOR_APP_OPERATIONAL_CORE_ENABLED, true);
     }
 
     public void saveUsingRandomServiceName(boolean bool){

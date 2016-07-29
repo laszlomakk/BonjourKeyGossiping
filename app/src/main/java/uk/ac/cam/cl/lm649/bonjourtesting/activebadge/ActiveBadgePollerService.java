@@ -83,6 +83,15 @@ public class ActiveBadgePollerService extends IntentService {
         FLogger.i(TAG, "schedulePolling(). Next polling in " + POLL_PERIOD/1000 + " seconds");
     }
 
+    public static void cancelPolling(Context context) {
+        FLogger.i(TAG, "cancelPolling() called.");
+        Context appContext = context.getApplicationContext();
+        AlarmManager alarmManager = (AlarmManager) appContext.getSystemService(Context.ALARM_SERVICE);
+        Intent alarmIntent = new Intent(appContext, TimeToPollReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pendingIntent);
+    }
+
     @SuppressLint("NewApi")
     private static void setAlarm(AlarmManager alarmManager, PendingIntent pendingIntent, long triggerAtMillis) {
         if (Build.VERSION.SDK_INT < 19) {

@@ -2,13 +2,16 @@ package uk.ac.cam.cl.lm649.bonjourtesting.settings;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Switch;
 
 import java.util.Locale;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
@@ -28,6 +31,7 @@ public class SettingsActivity extends CustomActivity {
     private EditText editTextBadgeCustomNameInput;
     private CheckBox checkBoxRandomServiceName;
     private Button buttonRestartBonjourService;
+    private Switch switchMaster;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,34 @@ public class SettingsActivity extends CustomActivity {
                     FLogger.e(TAG, "bonjourService is null.");
                     HelperMethods.displayMsgToUser(app, "error: bonjourService is null");
                 }
+            }
+        });
+
+        switchMaster = (Switch)findViewById(R.id.masterSwitch);
+        switchMaster.setChecked(saveSettingsData.isAppOperationalCoreEnabled());
+        if (Constants.APP_OPERATING_MODE != Constants.OperatingMode.NORMAL) {
+            switchMaster.setEnabled(false);
+        }
+        switchMaster.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switchMaster.setEnabled(false);
+                boolean oldState = saveSettingsData.isAppOperationalCoreEnabled();
+                boolean newState = !oldState;
+                FLogger.i(TAG, "user clicked the MASTER SWITCH, new state: " + newState);
+                saveSettingsData.saveAppOperationalCoreEnabled(newState);
+                if (newState) {
+                    app.startupOperationalCore();
+                } else {
+                    app.shutdownOperationalCore();
+                }
+                Handler handler = new Handler(getMainLooper());
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        switchMaster.setEnabled(true);
+                    }
+                }, 10_000);
             }
         });
     }

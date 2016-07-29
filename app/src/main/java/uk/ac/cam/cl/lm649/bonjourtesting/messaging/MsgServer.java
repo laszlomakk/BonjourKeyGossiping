@@ -29,6 +29,7 @@ public class MsgServer {
     public void start() throws IOException {
         if (started) return;
 
+        FLogger.i(TAG, "Starting MsgServer.");
         serverSocket = new ServerSocket(0);
         Thread t = new Thread() {
             @Override
@@ -56,12 +57,12 @@ public class MsgServer {
             }
         } catch (IOException e) {
             FLogger.e(TAG, "startWaitingForConnections(). error -- closing main thread. IOE - " + e.getMessage());
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
     public int getPort(){
-        return serverSocket.getLocalPort();
+        return null == serverSocket ? 0 : serverSocket.getLocalPort();
     }
 
     public void stop(){
@@ -74,9 +75,14 @@ public class MsgServer {
         } catch (IOException e) {
             FLogger.e(TAG, "error while closing serverSocket. IOE - " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            started = false;
         }
+
+        for (MsgClient msgClient : serviceToMsgClientMap.values()) {
+            msgClient.close();
+        }
+        serviceToMsgClientMap.clear();
+
+        started = false;
     }
 
 }
