@@ -76,6 +76,7 @@ public class CustomApplication extends Application {
             case SIMULATION:
                 initMsgServer();
                 startBonjourService();
+                ActiveBadgePollerService.automaticPollingEnabled = false;
                 Simulator.getInstance();
                 break;
         }

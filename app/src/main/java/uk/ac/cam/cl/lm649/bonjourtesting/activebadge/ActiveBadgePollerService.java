@@ -22,7 +22,8 @@ public class ActiveBadgePollerService extends IntentService {
     private CustomApplication app;
     private static final long TIME_TO_KEEP_DEVICE_AWAKE = 15_000;
     public static final long POLL_PERIOD = 120_000;
-    private static final boolean AUTOMATIC_POLLING_ENABLED = false;
+
+    public static boolean automaticPollingEnabled = true;
 
     public ActiveBadgePollerService() {
         super("ActiveBadgePollerService");
@@ -52,7 +53,7 @@ public class ActiveBadgePollerService extends IntentService {
             FLogger.e(TAG, "onHandleIntent(). Sleep interrupted - " + e.getMessage());
             e.printStackTrace();
         } finally {
-            if (AUTOMATIC_POLLING_ENABLED) {
+            if (automaticPollingEnabled) {
                 FLogger.i(TAG, "onHandleIntent() finishing. Scheduling next poll.");
                 schedulePolling(app);
             }
