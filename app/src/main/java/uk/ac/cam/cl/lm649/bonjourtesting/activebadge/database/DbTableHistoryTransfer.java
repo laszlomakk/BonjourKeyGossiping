@@ -46,7 +46,9 @@ public final class DbTableHistoryTransfer {
                         HistoryTransferEntry.COLUMN_NAME_TIMESTAMP_LAST_HISTORY_TRANSFER
                 }, HistoryTransferEntry.COLUMN_NAME_BADGE_ID + "=?",
                 new String[] { badgeId.toString() }, null, null, null, null);
-        if (null == cursor || cursor.getCount() == 0) {
+        if (null == cursor) return null;
+        if (cursor.getCount() == 0) {
+            cursor.close();
             return null;
         }
 

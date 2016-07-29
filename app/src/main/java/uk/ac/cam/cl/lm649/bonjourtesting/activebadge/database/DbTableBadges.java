@@ -68,7 +68,9 @@ public final class DbTableBadges {
                         BadgeEntry.COLUMN_NAME_TIMESTAMP_LAST_UPDATED_IN_DB
                 }, BadgeEntry.COLUMN_NAME_BADGE_ID + "=?",
                 new String[] { badgeId.toString() }, null, null, null, null);
-        if (null == cursor || cursor.getCount() == 0) {
+        if (null == cursor) return null;
+        if (cursor.getCount() == 0) {
+            cursor.close();
             return null;
         }
 
