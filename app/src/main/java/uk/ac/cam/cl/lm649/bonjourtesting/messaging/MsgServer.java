@@ -25,9 +25,17 @@ public class MsgServer {
 
     public final ConcurrentHashMap<ServiceStub, MsgClient> serviceToMsgClientMap = new ConcurrentHashMap<>();
 
-    private final ServerSocket serverSocket;
+    private ServerSocket serverSocket;
+
+    private boolean started = false;
 
     private MsgServer() throws IOException {
+        this.start();
+    }
+
+    public void start() throws IOException {
+        if (started) return;
+
         serverSocket = new ServerSocket(0);
         Thread t = new Thread() {
             @Override
@@ -37,6 +45,7 @@ public class MsgServer {
         };
         t.setDaemon(true);
         t.start();
+        started = true;
     }
 
     public static synchronized MsgServer getInstance() {
@@ -72,6 +81,8 @@ public class MsgServer {
     }
 
     public void stop(){
+        if (!started) return;
+
         FLogger.i(TAG, "Stopping MsgServer.");
         try {
             serverSocket.close();
@@ -79,6 +90,8 @@ public class MsgServer {
         } catch (IOException e) {
             FLogger.e(TAG, "error while closing serverSocket. IOE - " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            started = false;
         }
     }
 
