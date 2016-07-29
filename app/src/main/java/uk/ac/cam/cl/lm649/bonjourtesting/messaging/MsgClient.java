@@ -1,7 +1,6 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -274,16 +273,16 @@ public class MsgClient {
     }
 
     public void considerDoingAHistoryTransfer(final UUID badgeIdOfReceiver) {
-        Log.d(TAG, "considering doing a historyTransfer to " + badgeIdOfReceiver.toString());
+        FLogger.d(TAG, "considering doing a historyTransfer to " + badgeIdOfReceiver.toString());
         Long lastTimeWeSentHistoryToThatBadge = DbTableHistoryTransfer.getTimestamp(badgeIdOfReceiver);
         long curTime = System.currentTimeMillis();
         if (null == lastTimeWeSentHistoryToThatBadge
                 || curTime - lastTimeWeSentHistoryToThatBadge > Constants.HISTORY_TRANSFER_TO_SAME_CLIENT_COOLDOWN) {
-            Log.d(TAG, "decided to do historyTransfer to " + badgeIdOfReceiver.toString());
+            FLogger.d(TAG, "decided to do historyTransfer to " + badgeIdOfReceiver.toString());
             sendMessageHistoryTransfer(badgeIdOfReceiver);
         } else {
             long timeElapsed = curTime - lastTimeWeSentHistoryToThatBadge;
-            Log.d(TAG, "won't do historyTransfer to " + badgeIdOfReceiver.toString()
+            FLogger.d(TAG, "won't do historyTransfer to " + badgeIdOfReceiver.toString()
                     + ", last transfer was " + timeElapsed/1000 + " seconds ago ");
         }
     }
