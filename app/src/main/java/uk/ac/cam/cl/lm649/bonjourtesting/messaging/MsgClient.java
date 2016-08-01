@@ -171,6 +171,8 @@ public class MsgClient {
                     BadgeStatus badgeStatus2 = BadgeStatus.createFromStream(inStream);
                     if (!saveBadgeData.getMyBadgeId().equals(badgeStatus2.getBadgeCore().getBadgeId())) {
                         DbTableBadges.smartUpdateBadge(badgeStatus2);
+                        FLogger.d(TAG, sFromAddress + "historyTransfer contains badge:\n"
+                                + badgeStatus2.toString());
                     } else {
                         // FLogger.e(TAG, "received history transfer included our own badge! (came from "
                         //        + sFromAddress + ")");

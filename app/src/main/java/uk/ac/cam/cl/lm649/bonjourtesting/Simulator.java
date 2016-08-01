@@ -68,9 +68,10 @@ public class Simulator {
     }
 
     private void appearOnNetworkWithNewId(final long staysForTime) {
-        FLogger.i(TAG, "appearOnNetworkWithNewId() called.");
+        FLogger.i(TAG, "appearOnNetworkWithNewId() called. Will stay for " + staysForTime/MINUTE + " mins");
 
         SaveBadgeData.getInstance(context).deleteMyBadge();
+        SaveBadgeData.getInstance(context).getMyBadgeId();
         String newName = "name_" + HelperMethods.getRandomString();
         SettingsActivity.quickRenameBadgeAndService(context, newName);
 
