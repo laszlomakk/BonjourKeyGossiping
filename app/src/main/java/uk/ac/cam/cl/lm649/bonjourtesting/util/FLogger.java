@@ -18,19 +18,24 @@ public class FLogger {
 
     private static final String TAG = "FLogger";
     private static boolean initialised = false;
-    private static BufferedWriter writer;
+    private static BufferedWriter writerImportant;
+    private static BufferedWriter writerDetailed;
     private static final ExecutorService workerThread = Executors.newFixedThreadPool(1);
 
     public static final boolean LOGGING_TO_FILE = true;
     public static final boolean LOGGING_TO_LOGCAT = true;
 
-    public static final LogLevel LOGGING_TO_FILE_MINIMUM_LOGLEVEL = LogLevel.DEBUG;
+    public static final LogLevel LOGGING_TO_FILE_MINIMUM_LOGLEVEL_FOR_IMPORTANT = LogLevel.INFO;
+    public static final LogLevel LOGGING_TO_FILE_MINIMUM_LOGLEVEL_FOR_DETAILED = LogLevel.DEBUG;
 
     public static void init(Context context) throws IOException {
-        File file = openFile(context);
-        Log.i(TAG, "logging to file: " + file.getAbsolutePath());
+        File fileImportant = openFile(context, "logs", "log_important_");
+        File fileDetailed = openFile(context, "logs", "log_detailed_");
+        Log.i(TAG, "logging to file (important): " + fileImportant.getAbsolutePath());
+        Log.i(TAG, "logging to file (detailed): " + fileDetailed.getAbsolutePath());
         try {
-            writer = new BufferedWriter(new FileWriter(file, true));
+            writerImportant = new BufferedWriter(new FileWriter(fileImportant, true));
+            writerDetailed = new BufferedWriter(new FileWriter(fileDetailed, true));
         } catch (FileNotFoundException e) {
             Log.e(TAG, "wtf. file not found... but we just created it?");
             throw e;
@@ -40,13 +45,13 @@ public class FLogger {
         FLogger.i(TAG, "init() finished.");
     }
 
-    private static File openFile(Context context) throws IOException {
+    private static File openFile(Context context, String dir, String fnamePrefix) throws IOException {
         // create folder
-        File logFolder = new File(context.getExternalFilesDir(null), "logs");
+        File logFolder = new File(context.getExternalFilesDir(null), dir);
         logFolder.mkdirs();
         // create file
         String timeStamp = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Timestamp(System.currentTimeMillis()));
-        String fname = "log_" + timeStamp + ".txt";
+        String fname = fnamePrefix + timeStamp + ".txt";
         File logFile = new File(logFolder, fname);
         if (!logFile.exists()) {
             logFile.createNewFile();
@@ -54,7 +59,8 @@ public class FLogger {
         return logFile;
     }
 
-    private static void printRawLine(final String rawLine, final long logLineTime){
+    private static void printRawLine(
+            final BufferedWriter writer, final String rawLine, final long logLineTime){
         if (!initialised) {
             Log.e(TAG, "log(). error - Logger has not been initialised.");
             return;
@@ -105,14 +111,18 @@ public class FLogger {
     }
 
     private static void printLine(LogLevel logLevel, String tag, String msg) {
-        if (LogLevel.getPriority(logLevel) < LogLevel.getPriority(LOGGING_TO_FILE_MINIMUM_LOGLEVEL)) {
+        if (LogLevel.getPriority(logLevel) < LogLevel.getPriority(LOGGING_TO_FILE_MINIMUM_LOGLEVEL_FOR_DETAILED)) {
             return;
         }
         long time = System.currentTimeMillis();
         String strTimeStamp = HelperMethods.getTimeStamp(time);
         String rawLine = String.format(Locale.US, "%s %s/%s: %s",
                 strTimeStamp, logLevel.name().charAt(0), tag, msg);
-        printRawLine(rawLine, time);
+
+        printRawLine(writerDetailed, rawLine, time);
+        if (LogLevel.getPriority(logLevel) >= LogLevel.getPriority(LOGGING_TO_FILE_MINIMUM_LOGLEVEL_FOR_IMPORTANT)) {
+            printRawLine(writerImportant, rawLine, time);
+        }
     }
 
     public static void v(String tag, String msg) {
