@@ -15,6 +15,8 @@ import android.util.Log;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgePollerService;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
@@ -29,6 +31,7 @@ public class CustomApplication extends Application {
 
     private static final String TAG = "CustomApplication";
     private static CustomApplication INSTANCE = null;
+    private Thread.UncaughtExceptionHandler defaultExceptionHandler;
 
     private ServiceConnection bonjourServiceConnection = new ServiceConnection() {
         private static final String TAG = "BonjourServiceConn";
@@ -60,6 +63,8 @@ public class CustomApplication extends Application {
         initLogger();
 
         FLogger.i(TAG, "application version: " + HelperMethods.getVersionNameExtended(this));
+
+        setupExceptionCatching();
 
         configJmDnsLogLevel();
         registerReceivers();
@@ -106,6 +111,30 @@ public class CustomApplication extends Application {
             HelperMethods.displayMsgToUser(this, "failed to init Logger");
             e.printStackTrace();
         }
+    }
+
+    /**
+     * note: assuming this is called on the main thread.
+     */
+    private void setupExceptionCatching() {
+        FLogger.i(TAG, "setupExceptionCatching() called.");
+        defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+
+        // setup handler for uncaught exceptions
+        Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException (Thread thread, Throwable e) {
+                FLogger.e(TAG, "uncaughtException(). " + e.toString());
+
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                e.printStackTrace(pw);
+                FLogger.e(TAG, "uncaughtException(). " + sw.toString());
+
+                // now rethrow the exception as if we didn't intercept it
+                defaultExceptionHandler.uncaughtException(thread, e);
+            }
+        });
     }
 
     private void initMsgServer() {
