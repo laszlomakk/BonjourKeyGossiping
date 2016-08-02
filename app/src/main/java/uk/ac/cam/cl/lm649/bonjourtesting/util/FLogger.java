@@ -29,8 +29,10 @@ public class FLogger {
     public static final LogLevel LOGGING_TO_FILE_MINIMUM_LOGLEVEL_FOR_DETAILED = LogLevel.DEBUG;
 
     public static void init(Context context) throws IOException {
-        File fileImportant = openFile(context, "logs", "log_important_");
-        File fileDetailed = openFile(context, "logs", "log_detailed_");
+        File fileImportant = openFile(context, "logs",
+                "_" + LOGGING_TO_FILE_MINIMUM_LOGLEVEL_FOR_IMPORTANT.name());
+        File fileDetailed = openFile(context, "logs",
+                "_" + LOGGING_TO_FILE_MINIMUM_LOGLEVEL_FOR_DETAILED.name());
         Log.i(TAG, "logging to file (important): " + fileImportant.getAbsolutePath());
         Log.i(TAG, "logging to file (detailed): " + fileDetailed.getAbsolutePath());
         try {
@@ -45,13 +47,13 @@ public class FLogger {
         FLogger.i(TAG, "init() finished.");
     }
 
-    private static File openFile(Context context, String dir, String fnamePrefix) throws IOException {
+    private static File openFile(Context context, String dir, String fnamePostfix) throws IOException {
         // create folder
         File logFolder = new File(context.getExternalFilesDir(null), dir);
         logFolder.mkdirs();
         // create file
         String timeStamp = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Timestamp(System.currentTimeMillis()));
-        String fname = fnamePrefix + timeStamp + ".txt";
+        String fname = "log_" + timeStamp + fnamePostfix + ".txt";
         File logFile = new File(logFolder, fname);
         if (!logFile.exists()) {
             logFile.createNewFile();
@@ -90,28 +92,11 @@ public class FLogger {
     }
 
     private enum LogLevel {
-        VERBOSE, DEBUG, INFO, WARN, ERROR;
-        static int getPriority(LogLevel logLevel) {
-            switch (logLevel) {
-                case VERBOSE:
-                    return 1;
-                case DEBUG:
-                    return 2;
-                case INFO:
-                    return 3;
-                case WARN:
-                    return 4;
-                case ERROR:
-                    return 5;
-                default:
-                    Log.e(TAG, "unknown loglevel: " + logLevel.name());
-                    return 0;
-            }
-        }
+        VERBOSE, DEBUG, INFO, WARN, ERROR
     }
 
     private static void printLine(LogLevel logLevel, String tag, String msg) {
-        if (LogLevel.getPriority(logLevel) < LogLevel.getPriority(LOGGING_TO_FILE_MINIMUM_LOGLEVEL_FOR_DETAILED)) {
+        if (logLevel.ordinal() < LOGGING_TO_FILE_MINIMUM_LOGLEVEL_FOR_DETAILED.ordinal()) {
             return;
         }
         long time = System.currentTimeMillis();
@@ -120,7 +105,7 @@ public class FLogger {
                 strTimeStamp, logLevel.name().charAt(0), tag, msg);
 
         printRawLine(writerDetailed, rawLine, time);
-        if (LogLevel.getPriority(logLevel) >= LogLevel.getPriority(LOGGING_TO_FILE_MINIMUM_LOGLEVEL_FOR_IMPORTANT)) {
+        if (logLevel.ordinal() >= LOGGING_TO_FILE_MINIMUM_LOGLEVEL_FOR_IMPORTANT.ordinal()) {
             printRawLine(writerImportant, rawLine, time);
         }
     }
