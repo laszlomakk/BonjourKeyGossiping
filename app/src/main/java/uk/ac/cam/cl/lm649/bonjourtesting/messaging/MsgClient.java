@@ -364,7 +364,7 @@ public class MsgClient {
 
     public void close() {
         if (closed) {
-            FLogger.e(TAG, "close() called. but it is already closed!");
+            FLogger.w(TAG, "close() called. but it is already closed!");
             return;
         }
         closed = true;
