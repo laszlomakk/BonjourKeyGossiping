@@ -14,6 +14,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.TimeToPollReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class ActiveBadgePollerService extends IntentService {
 
@@ -51,7 +52,7 @@ public class ActiveBadgePollerService extends IntentService {
             Thread.sleep(TIME_TO_KEEP_DEVICE_AWAKE);
         } catch (InterruptedException e) {
             FLogger.e(TAG, "onHandleIntent(). Sleep interrupted - " + e.getMessage());
-            e.printStackTrace();
+            FLogger.e(TAG, HelperMethods.formatStackTraceAsString(e));
         } finally {
             if (automaticPollingEnabled) {
                 FLogger.i(TAG, "onHandleIntent() finishing. Scheduling next poll.");

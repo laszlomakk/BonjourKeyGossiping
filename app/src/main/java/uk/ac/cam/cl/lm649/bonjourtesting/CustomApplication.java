@@ -125,11 +125,7 @@ public class CustomApplication extends Application {
             @Override
             public void uncaughtException (Thread thread, Throwable e) {
                 FLogger.e(TAG, "uncaughtException(). " + e.toString());
-
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                e.printStackTrace(pw);
-                FLogger.e(TAG, "uncaughtException(). " + sw.toString());
+                FLogger.e(TAG, "uncaughtException(). " + HelperMethods.formatStackTraceAsString(e));
 
                 // now rethrow the exception as if we didn't intercept it
                 defaultExceptionHandler.uncaughtException(thread, e);
@@ -143,7 +139,7 @@ public class CustomApplication extends Application {
         } catch (IOException e) {
             FLogger.e(TAG, "onCreate(). Failed to init MsgServer. IOE - " + e.getMessage());
             HelperMethods.displayMsgToUser(this, "failed to init MsgServer");
-            e.printStackTrace();
+            FLogger.e(TAG, HelperMethods.formatStackTraceAsString(e));
         }
     }
 

@@ -16,6 +16,8 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -122,6 +124,13 @@ public class HelperMethods {
         if (ret < 0) ret += diff;
         ret += min;
         return ret;
+    }
+
+    public static String formatStackTraceAsString(Throwable e) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        return sw.toString();
     }
 
 }

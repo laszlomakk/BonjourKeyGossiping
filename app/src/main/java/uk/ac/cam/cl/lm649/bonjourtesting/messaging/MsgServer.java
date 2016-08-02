@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
 public class MsgServer {
@@ -74,7 +75,7 @@ public class MsgServer {
             FLogger.i(TAG, "serverSocket successfully closed.");
         } catch (IOException e) {
             FLogger.e(TAG, "error while closing serverSocket. IOE - " + e.getMessage());
-            e.printStackTrace();
+            FLogger.e(TAG, HelperMethods.formatStackTraceAsString(e));
         }
 
         for (MsgClient msgClient : serviceToMsgClientMap.values()) {
