@@ -91,7 +91,7 @@ public class HelperMethods {
         return versionName;
     }
 
-    public static String getVersionNameWithOPMode(Context context) {
+    public static String getVersionNameExtended(Context context) {
         String opMode = "";
         switch (Constants.APP_OPERATING_MODE) {
             case NORMAL:
@@ -103,7 +103,13 @@ public class HelperMethods {
                 opMode = "-???";
                 break;
         }
-        return getVersionName(context) + opMode;
+        String historyTransfer = "";
+        if (Constants.HISTORY_TRANSFER_ENABLED) {
+            historyTransfer = "-histON";
+        } else {
+            historyTransfer = "-histOFF";
+        }
+        return getVersionName(context) + historyTransfer + opMode;
     }
 
     /**

@@ -59,7 +59,7 @@ public class CustomApplication extends Application {
 
         initLogger();
 
-        FLogger.i(TAG, "application version: " + HelperMethods.getVersionNameWithOPMode(this));
+        FLogger.i(TAG, "application version: " + HelperMethods.getVersionNameExtended(this));
 
         configJmDnsLogLevel();
         registerReceivers();

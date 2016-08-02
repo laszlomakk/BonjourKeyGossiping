@@ -5,9 +5,8 @@
 
 package uk.ac.cam.cl.lm649.bonjourtesting.bonjour;
 
-import android.util.Log;
-
 import javax.jmdns.ServiceEvent;
+import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
@@ -31,11 +30,11 @@ public class CustomServiceListener implements ServiceListener {
     @Override
     public void serviceAdded(ServiceEvent event) {
         if (event.getName().equals(bonjourService.getNameOfOurService())){
-            FLogger.d(TAG, "Discovered our own service: " + event.getInfo());
+            FLogger.i(TAG, "Discovered our own service: " + event.getInfo());
             discoveredOurOwnService = true;
             return;
         }
-        FLogger.d(TAG, "Service added: " + event.getInfo());
+        FLogger.i(TAG, "Service added: " + event.getInfo());
         if (null == bonjourService.jmdns){
             FLogger.e(TAG, "jmDNS is null");
             return;
@@ -47,7 +46,7 @@ public class CustomServiceListener implements ServiceListener {
 
     @Override
     public void serviceRemoved(ServiceEvent event) {
-        FLogger.d(TAG, "Service removed: " + event.getInfo());
+        FLogger.i(TAG, "Service removed: " + event.getInfo());
 
         bonjourService.removeServiceFromRegistry(event);
         MsgServer.getInstance().serviceToMsgClientMap.remove(new ServiceStub(event));
@@ -56,15 +55,16 @@ public class CustomServiceListener implements ServiceListener {
     @Override
     public void serviceResolved(ServiceEvent event) {
         if (event.getName().equals(bonjourService.getNameOfOurService())){
-            FLogger.d(TAG, "Tried to resolve our own service: " + event.getInfo());
+            FLogger.i(TAG, "Tried to resolve our own service: " + event.getInfo());
             return;
         }
-        FLogger.d(TAG, "Service resolved: " + event.getInfo());
+        FLogger.i(TAG, "Service resolved: " + event.getInfo());
 
         bonjourService.addServiceToRegistry(event);
         MsgClient msgClient = new MsgClient(event.getInfo());
         MsgClient oldMsgClient = MsgServer.getInstance().serviceToMsgClientMap.put(new ServiceStub(event), msgClient);
         if (null != oldMsgClient) oldMsgClient.close();
+
         msgClient.sendMessageWhoAreYouQuestion();
         msgClient.sendMessageThisIsMyIdentity();
     }

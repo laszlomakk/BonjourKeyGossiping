@@ -23,4 +23,6 @@ public class Constants {
 
     public static final OperatingMode APP_OPERATING_MODE = OperatingMode.NORMAL;
 
+    public static final boolean HISTORY_TRANSFER_ENABLED = false;
+
 }

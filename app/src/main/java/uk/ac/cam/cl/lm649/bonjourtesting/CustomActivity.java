@@ -43,7 +43,7 @@ public class CustomActivity extends Activity {
         }
         CustomActivity topAct = app.getTopActivity();
         if (null == topAct) {
-            FLogger.e(TAG, "forceRefreshUIInTopActivity(). topAct is null");
+            FLogger.d(TAG, "forceRefreshUIInTopActivity(). topAct is null");
             return;
         }
         topAct.forceRefreshUI();

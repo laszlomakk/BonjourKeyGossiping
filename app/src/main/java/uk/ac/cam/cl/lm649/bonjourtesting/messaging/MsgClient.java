@@ -1,6 +1,7 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -82,6 +83,11 @@ public class MsgClient {
     public MsgClient(final ServiceInfo serviceInfo) {
         this();
         final InetAddress address = getAddress(serviceInfo);
+        if (null == address) {
+            FLogger.e(TAG, "MsgClient(). address is null. closing MsgClient");
+            MsgClient.this.close();
+            return;
+        }
 
         Runnable runnable = new Runnable() {
             @Override
@@ -90,7 +96,7 @@ public class MsgClient {
                     MsgClient.this.socket = new Socket(address, serviceInfo.getPort());
                     init();
                 } catch (IOException e) { // TODO think about this
-                    FLogger.e(TAG, "Failed to open socket. closing MsgClient. IOE - " + e.getMessage());
+                    FLogger.e(TAG, "MsgClient(). Failed to open socket. closing MsgClient. IOE - " + e.getMessage());
                     MsgClient.this.close();
                 }
             }
@@ -161,12 +167,24 @@ public class MsgClient {
                 FLogger.i(TAG, sFromAddress + "received msg with type THIS_IS_MY_IDENTITY, " + badgeStatus.toString());
                 DbTableBadges.smartUpdateBadge(badgeStatus);
                 CustomActivity.forceRefreshUIInTopActivity();
-                considerDoingAHistoryTransfer(badgeStatus.getBadgeCore().getBadgeId());
+                if (Constants.HISTORY_TRANSFER_ENABLED) {
+                    considerDoingAHistoryTransfer(badgeStatus.getBadgeCore().getBadgeId());
+                } else {
+                    FLogger.d(TAG, "would consider doing a historyTransfer now, but it is disabled");
+                }
                 break;
             case MessageType.HISTORY_TRANSFER:
                 int numBadges = inStream.readInt();
                 FLogger.i(TAG, sFromAddress + "received msg with type HISTORY_TRANSFER, containing "
                         + numBadges + " badges");
+                if (!Constants.HISTORY_TRANSFER_ENABLED) {
+                    FLogger.i(TAG, "rejecting message. historyTransfer is disabled.");
+                    // we still need to process (swallow) the message though...
+                    for (int badgeIndex = 0; badgeIndex < numBadges; badgeIndex++) {
+                        /* BadgeStatus throwAway = */ BadgeStatus.createFromStream(inStream);
+                    }
+                    break;
+                }
                 for (int badgeIndex = 0; badgeIndex < numBadges; badgeIndex++) {
                     BadgeStatus badgeStatus2 = BadgeStatus.createFromStream(inStream);
                     if (!saveBadgeData.getMyBadgeId().equals(badgeStatus2.getBadgeCore().getBadgeId())) {
@@ -290,6 +308,10 @@ public class MsgClient {
     }
 
     public void sendMessageHistoryTransfer(final UUID badgeIdOfReceiver){
+        if (!Constants.HISTORY_TRANSFER_ENABLED) {
+            FLogger.e(TAG, "sendMessageHistoryTransfer() called, but historyTransfer is disabled.");
+            return;
+        }
         final Runnable runnable = new Runnable() {
             @Override
             public void run(){
@@ -326,6 +348,7 @@ public class MsgClient {
         }
     }
 
+    @Nullable
     private static InetAddress getAddress(ServiceInfo serviceInfoOfDst) {
         if (null == serviceInfoOfDst){
             FLogger.e(TAG, "getAddress(). serviceInfo is null");
