@@ -113,9 +113,6 @@ public class CustomApplication extends Application {
         }
     }
 
-    /**
-     * note: assuming this is called on the main thread.
-     */
     private void setupExceptionCatching() {
         FLogger.i(TAG, "setupExceptionCatching() called.");
         defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
