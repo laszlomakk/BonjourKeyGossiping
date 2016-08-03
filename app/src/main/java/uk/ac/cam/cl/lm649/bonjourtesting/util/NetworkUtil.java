@@ -63,7 +63,8 @@ public class NetworkUtil {
     public static String getRouterMacAddress(Context context) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        return wifiInfo.getBSSID();
+        String routerMac = wifiInfo.getBSSID();
+        return null == routerMac ? "00:00:00:00:00:00" : routerMac;
     }
 
     public static NetworkInfo.State getWifiState(Intent intent) {
