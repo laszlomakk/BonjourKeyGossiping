@@ -33,4 +33,5 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.21'
     compile 'ch.qos.logback:logback-classic:1.1.7'
     compile files("libs/jmdns-3.5.0.jar")
+    compile 'org.bouncycastle:bcprov-jdk15on:1.54'
 }
