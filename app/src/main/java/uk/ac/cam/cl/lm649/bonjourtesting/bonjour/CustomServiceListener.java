@@ -60,6 +60,9 @@ public class CustomServiceListener implements ServiceListener {
         }
         FLogger.i(TAG, "Service resolved: " + event.getInfo());
 
+        String badgeIdOfOtherDevice = event.getInfo().getPropertyString(BonjourService.DNS_TXT_RECORD_MAP_KEY_FOR_BADGE_ID);
+        FLogger.i(TAG, "serviceResolved(). service claims to have badgeID: " + badgeIdOfOtherDevice);
+
         bonjourService.addServiceToRegistry(event);
         MsgClient msgClient = new MsgClient(event.getInfo());
         MsgClient oldMsgClient = MsgServer.getInstance().serviceToMsgClientMap.put(new ServiceStub(event), msgClient);
