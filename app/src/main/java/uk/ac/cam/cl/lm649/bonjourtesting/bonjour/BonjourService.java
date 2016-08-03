@@ -236,7 +236,7 @@ public class BonjourService extends Service {
                     FLogger.e(TAG, "startWork(). Error during start-up: IOE - " + e.getMessage());
                     //HelperMethods.displayMsgToUser(context, "Error during start-up: IOE");
                     changeServiceState("error during start-up: IOE");
-                    FLogger.e(TAG, HelperMethods.formatStackTraceAsString(e));
+                    FLogger.d(TAG, HelperMethods.formatStackTraceAsString(e));
                     FLogger.i(TAG, String.format(
                             Locale.US, "sleeping for %d seconds and then retrying start-up...",
                             TIME_TO_WAIT_BETWEEN_STARTUP_RETRIES/1000));
