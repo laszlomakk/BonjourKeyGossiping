@@ -43,4 +43,10 @@ public class ServiceStub implements Comparable<ServiceStub> {
     public int hashCode() {
         return (type+name).hashCode();
     }
+
+    @Override
+    public String toString() {
+        return name + "." + type;
+    }
+
 }

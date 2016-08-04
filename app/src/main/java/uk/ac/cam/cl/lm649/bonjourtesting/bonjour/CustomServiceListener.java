@@ -61,12 +61,23 @@ public class CustomServiceListener implements ServiceListener {
         FLogger.i(TAG, "Service resolved: " + event.getInfo());
 
         bonjourService.addServiceToRegistry(event);
-        MsgClient msgClient = new MsgClient(event.getInfo());
-        MsgClient oldMsgClient = MsgServer.getInstance().serviceToMsgClientMap.put(new ServiceStub(event), msgClient);
-        if (null != oldMsgClient) oldMsgClient.close();
 
+        MsgClient msgClient = getMsgClientForService(event);
         msgClient.sendMessageWhoAreYouQuestion();
         msgClient.sendMessageThisIsMyIdentity();
+    }
+
+    private MsgClient getMsgClientForService(ServiceEvent event) {
+        ServiceStub serviceStub = new ServiceStub(event);
+        MsgClient msgClient = MsgServer.getInstance().serviceToMsgClientMap.get(serviceStub);
+        if (null == msgClient || msgClient.isClosed()) {
+            FLogger.d(TAG, "getMsgClientForService(). ++ creating new MsgClient for " + serviceStub);
+            msgClient = new MsgClient(event.getInfo());
+            MsgServer.getInstance().serviceToMsgClientMap.put(serviceStub, msgClient);
+        } else {
+            FLogger.d(TAG, "getMsgClientForService(). __ reusing MsgClient for " + serviceStub);
+        }
+        return msgClient;
     }
 
     public boolean getDiscoveredOurOwnService() {
