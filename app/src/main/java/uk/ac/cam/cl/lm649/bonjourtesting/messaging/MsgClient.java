@@ -54,6 +54,7 @@ public class MsgClient {
 
     private boolean closed = false;
 
+    private String socketAddress;
     private String sFromAddress;
     private String sToAddress;
 
@@ -111,9 +112,9 @@ public class MsgClient {
 
     private void init() {
         try {
-            String address = socket.getInetAddress().getHostAddress();
-            sFromAddress = "from addr: " + address + ", ";
-            sToAddress = "to addr: " + address + ", ";
+            socketAddress = socket.getInetAddress().getHostAddress();
+            sFromAddress = "from addr: " + socketAddress + ", ";
+            sToAddress = "to addr: " + socketAddress + ", ";
             outStream = new ObjectOutputStream(
                     new BufferedOutputStream(socket.getOutputStream()));
             outStreamReadyLatch.countDown();
@@ -141,6 +142,7 @@ public class MsgClient {
         } catch (IOException e) {
             FLogger.e(TAG, "startWaitingForMessages(). IOE - " + e.getMessage());
         }
+        close();
     }
 
     private class MessageType {
@@ -363,8 +365,9 @@ public class MsgClient {
     }
 
     public void close() {
+        FLogger.d(TAG, "close() called. address: " + socketAddress);
         if (closed) {
-            FLogger.w(TAG, "close() called. but it is already closed!");
+            FLogger.d(TAG, "close(). already closed.");
             return;
         }
         closed = true;
@@ -377,6 +380,10 @@ public class MsgClient {
         } catch (IOException e) {
             FLogger.e(TAG, "close(). trying to close streams and socket, IOE - " + e.getMessage());
         }
+    }
+
+    public boolean isClosed() {
+        return closed;
     }
 
 }
