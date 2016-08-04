@@ -5,6 +5,8 @@ import android.support.annotation.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -31,6 +33,8 @@ import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeStatus;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbTableBadges;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbTableHistoryTransfer;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgArbitraryText;
 import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
@@ -48,8 +52,8 @@ public class MsgClient {
     private final ExecutorService workerThreadIncoming = Executors.newFixedThreadPool(1);
     private final ExecutorService workerThreadOutgoing = Executors.newFixedThreadPool(1);
 
-    private ObjectInputStream inStream;
-    private ObjectOutputStream outStream;
+    private DataInputStream inStream;
+    private DataOutputStream outStream;
     private CountDownLatch outStreamReadyLatch = new CountDownLatch(1);
 
     private boolean closed = false;
@@ -115,10 +119,10 @@ public class MsgClient {
             socketAddress = socket.getInetAddress().getHostAddress();
             sFromAddress = "from addr: " + socketAddress + ", ";
             sToAddress = "to addr: " + socketAddress + ", ";
-            outStream = new ObjectOutputStream(
+            outStream = new DataOutputStream(
                     new BufferedOutputStream(socket.getOutputStream()));
             outStreamReadyLatch.countDown();
-            inStream = new ObjectInputStream(
+            inStream = new DataInputStream(
                     new BufferedInputStream(socket.getInputStream()));
             startWaitingForMessages();
         } catch (IOException e) {
@@ -203,6 +207,31 @@ public class MsgClient {
             default: // unknown
                 FLogger.e(TAG, sFromAddress + "received msg with unknown msgType: " + msgType);
                 break;
+        }
+    }
+
+    public void sendMessage(final Message msg){
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run(){
+                try {
+                    outStreamReadyLatch.await();
+                } catch (InterruptedException e) {
+                    FLogger.e(TAG, "sendMessage(). latch await interrupted - " + e.getMessage());
+                    return;
+                }
+                try {
+                    msg.serialiseToStream(outStream);
+                    FLogger.i(TAG, sToAddress + "sent msg with type " + msg.getType());
+                } catch (IOException e) {
+                    FLogger.e(TAG, "sendMessage(). IOE - " + e.getMessage());
+                }
+            }
+        };
+        try {
+            workerThreadOutgoing.execute(runnable);
+        } catch (RejectedExecutionException e) {
+            FLogger.e(TAG, "sendMessage(). runnable was rejected by executor - " + e.getMessage());
         }
     }
 

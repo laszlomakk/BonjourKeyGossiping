@@ -1,5 +1,7 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.activebadge;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -48,13 +50,13 @@ public class BadgeStatus {
         MOST_RECENT_ALIVE_FIRST, ALPHABETICAL
     }
 
-    public void serialiseToStream(ObjectOutputStream outStream) throws IOException {
+    public void serialiseToStream(DataOutputStream outStream) throws IOException {
         badgeCore.serialiseToStream(outStream);
         outStream.writeUTF(routerMac);
         outStream.writeLong(timestampLastSeenAlive);
     }
 
-    public static BadgeStatus createFromStream(ObjectInputStream inStream) throws IOException {
+    public static BadgeStatus createFromStream(DataInputStream inStream) throws IOException {
         BadgeStatus badgeStatus = new BadgeStatus();
         badgeStatus.badgeCore = BadgeCore.createFromStream(inStream);
         badgeStatus.routerMac = inStream.readUTF();

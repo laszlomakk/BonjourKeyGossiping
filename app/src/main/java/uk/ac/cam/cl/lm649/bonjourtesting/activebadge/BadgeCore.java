@@ -1,5 +1,7 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.activebadge;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -35,12 +37,12 @@ public class BadgeCore {
         return String.format(Locale.US, "badgeID: %s\nnick: %s", badgeId.toString(), customName);
     }
 
-    protected void serialiseToStream(ObjectOutputStream outStream) throws IOException {
+    protected void serialiseToStream(DataOutputStream outStream) throws IOException {
         outStream.writeUTF(badgeId.toString());
         outStream.writeUTF(customName);
     }
 
-    protected static BadgeCore createFromStream(ObjectInputStream inStream) throws IOException {
+    protected static BadgeCore createFromStream(DataInputStream inStream) throws IOException {
         BadgeCore badgeCore = new BadgeCore();
         badgeCore.badgeId = UUID.fromString(inStream.readUTF());
         badgeCore.customName = inStream.readUTF();
