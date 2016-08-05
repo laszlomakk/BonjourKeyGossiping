@@ -25,6 +25,8 @@ import javax.jmdns.ServiceInfo;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgArbitraryText;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.JmdnsUtil;
@@ -68,7 +70,7 @@ public class BonjourDebugActivity extends CustomActivity {
                         HelperMethods.displayMsgToUser(context, "error sending msg: serviceInfo is null (1)");
                         return;
                     }
-                    String msg = "Hy there! I see your payload is " + serviceInfo.getNiceTextString();
+                    String msgTextPayload = "Hy there! I see your payload is " + serviceInfo.getNiceTextString();
                     BonjourService bonjourService = app.getBonjourService();
                     if (null != bonjourService){
                         String serviceName = bonjourService.getNameOfOurService();
@@ -77,7 +79,9 @@ public class BonjourDebugActivity extends CustomActivity {
                             FLogger.e(TAG, "onItemClick(). msgClient not found");
                             HelperMethods.displayMsgToUser(context, "error: msgClient not found");
                         } else {
-                            msgClient.sendMessageArbitraryText(serviceName, msg);
+                            String msgText = String.format(Locale.US, "%s: %s", serviceName, msgTextPayload);
+                            Message msg = new MsgArbitraryText(msgText);
+                            msgClient.sendMessage(msg);
                         }
                     } else {
                         FLogger.e(TAG, "onItemClick(). bonjourService is null.");

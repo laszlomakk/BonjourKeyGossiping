@@ -1,5 +1,9 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.util;
 
+import android.support.annotation.Nullable;
+
+import java.net.InetAddress;
+
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 
@@ -65,6 +69,20 @@ public class JmdnsUtil {
         sb.append("name: ").append(info.getName()).append("\n");
         sb.append("type: ").append(info.getType()).append("\n");
         return sb.toString();
+    }
+
+    @Nullable
+    public static InetAddress getAddress(ServiceInfo serviceInfoOfDst) {
+        if (null == serviceInfoOfDst){
+            FLogger.e(TAG, "getAddress(). serviceInfo is null");
+            return null;
+        }
+        InetAddress[] arrAddresses = serviceInfoOfDst.getInet4Addresses();
+        if (null == arrAddresses || arrAddresses.length < 1){
+            FLogger.e(TAG, "getAddress(). inappropriate addresses");
+            return null;
+        }
+        return arrAddresses[0];
     }
 
 }
