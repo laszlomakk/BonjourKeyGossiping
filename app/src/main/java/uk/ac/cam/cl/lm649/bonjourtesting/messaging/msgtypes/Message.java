@@ -26,6 +26,9 @@ public abstract class Message {
         typeNumToMessageTypeMap.put(MsgWhoAreYouQuestion.TYPE_NUM, MsgWhoAreYouQuestion.class);
         typeNumToMessageTypeMap.put(MsgThisIsMyIdentity.TYPE_NUM,  MsgThisIsMyIdentity.class);
         typeNumToMessageTypeMap.put(MsgHistoryTransfer.TYPE_NUM,   MsgHistoryTransfer.class);
+        typeNumToMessageTypeMap.put(MsgJPAKERound1.TYPE_NUM,       MsgJPAKERound1.class);
+        typeNumToMessageTypeMap.put(MsgJPAKERound2.TYPE_NUM,       MsgJPAKERound2.class);
+        typeNumToMessageTypeMap.put(MsgJPAKERound3.TYPE_NUM,       MsgJPAKERound3.class);
     }
 
     protected Message(int type) {

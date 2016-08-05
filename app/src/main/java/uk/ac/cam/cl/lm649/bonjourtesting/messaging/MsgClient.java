@@ -66,6 +66,9 @@ public class MsgClient {
     public String sFromAddress;
     public String sToAddress;
 
+    private UUID badgeIdOfOtherEnd = null;
+    protected JPAKEClient jpakeClient;
+
     private MsgClient() {
         app = CustomApplication.getInstance();
         context = app;
@@ -194,32 +197,36 @@ public class MsgClient {
         }
     }
 
-    public void considerDoingAHistoryTransfer(final UUID badgeIdOfReceiver) {
-        FLogger.d(TAG, "considering doing a historyTransfer to " + badgeIdOfReceiver.toString());
-        Long lastTimeWeSentHistoryToThatBadge = DbTableHistoryTransfer.getTimestamp(badgeIdOfReceiver);
+    public void considerDoingAHistoryTransfer() {
+        FLogger.d(TAG, "considering doing a historyTransfer to " + badgeIdOfOtherEnd);
+        if (null == badgeIdOfOtherEnd) {
+            FLogger.e(TAG, "considerDoingAHistoryTransfer(). badgeIdOfOtherEnd is null.");
+            return;
+        }
+        Long lastTimeWeSentHistoryToThatBadge = DbTableHistoryTransfer.getTimestamp(badgeIdOfOtherEnd);
         long curTime = System.currentTimeMillis();
         if (null == lastTimeWeSentHistoryToThatBadge
                 || curTime - lastTimeWeSentHistoryToThatBadge > Constants.HISTORY_TRANSFER_TO_SAME_CLIENT_COOLDOWN) {
-            FLogger.d(TAG, "decided to do historyTransfer to " + badgeIdOfReceiver.toString());
-            doHistoryTransfer(badgeIdOfReceiver);
+            FLogger.d(TAG, "decided to do historyTransfer to " + badgeIdOfOtherEnd.toString());
+            doHistoryTransfer();
         } else {
             long timeElapsed = curTime - lastTimeWeSentHistoryToThatBadge;
-            FLogger.d(TAG, "won't do historyTransfer to " + badgeIdOfReceiver.toString()
+            FLogger.d(TAG, "won't do historyTransfer to " + badgeIdOfOtherEnd
                     + ", last transfer was " + timeElapsed/1000 + " seconds ago ");
         }
     }
 
-    private void doHistoryTransfer(final UUID badgeIdOfReceiver) {
+    private void doHistoryTransfer() {
         long curTime = System.currentTimeMillis();
-        Long timeStampLastHistoryTransfer = DbTableHistoryTransfer.getTimestamp(badgeIdOfReceiver);
+        Long timeStampLastHistoryTransfer = DbTableHistoryTransfer.getTimestamp(badgeIdOfOtherEnd);
         List<BadgeStatus> badgeStatuses = DbTableBadges.getBadgesUpdatedSince(timeStampLastHistoryTransfer);
         for (BadgeStatus badgeStatus : badgeStatuses) {
-            FLogger.d(TAG, "historyTransfer to " + badgeIdOfReceiver + " contains badge:\n"
+            FLogger.d(TAG, "historyTransfer to " + badgeIdOfOtherEnd + " contains badge:\n"
                     + badgeStatus.toString());
         }
         Message msgHistoryTransfer = new MsgHistoryTransfer(badgeStatuses);
         sendMessage(msgHistoryTransfer);
-        DbTableHistoryTransfer.smartUpdateEntry(badgeIdOfReceiver, curTime);
+        DbTableHistoryTransfer.smartUpdateEntry(badgeIdOfOtherEnd, curTime);
     }
 
     public void close() {
@@ -248,4 +255,33 @@ public class MsgClient {
         return outStream;
     }
 
+    public UUID getBadgeIdOfOtherEnd() {
+        return badgeIdOfOtherEnd;
+    }
+
+    /**
+     * Sets this.badgeIdOfOtherEnd to badgeId on first call. Tests for equality and
+     * "produces" error on mismatch for subsequent calls.
+     */
+    public void reconfirmBadgeId(UUID badgeId) {
+        if (null == badgeIdOfOtherEnd) {
+            if (null != badgeId) {
+                badgeIdOfOtherEnd = badgeId;
+                FLogger.d(TAG, "reconfirmBadgeId(). badgeIdOfOtherEnd set to " + badgeIdOfOtherEnd);
+            } else {
+                FLogger.e(TAG, "reconfirmBadgeId(). badgeId == badgeIdOfOtherEnd == null.");
+            }
+            return;
+        }
+        if (!badgeIdOfOtherEnd.equals(badgeId)) {
+            FLogger.e(TAG, String.format(Locale.US,
+                    "reconfirmBadgeId(). wtf. badgeId mismatch! old: %s, new: %s",
+                    badgeIdOfOtherEnd, badgeId));
+            // TODO maybe throw an exception or call close() ?
+        }
+    }
+
+    public JPAKEClient getJpakeClient() {
+        return jpakeClient;
+    }
 }

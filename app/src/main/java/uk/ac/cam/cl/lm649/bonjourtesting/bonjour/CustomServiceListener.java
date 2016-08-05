@@ -5,11 +5,15 @@
 
 package uk.ac.cam.cl.lm649.bonjourtesting.bonjour;
 
+import java.io.IOException;
+import java.util.UUID;
+
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeStatus;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
@@ -69,21 +73,21 @@ public class CustomServiceListener implements ServiceListener {
 
         bonjourService.addServiceToRegistry(event);
 
-        MsgClient msgClient = getMsgClientForService(event);
-
-        Message msgWhoAreYouQuestion = new MsgWhoAreYouQuestion();
-        msgClient.sendMessage(msgWhoAreYouQuestion);
-
-        Message msgThisIsMyId = new MsgThisIsMyIdentity(BadgeStatus.constructMyCurrentBadgeStatus());
-        msgClient.sendMessage(msgThisIsMyId);
+        MsgClient msgClient = getMsgClientForService(event, badgeIdOfOtherDevice);
+        startMessaging(msgClient);
     }
 
-    private MsgClient getMsgClientForService(ServiceEvent event) {
+    private MsgClient getMsgClientForService(ServiceEvent event, String badgeIdOfOtherDevice) {
         ServiceStub serviceStub = new ServiceStub(event);
         MsgClient msgClient = MsgServer.getInstance().serviceToMsgClientMap.get(serviceStub);
         if (null == msgClient || msgClient.isClosed()) {
             FLogger.d(TAG, "getMsgClientForService(). ++ creating new MsgClient for " + serviceStub);
             msgClient = new MsgClient(event.getInfo());
+            if (null != badgeIdOfOtherDevice) {
+                msgClient.reconfirmBadgeId(UUID.fromString(badgeIdOfOtherDevice));
+            } else {
+                FLogger.w(TAG, "getMsgClientForService(). badgeIdOfOtherDevice is null.");
+            }
             MsgServer.getInstance().serviceToMsgClientMap.put(serviceStub, msgClient);
         } else {
             FLogger.d(TAG, "getMsgClientForService(). __ reusing MsgClient for " + serviceStub);
@@ -93,6 +97,27 @@ public class CustomServiceListener implements ServiceListener {
 
     public boolean getDiscoveredOurOwnService() {
         return discoveredOurOwnService;
+    }
+
+    private void startMessaging(MsgClient msgClient) {
+        Message msgWhoAreYouQuestion = new MsgWhoAreYouQuestion();
+        msgClient.sendMessage(msgWhoAreYouQuestion);
+
+        Message msgThisIsMyId = new MsgThisIsMyIdentity(BadgeStatus.constructMyCurrentBadgeStatus());
+        msgClient.sendMessage(msgThisIsMyId);
+
+        if (JPAKEClient.shouldWeRunJPAKE(msgClient)) {
+            try {
+                JPAKEClient jpakeClient = msgClient.getJpakeClient();
+                if (null == jpakeClient) {
+                    FLogger.e(TAG, "startMessaging(). jpakeClient is null BUT IT SHOULDN'T BE NULL HERE !");
+                    return;
+                }
+                jpakeClient.round1Send(msgClient);
+            } catch (IOException e) {
+                FLogger.e(TAG, "startMessaging() - JPAKEClient.round1Send(). IOE - " + e.getMessage());
+            }
+        }
     }
 
 }
