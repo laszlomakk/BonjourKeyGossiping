@@ -1,10 +1,17 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.activebadge;
 
+import android.content.Context;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Date;
 import java.util.Locale;
+
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 
 public class BadgeStatus {
 
@@ -48,18 +55,33 @@ public class BadgeStatus {
         MOST_RECENT_ALIVE_FIRST, ALPHABETICAL
     }
 
-    public void serialiseToStream(ObjectOutputStream outStream) throws IOException {
+    public void serialiseToStream(DataOutputStream outStream) throws IOException {
         badgeCore.serialiseToStream(outStream);
         outStream.writeUTF(routerMac);
         outStream.writeLong(timestampLastSeenAlive);
     }
 
-    public static BadgeStatus createFromStream(ObjectInputStream inStream) throws IOException {
+    public static BadgeStatus createFromStream(DataInputStream inStream) throws IOException {
         BadgeStatus badgeStatus = new BadgeStatus();
         badgeStatus.badgeCore = BadgeCore.createFromStream(inStream);
         badgeStatus.routerMac = inStream.readUTF();
         badgeStatus.timestampLastSeenAlive = inStream.readLong();
         return badgeStatus;
+    }
+
+    public static BadgeStatus constructMyCurrentBadgeStatus(Context context) {
+        SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
+        BadgeCore myBadgeCore = new BadgeCore(saveBadgeData.getMyBadgeId());
+        myBadgeCore.setCustomName(saveBadgeData.getMyBadgeCustomName());
+        BadgeStatus badgeStatus = new BadgeStatus(myBadgeCore);
+        badgeStatus.setRouterMac(NetworkUtil.getRouterMacAddress(context));
+        badgeStatus.setTimestampLastSeenAlive(System.currentTimeMillis());
+        return badgeStatus;
+    }
+
+    public static BadgeStatus constructMyCurrentBadgeStatus() {
+        Context context = CustomApplication.getInstance().getApplicationContext();
+        return constructMyCurrentBadgeStatus(context);
     }
 
 }

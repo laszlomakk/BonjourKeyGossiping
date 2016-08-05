@@ -9,8 +9,12 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeStatus;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgThisIsMyIdentity;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgWhoAreYouQuestion;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
@@ -66,8 +70,12 @@ public class CustomServiceListener implements ServiceListener {
         bonjourService.addServiceToRegistry(event);
 
         MsgClient msgClient = getMsgClientForService(event);
-        msgClient.sendMessageWhoAreYouQuestion();
-        msgClient.sendMessageThisIsMyIdentity();
+
+        Message msgWhoAreYouQuestion = new MsgWhoAreYouQuestion();
+        msgClient.sendMessage(msgWhoAreYouQuestion);
+
+        Message msgThisIsMyId = new MsgThisIsMyIdentity(BadgeStatus.constructMyCurrentBadgeStatus());
+        msgClient.sendMessage(msgThisIsMyId);
     }
 
     private MsgClient getMsgClientForService(ServiceEvent event) {
