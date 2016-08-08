@@ -18,12 +18,10 @@ public class MsgHistoryTransfer extends Message {
 
     private static final String TAG = "MsgHistoryTransfer";
 
-    public static final int TYPE_NUM = 3;
-
     public final List<BadgeStatus> badgeStatuses;
 
     public MsgHistoryTransfer(List<BadgeStatus> badgeStatuses) {
-        super(TYPE_NUM);
+        super(MessageTypes.msgClassToMsgNumMap.get(MsgHistoryTransfer.class));
         this.badgeStatuses = badgeStatuses;
     }
 

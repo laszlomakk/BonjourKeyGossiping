@@ -14,12 +14,10 @@ public class MsgJPAKERound3 extends Message {
 
     private static final String TAG = "MsgJPAKERound3";
 
-    public static final int TYPE_NUM = 6;
-
     public final BigInteger macTag;
 
     public MsgJPAKERound3(BigInteger macTag) {
-        super(TYPE_NUM);
+        super(MessageTypes.msgClassToMsgNumMap.get(MsgJPAKERound3.class));
 
         this.macTag = macTag;
     }

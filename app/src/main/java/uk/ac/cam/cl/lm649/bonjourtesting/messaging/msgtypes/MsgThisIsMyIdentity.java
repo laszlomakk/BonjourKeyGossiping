@@ -13,12 +13,10 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
 public class MsgThisIsMyIdentity extends Message {
 
-    public static final int TYPE_NUM = 2;
-
     public final BadgeStatus badgeStatus;
 
     public MsgThisIsMyIdentity(BadgeStatus badgeStatus) {
-        super(TYPE_NUM);
+        super(MessageTypes.msgClassToMsgNumMap.get(MsgThisIsMyIdentity.class));
         this.badgeStatus = badgeStatus;
     }
 

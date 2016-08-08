@@ -13,8 +13,6 @@ public class MsgJPAKERound1 extends Message {
 
     private static final String TAG = "MsgJPAKERound1";
 
-    public static final int TYPE_NUM = 4;
-
     public final BigInteger gx1;
     public final BigInteger gx2;
     public final BigInteger[] knowledgeProofForX1;
@@ -26,7 +24,7 @@ public class MsgJPAKERound1 extends Message {
             BigInteger[] knowledgeProofForX1,
             BigInteger[] knowledgeProofForX2)
     {
-        super(TYPE_NUM);
+        super(MessageTypes.msgClassToMsgNumMap.get(MsgJPAKERound1.class));
 
         this.gx1 = gx1;
         this.gx2 = gx2;
