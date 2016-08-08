@@ -27,7 +27,6 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound2;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound3;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
-// TODO make sure methods on JPAKEParticipant are only called once -- enforce a consistent state
 // TODO converting a BigInteger to String and sending that over the network is wasteful
 public class JPAKEClient {
 
