@@ -23,6 +23,7 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
@@ -87,6 +88,30 @@ public class BonjourDebugActivity extends CustomActivity {
                         FLogger.e(TAG, "onItemClick(). bonjourService is null.");
                         HelperMethods.displayMsgToUser(context, "error: bonjourService is null");
                     }
+                }
+            }
+        });
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                synchronized (displayedServicesLock){
+                    FLogger.i(TAG, "onItemLongClick() - user clicked on an item in the list");
+                    ServiceInfo serviceInfo = servicesFoundArrList.get(position).getInfo();
+                    if (null == serviceInfo){
+                        FLogger.e(TAG, "onItemLongClick(). error sending msg: serviceInfo is null");
+                        HelperMethods.displayMsgToUser(context, "error sending msg: serviceInfo is null (1)");
+                        return true;
+                    }
+                    MsgClient msgClient = MsgServer.getInstance().serviceToMsgClientMap.get(new ServiceStub(serviceInfo));
+                    if (null == msgClient) {
+                        FLogger.e(TAG, "onItemLongClick(). msgClient not found");
+                        HelperMethods.displayMsgToUser(context, "error: msgClient not found");
+                    } else {
+                        boolean jpakeStarted = JPAKEClient.startJPAKEifAppropriate(msgClient);
+                        FLogger.i(TAG, "onItemLongClick(). jpakeStarted: " + jpakeStarted);
+                        HelperMethods.displayMsgToUser(context, "jpakeStarted: " + jpakeStarted);
+                    }
+                    return true;
                 }
             }
         });

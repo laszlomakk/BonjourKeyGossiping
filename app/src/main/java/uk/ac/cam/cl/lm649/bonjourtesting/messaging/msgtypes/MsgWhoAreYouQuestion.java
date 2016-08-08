@@ -10,10 +10,8 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
 public class MsgWhoAreYouQuestion extends Message {
 
-    public static final int TYPE_NUM = 1;
-
     public MsgWhoAreYouQuestion() {
-        super(TYPE_NUM);
+        super(MessageTypes.msgClassToMsgNumMap.get(MsgWhoAreYouQuestion.class));
     }
 
     public static MsgWhoAreYouQuestion createFromStream(DataInputStream inStream) throws IOException {
@@ -34,7 +32,7 @@ public class MsgWhoAreYouQuestion extends Message {
     }
 
     @Override
-    public void receive(MsgClient msgClient) throws IOException {
+    public void onReceive(MsgClient msgClient) throws IOException {
         FLogger.i(MsgClient.TAG, msgClient.sFromAddress + "received " + getClass().getSimpleName());
         Message msgThisIsMyId = new MsgThisIsMyIdentity(BadgeStatus.constructMyCurrentBadgeStatus());
         msgClient.sendMessage(msgThisIsMyId);

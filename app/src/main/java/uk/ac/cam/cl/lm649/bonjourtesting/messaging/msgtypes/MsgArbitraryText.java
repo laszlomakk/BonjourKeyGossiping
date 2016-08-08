@@ -10,12 +10,10 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class MsgArbitraryText extends Message {
 
-    public static final int TYPE_NUM = 0;
-
     public final String text;
 
     public MsgArbitraryText(String text) {
-        super(TYPE_NUM);
+        super(MessageTypes.msgClassToMsgNumMap.get(MsgArbitraryText.class));
         this.text = text;
     }
 
@@ -40,7 +38,7 @@ public class MsgArbitraryText extends Message {
     }
 
     @Override
-    public void receive(MsgClient msgClient) throws IOException {
+    public void onReceive(MsgClient msgClient) throws IOException {
         FLogger.i(MsgClient.TAG, msgClient.sFromAddress + "received " +
                 getClass().getSimpleName() + ": " + text);
         HelperMethods.displayMsgToUser(msgClient.context, text);

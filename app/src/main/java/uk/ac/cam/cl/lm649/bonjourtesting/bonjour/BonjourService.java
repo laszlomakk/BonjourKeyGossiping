@@ -17,7 +17,9 @@ import android.os.IBinder;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Semaphore;
 
@@ -26,6 +28,7 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.ConnectivityChangeReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
@@ -60,6 +63,8 @@ public class BonjourService extends Service {
     private final TreeMap<ServiceStub, ServiceEvent> serviceRegistry = new TreeMap<>();
     private String nameOfOurService = "";
     private ServiceInfo serviceInfoOfOurService;
+
+    public static final String DNS_TXT_RECORD_MAP_KEY_FOR_BADGE_ID = "badgeID";
 
     private SaveSettingsData saveSettingsData;
 
@@ -147,14 +152,13 @@ public class BonjourService extends Service {
         } else {
             nameOfOurService = SaveSettingsData.getInstance(this).getCustomServiceName();
         }
-        String payload;
-        if (Constants.FIXED_DNS_TXT_RECORD){
-            payload = Constants.DNS_TXT_RECORD;
-        } else {
-            payload = HelperMethods.getRandomString();
-        }
         int port = MsgServer.getInstance().getPort();
-        serviceInfoOfOurService = ServiceInfo.create(saveSettingsData.getServiceType(), nameOfOurService, port, payload);
+
+        serviceInfoOfOurService = ServiceInfo.create(saveSettingsData.getServiceType(), nameOfOurService, port, "");
+        Map<String, String> payload = new HashMap<>();
+        payload.put(DNS_TXT_RECORD_MAP_KEY_FOR_BADGE_ID, SaveBadgeData.getInstance(app).getMyBadgeId().toString());
+        serviceInfoOfOurService.setText(payload);
+
         jmdns.registerService(serviceInfoOfOurService);
 
         CustomActivity.forceRefreshUIInTopActivity();

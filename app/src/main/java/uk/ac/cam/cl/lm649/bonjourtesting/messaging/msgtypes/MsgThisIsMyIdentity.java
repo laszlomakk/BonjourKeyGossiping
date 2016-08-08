@@ -13,12 +13,10 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
 public class MsgThisIsMyIdentity extends Message {
 
-    public static final int TYPE_NUM = 2;
-
     public final BadgeStatus badgeStatus;
 
     public MsgThisIsMyIdentity(BadgeStatus badgeStatus) {
-        super(TYPE_NUM);
+        super(MessageTypes.msgClassToMsgNumMap.get(MsgThisIsMyIdentity.class));
         this.badgeStatus = badgeStatus;
     }
 
@@ -42,13 +40,14 @@ public class MsgThisIsMyIdentity extends Message {
     }
 
     @Override
-    public void receive(MsgClient msgClient) throws IOException {
+    public void onReceive(MsgClient msgClient) throws IOException {
         FLogger.i(MsgClient.TAG, msgClient.sFromAddress + "received " + getClass().getSimpleName()
                 + ":\n" + badgeStatus.toString());
+        msgClient.reconfirmBadgeId(badgeStatus.getBadgeCore().getBadgeId());
         DbTableBadges.smartUpdateBadge(badgeStatus);
         CustomActivity.forceRefreshUIInTopActivity();
         if (Constants.HISTORY_TRANSFER_ENABLED) {
-            msgClient.considerDoingAHistoryTransfer(badgeStatus.getBadgeCore().getBadgeId());
+            msgClient.considerDoingAHistoryTransfer();
         } else {
             FLogger.d(MsgClient.TAG, "would consider doing a historyTransfer now, but it is disabled");
         }

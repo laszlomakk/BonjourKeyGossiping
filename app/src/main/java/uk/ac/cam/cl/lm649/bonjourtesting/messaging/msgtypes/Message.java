@@ -20,14 +20,6 @@ public abstract class Message {
 
     private static final byte[] endMarker = new byte[] {0x11, 0x22, 0x33};
 
-    private static final HashMap<Integer, Class<? extends Message>> typeNumToMessageTypeMap = new HashMap<>();
-    static {
-        typeNumToMessageTypeMap.put(MsgArbitraryText.TYPE_NUM,     MsgArbitraryText.class);
-        typeNumToMessageTypeMap.put(MsgWhoAreYouQuestion.TYPE_NUM, MsgWhoAreYouQuestion.class);
-        typeNumToMessageTypeMap.put(MsgThisIsMyIdentity.TYPE_NUM,  MsgThisIsMyIdentity.class);
-        typeNumToMessageTypeMap.put(MsgHistoryTransfer.TYPE_NUM,   MsgHistoryTransfer.class);
-    }
-
     protected Message(int type) {
         this.type = type;
     }
@@ -40,11 +32,11 @@ public abstract class Message {
 
     public abstract void send(MsgClient msgClient) throws IOException;
 
-    public abstract void receive(MsgClient msgClient) throws IOException;
+    public abstract void onReceive(MsgClient msgClient) throws IOException;
 
     public static Message createFromStream(DataInputStream inStream) throws IOException, UnknownMessageTypeException {
         int typeNum = inStream.readInt();
-        Class<? extends Message> msgClass = typeNumToMessageTypeMap.get(typeNum);
+        Class<? extends Message> msgClass = MessageTypes.msgNumToMsgClassMap.get(typeNum);
         if (null == msgClass) {
             long nBytesDiscarded = discardBytesUntilNextMessage(inStream);
             FLogger.d(TAG, "discarded " + nBytesDiscarded + " bytes from inputStream");
