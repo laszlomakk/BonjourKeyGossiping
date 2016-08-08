@@ -137,10 +137,10 @@ public class BonjourService extends Service {
         }
         if (serviceListener != null){
             FLogger.i(TAG, "startDiscovery(). serviceListener wasn't null. Removing prev listener");
-            jmdns.removeServiceListener(saveSettingsData.getServiceType(), serviceListener);
+            jmdns.removeServiceListener(Constants.DEFAULT_SERVICE_TYPE, serviceListener);
         }
         serviceListener = new CustomServiceListener(this);
-        jmdns.addServiceListener(saveSettingsData.getServiceType(), serviceListener);
+        jmdns.addServiceListener(Constants.DEFAULT_SERVICE_TYPE, serviceListener);
         //HelperMethods.displayMsgToUser(context, "Starting discovery...");
     }
 
@@ -154,7 +154,7 @@ public class BonjourService extends Service {
         }
         int port = MsgServer.getInstance().getPort();
 
-        serviceInfoOfOurService = ServiceInfo.create(saveSettingsData.getServiceType(), nameOfOurService, port, "");
+        serviceInfoOfOurService = ServiceInfo.create(Constants.DEFAULT_SERVICE_TYPE, nameOfOurService, port, "");
         Map<String, String> payload = new HashMap<>();
         payload.put(DNS_TXT_RECORD_MAP_KEY_FOR_BADGE_ID, SaveBadgeData.getInstance(app).getMyBadgeId().toString());
         serviceInfoOfOurService.setText(payload);

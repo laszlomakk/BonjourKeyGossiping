@@ -3,6 +3,17 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Master Switch"
+        android:id="@+id/masterSwitch"
+        android:layout_marginTop="24dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:checked="true"
+        android:textSize="26dp"
+        android:layout_marginLeft="20dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -11,7 +22,7 @@
         android:text="Service Name:"
         android:id="@+id/textViewFixedServiceNameText"
         android:layout_gravity="center_horizontal"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/masterSwitch"
         android:layout_alignParentLeft="true"
         android:layout_marginTop="24sp"
         android:layout_marginLeft="16sp" />
@@ -44,40 +55,13 @@
         android:layout_alignLeft="@+id/editTextFixedServiceNameInput"
         android:layout_marginTop="24sp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Service Type:"
-        android:id="@+id/textViewServiceTypeText"
-        android:layout_gravity="center_horizontal"
-        android:layout_below="@+id/checkBoxRandomServiceName"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="24sp"
-        android:layout_marginLeft="16sp" />
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="servType"
-        android:id="@+id/editTextServiceTypeInput"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginLeft="20sp"
-        android:enabled="true"
-        android:minWidth="200dp"
-        android:minLines="1"
-        android:layout_toRightOf="@+id/textViewServiceTypeText"
-        android:layout_alignTop="@+id/textViewServiceTypeText"
-        android:maxLines="1"
-        android:inputType="text" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Restart BonjourService"
         android:id="@+id/buttonRestartBonjourService"
-        android:layout_below="@+id/textViewServiceTypeText"
+        android:layout_below="@+id/checkBoxRandomServiceName"
         android:layout_centerHorizontal="true"
         android:layout_margin="20dp" />
 
@@ -103,26 +87,41 @@
         android:text=""
         android:id="@+id/editTextBadgeCustomNameInput"
         android:layout_gravity="center_horizontal"
-        android:layout_marginLeft="20sp"
         android:enabled="true"
         android:minWidth="200dp"
         android:minLines="1"
+        android:layout_alignLeft="@+id/editTextPhoneNumberInput"
         android:layout_alignTop="@+id/textViewBadgeCustomNameText"
         android:layout_toRightOf="@+id/textViewBadgeCustomNameText"
         android:maxLines="1"
         android:inputType="text" />
 
-    <Switch
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Master Switch"
-        android:id="@+id/masterSwitch"
-        android:layout_marginTop="50dp"
-        android:layout_below="@+id/editTextBadgeCustomNameInput"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Phone Number:"
+        android:id="@+id/textViewPhoneNumberText"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/textViewBadgeCustomNameText"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:checked="true"
-        android:textSize="26dp"
-        android:layout_marginLeft="20dp" />
+        android:layout_marginTop="35dp"
+        android:layout_marginLeft="16sp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text=""
+        android:id="@+id/editTextPhoneNumberInput"
+        android:layout_gravity="center_horizontal"
+        android:enabled="true"
+        android:minWidth="200dp"
+        android:minLines="1"
+        android:layout_alignTop="@+id/textViewPhoneNumberText"
+        android:layout_toRightOf="@+id/textViewPhoneNumberText"
+        android:maxLines="1"
+        android:inputType="phone" />
 
 </RelativeLayout>

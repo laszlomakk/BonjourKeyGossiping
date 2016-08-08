@@ -6,7 +6,7 @@ public class Constants {
 
     private Constants(){}
 
-    public static final String DEFAULT_SERVICE_TYPE = "_vsecserv3._tcp.local.";
+    public static final String DEFAULT_SERVICE_TYPE = "_vsecserv4._tcp.local.";
 
     public static final String RANDOM_SERVICE_NAMES_START_WITH = "client_";
 

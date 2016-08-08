@@ -69,25 +69,11 @@ public class MainMenuActivity extends CustomActivity {
             public void onClick(View v) {
                 FLogger.i(TAG, "user clicked Settings button");
                 LayoutInflater li = LayoutInflater.from(context);
-                View promptView = li.inflate(R.layout.settings_custom_name_prompt, null);
-                final EditText userInput = (EditText) promptView.findViewById(R.id.editTextCustomNameInput);
 
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context)
-                        .setView(promptView)
-                        .setPositiveButton(android.R.string.yes,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        SettingsActivity.quickRenameBadgeAndService(
-                                                context, userInput.getText().toString());
+                AlertDialog.Builder phoneNumberDialogBuilder = createPhoneNumberPromptBuilder(li, null);
+                AlertDialog.Builder customNameDialogBuilder = createCustomNamePromptBuilder(li, phoneNumberDialogBuilder);
 
-                                        BonjourService bonjourService = app.getBonjourService();
-                                        if (null != bonjourService) {
-                                            bonjourService.restartWork(false);
-                                        }
-                                    }
-                                })
-                        .setNegativeButton(android.R.string.no, null);
-                alertDialogBuilder.create().show();
+                customNameDialogBuilder.create().show();
             }
         });
         btnSettings.setOnLongClickListener(new View.OnLongClickListener() {
@@ -107,6 +93,53 @@ public class MainMenuActivity extends CustomActivity {
                 startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.LICENSES"));
             }
         });
+    }
+
+    private AlertDialog.Builder createCustomNamePromptBuilder(LayoutInflater li, final AlertDialog.Builder nextPrompt) {
+        SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
+        View customNamePromptView = li.inflate(R.layout.settings_custom_name_prompt, null);
+        final EditText editTextCustomNameInput = (EditText) customNamePromptView.findViewById(R.id.editTextCustomNameInput);
+        editTextCustomNameInput.setText(saveBadgeData.getMyBadgeCustomName());
+
+        final AlertDialog.Builder customNameDialogBuilder = new AlertDialog.Builder(context)
+                .setView(customNamePromptView)
+                .setPositiveButton(android.R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                SettingsActivity.quickRenameBadgeAndService(
+                                        context, editTextCustomNameInput.getText().toString());
+
+                                BonjourService bonjourService = app.getBonjourService();
+                                if (null != bonjourService) {
+                                    bonjourService.restartWork(false);
+                                }
+
+                                if (null != nextPrompt) nextPrompt.create().show();
+                            }
+                        })
+                .setNegativeButton(android.R.string.no, null);
+        return customNameDialogBuilder;
+    }
+
+    private AlertDialog.Builder createPhoneNumberPromptBuilder(LayoutInflater li, final AlertDialog.Builder nextPrompt) {
+        SaveSettingsData saveSettingsData = SaveSettingsData.getInstance(context);
+        View phoneNumberPromptView = li.inflate(R.layout.settings_phone_number_prompt, null);
+        final EditText editTextPhoneNumberInput = (EditText) phoneNumberPromptView.findViewById(R.id.editTextPhoneNumberInput);
+        editTextPhoneNumberInput.setText(saveSettingsData.getPhoneNumber());
+
+        final AlertDialog.Builder phoneNumberDialogBuilder = new AlertDialog.Builder(context)
+                .setView(phoneNumberPromptView)
+                .setPositiveButton(android.R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                SettingsActivity.quickChangePhoneNumber(
+                                        context, editTextPhoneNumberInput.getText().toString());
+
+                                if (null != nextPrompt) nextPrompt.create().show();
+                            }
+                        })
+                .setNegativeButton(android.R.string.no, null);
+        return phoneNumberDialogBuilder;
     }
 
 

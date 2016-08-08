@@ -11,10 +11,10 @@ public class SaveSettingsData extends SaveData {
 
     private static SaveSettingsData INSTANCE = null;
 
+    private static final String SAVE_LOCATION_FOR_APP_OPERATIONAL_CORE_ENABLED = "app_operations_enabled";
     private static final String SAVE_LOCATION_FOR_CUSTOM_SERVICE_NAME = "custom_service_name";
     private static final String SAVE_LOCATION_FOR_RANDOM_SERVICE_NAME = "service_name_is_random";
-    private static final String SAVE_LOCATION_FOR_SERVICE_TYPE = "service_type";
-    private static final String SAVE_LOCATION_FOR_APP_OPERATIONAL_CORE_ENABLED = "app_operations_enabled";
+    private static final String SAVE_LOCATION_FOR_OWN_PHONE_NUMBER = "phone_number";
 
     private SaveSettingsData(Context context) {
         super(context, context.getString(R.string.settings_save_location));
@@ -37,14 +37,14 @@ public class SaveSettingsData extends SaveData {
         return sharedPreferences.getString(SAVE_LOCATION_FOR_CUSTOM_SERVICE_NAME, "myServiceName");
     }
 
-    public void saveServiceType(String str){
+    public void savePhoneNumber(String str) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(SAVE_LOCATION_FOR_SERVICE_TYPE, str);
+        editor.putString(SAVE_LOCATION_FOR_OWN_PHONE_NUMBER, str);
         editor.apply();
     }
 
-    public String getServiceType(){
-        return sharedPreferences.getString(SAVE_LOCATION_FOR_SERVICE_TYPE, Constants.DEFAULT_SERVICE_TYPE);
+    public String getPhoneNumber(){
+        return sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_PHONE_NUMBER, "+441234567890");
     }
 
     public void saveAppOperationalCoreEnabled(boolean bool) {

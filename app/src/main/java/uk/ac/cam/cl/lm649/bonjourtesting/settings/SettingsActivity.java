@@ -27,8 +27,8 @@ public class SettingsActivity extends CustomActivity {
     private SaveBadgeData saveBadgeData;
 
     private EditText editTextFixedServiceNameInput;
-    private EditText editTextServiceTypeInput;
     private EditText editTextBadgeCustomNameInput;
+    private EditText editTextPhoneNumberInput;
     private CheckBox checkBoxRandomServiceName;
     private Button buttonRestartBonjourService;
     private Switch switchMaster;
@@ -48,11 +48,11 @@ public class SettingsActivity extends CustomActivity {
         editTextFixedServiceNameInput = (EditText)findViewById(R.id.editTextFixedServiceNameInput);
         editTextFixedServiceNameInput.setText(saveSettingsData.getCustomServiceName());
 
-        editTextServiceTypeInput = (EditText)findViewById(R.id.editTextServiceTypeInput);
-        editTextServiceTypeInput.setText(saveSettingsData.getServiceType());
-
         editTextBadgeCustomNameInput = (EditText)findViewById(R.id.editTextBadgeCustomNameInput);
         editTextBadgeCustomNameInput.setText(saveBadgeData.getMyBadgeCustomName());
+
+        editTextPhoneNumberInput = (EditText)findViewById(R.id.editTextPhoneNumberInput);
+        editTextPhoneNumberInput.setText(saveSettingsData.getPhoneNumber());
 
         checkBoxRandomServiceName = (CheckBox)findViewById(R.id.checkBoxRandomServiceName);
         checkBoxRandomServiceName.setChecked(saveSettingsData.isUsingRandomServiceName());
@@ -113,17 +113,17 @@ public class SettingsActivity extends CustomActivity {
 
         String serviceName = editTextFixedServiceNameInput.getText().toString();
         boolean usingRandomServiceName = checkBoxRandomServiceName.isChecked();
-        String serviceType = editTextServiceTypeInput.getText().toString();
         String badgeName = editTextBadgeCustomNameInput.getText().toString();
+        String phoneNumber = editTextPhoneNumberInput.getText().toString();
 
         FLogger.i(TAG, String.format(Locale.US,
-                "serviceName: %s, usingRandServName: %s, serviceType: %s, badgeName: %s",
-                serviceName, String.valueOf(usingRandomServiceName), serviceType, badgeName));
+                "serviceName: %s, usingRandServName: %s, badgeName: %s, phoneNumber: %s",
+                serviceName, String.valueOf(usingRandomServiceName), badgeName, phoneNumber));
 
         saveSettingsData.saveCustomServiceName(serviceName);
         saveSettingsData.saveUsingRandomServiceName(usingRandomServiceName);
-        saveSettingsData.saveServiceType(serviceType);
         saveBadgeData.saveMyBadgeCustomName(badgeName);
+        saveSettingsData.savePhoneNumber(phoneNumber);
     }
 
     public static void quickRenameBadgeAndService(Context context, String name) {
@@ -133,6 +133,12 @@ public class SettingsActivity extends CustomActivity {
         saveSettingsData.saveUsingRandomServiceName(false);
         SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
         saveBadgeData.saveMyBadgeCustomName(name);
+    }
+
+    public static void quickChangePhoneNumber(Context context, String phoneNumber) {
+        FLogger.i(TAG, "quickChangePhoneNumber() called. phone number: " + phoneNumber);
+        SaveSettingsData saveSettingsData = SaveSettingsData.getInstance(context);
+        saveSettingsData.savePhoneNumber(phoneNumber);
     }
 
 }
