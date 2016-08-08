@@ -71,17 +71,17 @@ public class MsgJPAKERound1 extends Message {
     }
 
     @Override
-    public void receive(MsgClient msgClient) throws IOException {
+    public void onReceive(MsgClient msgClient) throws IOException {
         FLogger.i(MsgClient.TAG, msgClient.sFromAddress + "received " +
                 getClass().getSimpleName());
 
         JPAKEClient jpakeClient = msgClient.getJpakeClient();
         if (JPAKEClient.shouldWeRunJPAKE(msgClient)) {
-            FLogger.d(TAG, "receive(). decided to do new JPAKE.");
+            FLogger.d(TAG, "onReceive(). decided to do new JPAKE.");
             jpakeClient = msgClient.getJpakeClient();
         }
         if (null == jpakeClient) {
-            FLogger.e(TAG, "receive(). jpakeClient is null.");
+            FLogger.e(TAG, "onReceive(). jpakeClient is null.");
             return;
         }
         boolean round1Success = jpakeClient.round1Receive(msgClient, this);

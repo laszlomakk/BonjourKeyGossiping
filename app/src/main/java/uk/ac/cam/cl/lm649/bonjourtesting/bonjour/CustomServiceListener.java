@@ -106,18 +106,7 @@ public class CustomServiceListener implements ServiceListener {
         Message msgThisIsMyId = new MsgThisIsMyIdentity(BadgeStatus.constructMyCurrentBadgeStatus());
         msgClient.sendMessage(msgThisIsMyId);
 
-        if (JPAKEClient.shouldWeRunJPAKE(msgClient)) {
-            try {
-                JPAKEClient jpakeClient = msgClient.getJpakeClient();
-                if (null == jpakeClient) {
-                    FLogger.e(TAG, "startMessaging(). jpakeClient is null BUT IT SHOULDN'T BE NULL HERE !");
-                    return;
-                }
-                jpakeClient.round1Send(msgClient);
-            } catch (IOException e) {
-                FLogger.e(TAG, "startMessaging() - JPAKEClient.round1Send(). IOE - " + e.getMessage());
-            }
-        }
+        JPAKEClient.startJPAKEifAppropriate(msgClient);
     }
 
 }

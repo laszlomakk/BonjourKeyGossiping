@@ -312,4 +312,26 @@ public class JPAKEClient {
         return false;
     }
 
+    /**
+     * Tries to start JPAKE using the given MsgClient instance from the init / round 1 sending phase.
+     *
+     * @return if JPAKE was started
+     */
+    public static boolean startJPAKEifAppropriate(MsgClient msgClient) {
+        FLogger.i(TAG, "startJPAKEifAppropriate() called.");
+        if (JPAKEClient.shouldWeRunJPAKE(msgClient)) {
+            try {
+                JPAKEClient jpakeClient = msgClient.getJpakeClient();
+                if (null == jpakeClient) {
+                    FLogger.e(TAG, "startMessaging(). jpakeClient is null BUT IT SHOULDN'T BE NULL HERE !");
+                    return false;
+                }
+                return jpakeClient.round1Send(msgClient);
+            } catch (IOException e) {
+                FLogger.e(TAG, "startMessaging() - JPAKEClient.round1Send(). IOE - " + e.getMessage());
+            }
+        }
+        return false;
+    }
+
 }

@@ -32,7 +32,7 @@ public abstract class Message {
 
     public abstract void send(MsgClient msgClient) throws IOException;
 
-    public abstract void receive(MsgClient msgClient) throws IOException;
+    public abstract void onReceive(MsgClient msgClient) throws IOException;
 
     public static Message createFromStream(DataInputStream inStream) throws IOException, UnknownMessageTypeException {
         int typeNum = inStream.readInt();

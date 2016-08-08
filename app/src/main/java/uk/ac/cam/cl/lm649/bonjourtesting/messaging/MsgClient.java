@@ -1,7 +1,6 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -9,8 +8,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
@@ -25,24 +22,16 @@ import java.util.concurrent.RejectedExecutionException;
 import javax.jmdns.ServiceInfo;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
-import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgeActivity;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeCore;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeStatus;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbTableBadges;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbTableHistoryTransfer;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgArbitraryText;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgHistoryTransfer;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgThisIsMyIdentity;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.UnknownMessageTypeException;
-import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.JmdnsUtil;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 
 public class MsgClient {
 
@@ -168,7 +157,7 @@ public class MsgClient {
             FLogger.e(TAG, sFromAddress + "received msg. But parsing it returned null.");
             return;
         }
-        msg.receive(this);
+        msg.onReceive(this);
     }
 
     public void sendMessage(final Message msg){

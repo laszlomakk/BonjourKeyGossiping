@@ -57,7 +57,7 @@ public class MsgHistoryTransfer extends Message {
     }
 
     @Override
-    public void receive(MsgClient msgClient) throws IOException {
+    public void onReceive(MsgClient msgClient) throws IOException {
         int numBadges = badgeStatuses.size();
         FLogger.i(MsgClient.TAG, msgClient.sFromAddress + "received " + getClass().getSimpleName() + ", containing "
                 + numBadges + " badges");

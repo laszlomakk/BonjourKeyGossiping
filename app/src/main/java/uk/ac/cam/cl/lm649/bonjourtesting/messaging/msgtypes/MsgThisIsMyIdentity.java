@@ -40,7 +40,7 @@ public class MsgThisIsMyIdentity extends Message {
     }
 
     @Override
-    public void receive(MsgClient msgClient) throws IOException {
+    public void onReceive(MsgClient msgClient) throws IOException {
         FLogger.i(MsgClient.TAG, msgClient.sFromAddress + "received " + getClass().getSimpleName()
                 + ":\n" + badgeStatus.toString());
         msgClient.reconfirmBadgeId(badgeStatus.getBadgeCore().getBadgeId());
