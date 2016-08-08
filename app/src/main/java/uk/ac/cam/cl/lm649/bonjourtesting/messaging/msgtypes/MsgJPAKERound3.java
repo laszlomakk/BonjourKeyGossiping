@@ -17,7 +17,7 @@ public class MsgJPAKERound3 extends Message {
     public final BigInteger macTag;
 
     public MsgJPAKERound3(BigInteger macTag) {
-        super(MessageTypes.msgClassToMsgNumMap.get(MsgJPAKERound3.class));
+        super();
 
         this.macTag = macTag;
     }

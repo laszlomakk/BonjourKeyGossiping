@@ -24,7 +24,7 @@ public class MsgJPAKERound1 extends Message {
             BigInteger[] knowledgeProofForX1,
             BigInteger[] knowledgeProofForX2)
     {
-        super(MessageTypes.msgClassToMsgNumMap.get(MsgJPAKERound1.class));
+        super();
 
         this.gx1 = gx1;
         this.gx2 = gx2;

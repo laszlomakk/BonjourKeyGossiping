@@ -99,10 +99,18 @@
                 <ImageButton
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@+id/settingsButton"
+                    android:id="@+id/announceButton"
+                    android:src="@android:drawable/ic_menu_share" />
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
                     android:id="@+id/settingsButton"
                     android:src="@android:drawable/ic_menu_preferences" />
+
                 <ImageButton
                     android:layout_width="40dp"
                     android:layout_height="40dp"

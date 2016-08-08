@@ -4,7 +4,7 @@ public final class DbContract {
 
     private DbContract() {}
 
-    protected static final int DATABASE_VERSION = 3;
+    protected static final int DATABASE_VERSION = 5;
     protected static final String DATABASE_NAME = "badgeDB";
 
     protected static class BadgeEntry {
@@ -20,6 +20,12 @@ public final class DbContract {
         protected static final String TABLE_NAME = "history_transfer";
         protected static final String COLUMN_NAME_BADGE_ID = "badgeId";
         protected static final String COLUMN_NAME_TIMESTAMP_LAST_HISTORY_TRANSFER = "timestamp_history_transfer";
+    }
+
+    protected static class PhoneNumberEntry {
+        protected static final String TABLE_NAME = "phone_numbers";
+        protected static final String COLUMN_NAME_BADGE_ID = "badgeId";
+        protected static final String COLUMN_NAME_PHONE_NUMBER = "phoneNumber";
     }
 
 }

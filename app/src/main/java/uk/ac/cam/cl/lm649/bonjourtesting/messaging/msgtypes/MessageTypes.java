@@ -1,7 +1,5 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes;
 
-import android.util.Log;
-
 import java.util.HashMap;
 
 public class MessageTypes {
@@ -16,11 +14,13 @@ public class MessageTypes {
     public enum Type {
         ARBITRARY_TEXT      (0, MsgArbitraryText.class),
         WHO_ARE_YOU_QUESTION(1, MsgWhoAreYouQuestion.class),
-        THIS_IS_MY_IDENTITY (2, MsgThisIsMyIdentity.class),
+        BADGE_STATUS_UPDATE (2, MsgBadgeStatusUpdate.class),
         HISTORY_TRANSFER    (3, MsgHistoryTransfer.class),
         JPAKE_ROUND1        (4, MsgJPAKERound1.class),
         JPAKE_ROUND2        (5, MsgJPAKERound2.class),
-        JPAKE_ROUND3        (6, MsgJPAKERound3.class);
+        JPAKE_ROUND3        (6, MsgJPAKERound3.class),
+        MY_PHONE_NUMBER     (7, MsgMyPhoneNumber.class),
+        ;
 
         private int msgNum;
         private Class<? extends Message> msgClass;

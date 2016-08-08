@@ -17,17 +17,21 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TreeMap;
 
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgArbitraryText;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgMyPhoneNumber;
+import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.JmdnsUtil;
@@ -123,10 +127,32 @@ public class BonjourDebugActivity extends CustomActivity {
         textViewOwnService = (TextView) findViewById(R.id.ownService);
         textViewNumServicesFound = (TextView) findViewById(R.id.numberOfServicesFound);
 
+        // announce button
+        findViewById(R.id.announceButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FLogger.i(TAG, "user clicked announce button");
+                SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
+                SaveSettingsData saveSettingsData = SaveSettingsData.getInstance(context);
+                for (Map.Entry<ServiceStub, MsgClient> entry : MsgServer.getInstance().serviceToMsgClientMap.entrySet()) {
+                    Message msg = new MsgMyPhoneNumber(
+                            saveBadgeData.getMyBadgeId().toString(),
+                            saveSettingsData.getPhoneNumber());
+                    MsgClient msgClient = entry.getValue();
+                    msgClient.sendMessage(msg);
+                    ServiceStub serviceStub = entry.getKey();
+                    FLogger.i(TAG, String.format(Locale.US, "sent %s to service %s (IP: %s)",
+                            msg.getClass().getSimpleName(), serviceStub.name, msgClient.socketAddress));
+                }
+                HelperMethods.displayMsgToUser(context, "announced phone number");
+            }
+        });
+
         // settings button
         findViewById(R.id.settingsButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FLogger.i(TAG, "user clicked settings button");
                 startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.SETTINGS"));
             }
         });
@@ -135,6 +161,7 @@ public class BonjourDebugActivity extends CustomActivity {
         findViewById(R.id.refreshButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FLogger.i(TAG, "user clicked refresh button");
                 refreshTopUI();
                 updateListView();
                 BonjourService bonjourService = app.getBonjourService();

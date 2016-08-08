@@ -21,7 +21,7 @@ public class MsgHistoryTransfer extends Message {
     public final List<BadgeStatus> badgeStatuses;
 
     public MsgHistoryTransfer(List<BadgeStatus> badgeStatuses) {
-        super(MessageTypes.msgClassToMsgNumMap.get(MsgHistoryTransfer.class));
+        super();
         this.badgeStatuses = badgeStatuses;
     }
 

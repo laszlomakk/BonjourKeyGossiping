@@ -11,18 +11,18 @@ import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbTableBadges;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
-public class MsgThisIsMyIdentity extends Message {
+public class MsgBadgeStatusUpdate extends Message {
 
     public final BadgeStatus badgeStatus;
 
-    public MsgThisIsMyIdentity(BadgeStatus badgeStatus) {
-        super(MessageTypes.msgClassToMsgNumMap.get(MsgThisIsMyIdentity.class));
+    public MsgBadgeStatusUpdate(BadgeStatus badgeStatus) {
+        super();
         this.badgeStatus = badgeStatus;
     }
 
-    public static MsgThisIsMyIdentity createFromStream(DataInputStream inStream) throws IOException {
+    public static MsgBadgeStatusUpdate createFromStream(DataInputStream inStream) throws IOException {
         BadgeStatus badgeStatus = BadgeStatus.createFromStream(inStream);
-        return new MsgThisIsMyIdentity(badgeStatus);
+        return new MsgBadgeStatusUpdate(badgeStatus);
     }
 
     @Override

@@ -13,7 +13,7 @@ public class MsgArbitraryText extends Message {
     public final String text;
 
     public MsgArbitraryText(String text) {
-        super(MessageTypes.msgClassToMsgNumMap.get(MsgArbitraryText.class));
+        super();
         this.text = text;
     }
 

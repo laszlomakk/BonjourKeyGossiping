@@ -20,8 +20,8 @@ public abstract class Message {
 
     private static final byte[] endMarker = new byte[] {0x11, 0x22, 0x33};
 
-    protected Message(int type) {
-        this.type = type;
+    protected Message() {
+        this.type = MessageTypes.msgClassToMsgNumMap.get(getClass());
     }
 
     public int getType() {
