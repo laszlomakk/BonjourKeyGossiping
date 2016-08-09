@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.PhoneNumberEntry;
+import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.BadgeEntry;
 
 public final class DbTablePhoneNumbers {
 
@@ -19,10 +20,15 @@ public final class DbTablePhoneNumbers {
 
     public static class Entry {
         private UUID badgeId;
+        private String badgeCustomName = null;
         private String phoneNumber;
 
         public UUID getBadgeId() {
             return badgeId;
+        }
+
+        public String getBadgeCustomName() {
+            return badgeCustomName;
         }
 
         public String getPhoneNumber() {
@@ -32,8 +38,8 @@ public final class DbTablePhoneNumbers {
         @Override
         public String toString() {
             return String.format(Locale.US,
-                    "badgeID: %s,\nphoneNum: %s",
-                    badgeId.toString(), phoneNumber);
+                    "badgeID: %s\nnick: %s\nphoneNum: %s",
+                    badgeId.toString(), badgeCustomName, phoneNumber);
         }
     }
 
@@ -60,13 +66,6 @@ public final class DbTablePhoneNumbers {
         return values;
     }
 
-    private static Entry createEntryFromCursor(Cursor cursor) {
-        Entry entry = new Entry();
-        entry.badgeId = UUID.fromString(cursor.getString(0));
-        entry.phoneNumber = cursor.getString(1);
-        return entry;
-    }
-
     public static String getPhoneNumber(UUID badgeId) {
         SQLiteDatabase db = DbHelper.getInstance().getReadableDatabase();
 
@@ -91,13 +90,25 @@ public final class DbTablePhoneNumbers {
     public static List<Entry> getAllEntries() {
         SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
 
-        String selectQuery = "SELECT * FROM " + PhoneNumberEntry.TABLE_NAME;
+        String selectQuery = String.format(Locale.US,
+                "SELECT %s, %s, %s FROM %s LEFT JOIN %s ON %s=%s ORDER BY %s ",
+                PhoneNumberEntry.TABLE_NAME + "." + PhoneNumberEntry.COLUMN_NAME_BADGE_ID,
+                BadgeEntry.TABLE_NAME       + "." + BadgeEntry.COLUMN_NAME_CUSTOM_NAME,
+                PhoneNumberEntry.TABLE_NAME + "." + PhoneNumberEntry.COLUMN_NAME_PHONE_NUMBER,
+                PhoneNumberEntry.TABLE_NAME,
+                BadgeEntry.TABLE_NAME,
+                PhoneNumberEntry.TABLE_NAME + "." + PhoneNumberEntry.COLUMN_NAME_BADGE_ID,
+                BadgeEntry.TABLE_NAME       + "." + BadgeEntry.COLUMN_NAME_BADGE_ID,
+                BadgeEntry.TABLE_NAME       + "." + BadgeEntry.COLUMN_NAME_CUSTOM_NAME);
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         List<Entry> entries = new ArrayList<>();
         if (cursor.moveToFirst()) {
             do {
-                Entry entry = createEntryFromCursor(cursor);
+                Entry entry = new Entry();
+                entry.badgeId = UUID.fromString(cursor.getString(0));
+                entry.badgeCustomName = cursor.getString(1);
+                entry.phoneNumber = cursor.getString(2);
                 entries.add(entry);
             } while (cursor.moveToNext());
         }
