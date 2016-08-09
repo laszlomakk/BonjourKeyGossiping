@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.activebadge;
+package uk.ac.cam.cl.lm649.bonjourtesting.menu;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -13,7 +13,9 @@ import java.util.ArrayList;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbTableBadges;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeStatus;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTableBadges;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;

@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.settings;
+package uk.ac.cam.cl.lm649.bonjourtesting.menu.settings;
 
 import android.content.Context;
 import android.os.Bundle;

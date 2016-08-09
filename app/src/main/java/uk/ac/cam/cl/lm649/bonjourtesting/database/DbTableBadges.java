@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database;
+package uk.ac.cam.cl.lm649.bonjourtesting.database;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -13,7 +13,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeCore;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeStatus;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
-import static uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbContract.BadgeEntry;
+import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.BadgeEntry;
 
 public final class DbTableBadges {
 

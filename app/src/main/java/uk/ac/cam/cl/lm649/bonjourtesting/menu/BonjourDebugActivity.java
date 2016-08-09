@@ -3,12 +3,10 @@
  All code under the BonjourTesting project is licensed under the Apache 2.0 License
  */
 
-package uk.ac.cam.cl.lm649.bonjourtesting;
+package uk.ac.cam.cl.lm649.bonjourtesting.menu;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -23,6 +21,8 @@ import java.util.TreeMap;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
+import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
@@ -31,7 +31,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgArbitraryText;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgMyPhoneNumber;
-import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
+import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.JmdnsUtil;

@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database;
+package uk.ac.cam.cl.lm649.bonjourtesting.database;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.Locale;
 import java.util.UUID;
 
-import static uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbContract.HistoryTransferEntry;
+import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.HistoryTransferEntry;
 
 public final class DbTableHistoryTransfer {
 

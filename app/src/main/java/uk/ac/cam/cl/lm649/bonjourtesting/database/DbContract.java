@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database;
+package uk.ac.cam.cl.lm649.bonjourtesting.database;
 
 public final class DbContract {
 

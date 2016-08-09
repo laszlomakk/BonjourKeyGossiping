@@ -10,7 +10,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeStatus;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbTableBadges;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTableBadges;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 

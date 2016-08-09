@@ -1,6 +1,9 @@
-package uk.ac.cam.cl.lm649.bonjourtesting;
+package uk.ac.cam.cl.lm649.bonjourtesting.menu;
 
 import android.os.Bundle;
+
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
+import uk.ac.cam.cl.lm649.bonjourtesting.R;
 
 public class LicensesActivity extends CustomActivity {
 

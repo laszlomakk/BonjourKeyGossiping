@@ -8,11 +8,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.UUID;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
-import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeStatus;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbTableBadges;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbTablePhoneNumbers;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 

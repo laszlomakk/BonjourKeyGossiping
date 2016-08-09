@@ -5,13 +5,12 @@ import android.os.Handler;
 import android.os.HandlerThread;
 
 import java.io.IOException;
-import java.util.Random;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgePollerService;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
-import uk.ac.cam.cl.lm649.bonjourtesting.settings.SettingsActivity;
+import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SettingsActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 

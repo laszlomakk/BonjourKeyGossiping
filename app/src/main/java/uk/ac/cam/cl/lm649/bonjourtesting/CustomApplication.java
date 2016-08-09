@@ -15,8 +15,6 @@ import android.util.Log;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgePollerService;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
@@ -24,7 +22,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.DeviceIdleBroadcastReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.LoggingBroadcastReceiver;
-import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
+import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 

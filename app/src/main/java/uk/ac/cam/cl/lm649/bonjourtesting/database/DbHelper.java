@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database;
+package uk.ac.cam.cl.lm649.bonjourtesting.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -6,9 +6,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 
-import static uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbContract.BadgeEntry;
-import static uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbContract.HistoryTransferEntry;
-import static uk.ac.cam.cl.lm649.bonjourtesting.activebadge.database.DbContract.PhoneNumberEntry;
+import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.BadgeEntry;
+import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.HistoryTransferEntry;
+import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.PhoneNumberEntry;
 
 public class DbHelper extends SQLiteOpenHelper {
 

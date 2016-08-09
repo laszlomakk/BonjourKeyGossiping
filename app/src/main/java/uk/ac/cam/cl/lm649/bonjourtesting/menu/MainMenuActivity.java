@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting;
+package uk.ac.cam.cl.lm649.bonjourtesting.menu;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -11,10 +11,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
+import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
-import uk.ac.cam.cl.lm649.bonjourtesting.settings.SaveSettingsData;
-import uk.ac.cam.cl.lm649.bonjourtesting.settings.SettingsActivity;
+import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
+import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SettingsActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
