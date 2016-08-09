@@ -39,7 +39,7 @@ public final class DbTablePhoneNumbers {
         public String toString() {
             return String.format(Locale.US,
                     "badgeID: %s\nnick: %s\nphoneNum: %s",
-                    badgeId.toString(), badgeCustomName, phoneNumber);
+                    badgeId, badgeCustomName, phoneNumber);
         }
     }
 

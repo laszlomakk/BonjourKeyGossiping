@@ -4,7 +4,7 @@ public final class DbContract {
 
     private DbContract() {}
 
-    protected static final int DATABASE_VERSION = 5;
+    protected static final int DATABASE_VERSION = 6;
     protected static final String DATABASE_NAME = "badgeDB";
 
     protected static class BadgeEntry {
@@ -26,6 +26,14 @@ public final class DbContract {
         protected static final String TABLE_NAME = "phone_numbers";
         protected static final String COLUMN_NAME_BADGE_ID = "badgeId";
         protected static final String COLUMN_NAME_PHONE_NUMBER = "phoneNumber";
+    }
+
+    protected static class PublicKeyEntry {
+        protected static final String TABLE_NAME = "public_keys";
+        protected static final String COLUMN_NAME_PUBLIC_KEY = "publicKey";
+        protected static final String COLUMN_NAME_PHONE_NUMBER = "phoneNumber";
+        protected static final String COLUMN_NAME_TIMESTAMP_FIRST_SEEN_PUBLIC_KEY = "timestamp_first_seen_pubKey";
+        protected static final String COLUMN_NAME_TIMESTAMP_LAST_SEEN_ALIVE_PUBLIC_KEY = "timestamp_alive_pubKey";
     }
 
 }
