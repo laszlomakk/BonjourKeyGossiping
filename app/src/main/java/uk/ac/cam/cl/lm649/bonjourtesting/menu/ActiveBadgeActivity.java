@@ -46,7 +46,7 @@ public class ActiveBadgeActivity extends CustomActivity {
 
         // listView for displaying the badges
         ListView listView = (ListView) findViewById(R.id.mainListView);
-        listAdapterForDisplayedListOfBadges = new ArrayAdapter<>(this, R.layout.active_badge_row_in_list, new ArrayList<String>());
+        listAdapterForDisplayedListOfBadges = new ArrayAdapter<>(this, R.layout.row_in_list, new ArrayList<String>());
         listView.setAdapter(listAdapterForDisplayedListOfBadges);
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override

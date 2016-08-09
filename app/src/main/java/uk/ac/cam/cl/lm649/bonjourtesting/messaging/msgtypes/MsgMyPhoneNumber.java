@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.UUID;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
@@ -52,6 +53,7 @@ public class MsgMyPhoneNumber extends Message {
                 "%sreceived %s:\nbadgeId: %s, phoneNum: %s",
                 msgClient.sFromAddress, getClass().getSimpleName(), badgeId, phoneNumber));
         DbTablePhoneNumbers.smartUpdateEntry(UUID.fromString(badgeId), phoneNumber);
+        CustomActivity.forceRefreshUIInTopActivity();
     }
 
 }

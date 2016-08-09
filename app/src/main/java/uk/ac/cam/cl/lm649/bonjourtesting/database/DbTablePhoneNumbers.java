@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -14,6 +16,26 @@ public final class DbTablePhoneNumbers {
     private static final String TAG = "DbTablePhoneNumbers";
 
     private DbTablePhoneNumbers() {}
+
+    public static class Entry {
+        private UUID badgeId;
+        private String phoneNumber;
+
+        public UUID getBadgeId() {
+            return badgeId;
+        }
+
+        public String getPhoneNumber() {
+            return phoneNumber;
+        }
+
+        @Override
+        public String toString() {
+            return String.format(Locale.US,
+                    "badgeID: %s,\nphoneNum: %s",
+                    badgeId.toString(), phoneNumber);
+        }
+    }
 
     protected static String constructQueryToCreateTable() {
         return String.format(Locale.US,
@@ -38,6 +60,13 @@ public final class DbTablePhoneNumbers {
         return values;
     }
 
+    private static Entry createEntryFromCursor(Cursor cursor) {
+        Entry entry = new Entry();
+        entry.badgeId = UUID.fromString(cursor.getString(0));
+        entry.phoneNumber = cursor.getString(1);
+        return entry;
+    }
+
     public static String getPhoneNumber(UUID badgeId) {
         SQLiteDatabase db = DbHelper.getInstance().getReadableDatabase();
 
@@ -57,6 +86,24 @@ public final class DbTablePhoneNumbers {
 
         cursor.close();
         return ret;
+    }
+
+    public static List<Entry> getAllEntries() {
+        SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
+
+        String selectQuery = "SELECT * FROM " + PhoneNumberEntry.TABLE_NAME;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        List<Entry> entries = new ArrayList<>();
+        if (cursor.moveToFirst()) {
+            do {
+                Entry entry = createEntryFromCursor(cursor);
+                entries.add(entry);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        return entries;
     }
 
     public static void updateEntry(UUID badgeId, String phoneNumber) {

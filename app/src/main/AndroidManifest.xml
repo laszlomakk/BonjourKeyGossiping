@@ -44,6 +44,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".menu.PhoneBookActivity">
+            <intent-filter>
+                <action android:name="uk.ac.cam.cl.lm649.bonjourtesting.PHONEBOOK" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity android:name=".menu.LicensesActivity">
             <intent-filter>
                 <action android:name="uk.ac.cam.cl.lm649.bonjourtesting.LICENSES" />

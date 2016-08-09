@@ -36,6 +36,7 @@ public class MainMenuActivity extends CustomActivity {
 
     private void setupUI() {
         setupActiveBadgeButton();
+        setupPhoneBookButton();
         setupBonjourDebugButton();
         setupSettingsButton();
         setupLicensesButton();
@@ -50,6 +51,16 @@ public class MainMenuActivity extends CustomActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.ACTIVEBADGE"));
+            }
+        });
+    }
+
+    private void setupPhoneBookButton() {
+        Button btnActiveBadge = (Button) findViewById(R.id.buttonPhoneBook);
+        btnActiveBadge.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.PHONEBOOK"));
             }
         });
     }

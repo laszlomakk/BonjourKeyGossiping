@@ -62,7 +62,7 @@ public class BonjourDebugActivity extends CustomActivity {
 
         // listView for displaying the services we find on the network
         ListView listView = (ListView) findViewById(R.id.mainListView);
-        listAdapterForDisplayedListOfServices = new ArrayAdapter<>(this, R.layout.bonjour_debug_row_in_list, new ArrayList<String>());
+        listAdapterForDisplayedListOfServices = new ArrayAdapter<>(this, R.layout.row_in_list, new ArrayList<String>());
         listView.setAdapter(listAdapterForDisplayedListOfServices);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

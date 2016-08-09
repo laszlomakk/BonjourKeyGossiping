@@ -22,8 +22,8 @@ public final class DbTableBadges {
     private DbTableBadges() {}
 
     public static class Entry {
-        BadgeStatus badgeStatus;
-        long timestampLastUpdated;
+        private BadgeStatus badgeStatus;
+        private long timestampLastUpdated;
     }
 
     protected static String constructQueryToCreateTable() {
