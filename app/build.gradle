@@ -34,4 +34,5 @@ dependencies {
     compile 'ch.qos.logback:logback-classic:1.1.7'
     compile files("libs/jmdns-3.5.0.jar")
     compile 'org.bouncycastle:bcprov-jdk15on:1.54'
+    androidTestCompile 'junit:junit:4.12'
 }

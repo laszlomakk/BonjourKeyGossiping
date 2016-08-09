@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgePollerService;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.DeviceIdleBroadcastReceiver;
@@ -70,6 +71,8 @@ public class CustomApplication extends Application {
         registerReceivers();
 
         startupOperationalCore();
+
+        generateOurCryptoKeypair();
     }
 
     public void startupOperationalCore() {
@@ -101,6 +104,16 @@ public class CustomApplication extends Application {
         ActiveBadgePollerService.automaticPollingEnabled = false;
         ActiveBadgePollerService.cancelPolling(this);
         MsgServer.getInstance().stop();
+    }
+
+    private void generateOurCryptoKeypair() {
+        FLogger.i(TAG, "generateOurCryptoKeypair() called.");
+        new Thread() {
+            @Override
+            public void run() {
+                SaveBadgeData.getInstance(CustomApplication.this).generateAndSaveMyKeypair(false);
+            }
+        }.start();
     }
 
     private void initLogger() {
