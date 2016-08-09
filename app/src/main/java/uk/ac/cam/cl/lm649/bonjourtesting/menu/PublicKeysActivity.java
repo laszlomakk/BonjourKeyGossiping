@@ -14,22 +14,24 @@ import java.util.ArrayList;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
-import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
+import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Hash;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePublicKeys;
 import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
-public class PhoneBookActivity extends CustomActivity {
+public class PublicKeysActivity extends CustomActivity {
 
-    private static final String TAG = "PhoneBookActivity";
+    private static final String TAG = "PublicKeysActivity";
 
     private ArrayAdapter<String> listAdapterForDisplayedListOfEntries;
-    private ArrayList<DbTablePhoneNumbers.Entry> entriesArrList = new ArrayList<>();
+    private ArrayList<DbTablePublicKeys.EntryWithBadgeData> entriesArrList = new ArrayList<>();
     private final Object displayedEntriesLock = new Object();
 
     private TextView textViewBadgeId;
     private TextView textViewCustomName;
     private TextView textViewPhoneNumber;
+    private TextView textViewPublicKey;
     private TextView textViewNumEntriesInList;
 
     @Override
@@ -40,7 +42,7 @@ public class PhoneBookActivity extends CustomActivity {
     }
 
     private void setupUI(){
-        setContentView(R.layout.phone_book_view);
+        setContentView(R.layout.public_keys_view);
 
         // listView for displaying the entries
         ListView listView = (ListView) findViewById(R.id.mainListView);
@@ -51,7 +53,7 @@ public class PhoneBookActivity extends CustomActivity {
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 synchronized (displayedEntriesLock) {
                     FLogger.i(TAG, "onItemClick() - user clicked on an item in the list");
-                    final DbTablePhoneNumbers.Entry entry = entriesArrList.get(position);
+                    final DbTablePublicKeys.Entry entry = entriesArrList.get(position);
                     if (null == entry){
                         FLogger.e(TAG, "onItemClick(). clicked entry is null ??");
                         HelperMethods.displayMsgToUser(context, "error: clicked entry is null");
@@ -62,11 +64,11 @@ public class PhoneBookActivity extends CustomActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             FLogger.i(TAG, "user deleted entry from DB");
                             FLogger.d(TAG, "deleted entry details: " + entry.toString());
-                            DbTablePhoneNumbers.deleteEntry(entry.getBadgeId());
+                            DbTablePublicKeys.deleteEntry(entry.getPublicKey());
                             updateListView();
                         }
                     };
-                    new AlertDialog.Builder(PhoneBookActivity.this)
+                    new AlertDialog.Builder(PublicKeysActivity.this)
                             .setTitle("Confirm Delete")
                             .setMessage("Do you really want to delete that entry?")
                             //.setIcon(R.drawable.maybe_a_cool_icon_here)
@@ -81,6 +83,7 @@ public class PhoneBookActivity extends CustomActivity {
         textViewBadgeId = (TextView) findViewById(R.id.badgeId);
         textViewCustomName = (TextView) findViewById(R.id.customName);
         textViewPhoneNumber = (TextView) findViewById(R.id.phoneNumber);
+        textViewPublicKey = (TextView) findViewById(R.id.publicKey);
         textViewNumEntriesInList = (TextView) findViewById(R.id.nEntriesInList);
 
         // refresh button
@@ -111,6 +114,10 @@ public class PhoneBookActivity extends CustomActivity {
 
         textViewPhoneNumber.setText(SaveSettingsData.getInstance(context).getPhoneNumber());
 
+        textViewPublicKey.setText(
+                Hash.hashStringToString(SaveBadgeData.getInstance(context).getMyPublicKey()) // TODO hash byteKeys instead
+        );
+
         String numEntriesInList;
         synchronized (displayedEntriesLock) {
             numEntriesInList = "" + listAdapterForDisplayedListOfEntries.getCount();
@@ -127,7 +134,7 @@ public class PhoneBookActivity extends CustomActivity {
                     FLogger.v(TAG, "updateListView() doing actual update.");
                     listAdapterForDisplayedListOfEntries.clear();
                     entriesArrList.clear();
-                    for (DbTablePhoneNumbers.Entry entry : DbTablePhoneNumbers.getAllEntries()) {
+                    for (DbTablePublicKeys.EntryWithBadgeData entry : DbTablePublicKeys.getAllEntries()) {
                         listAdapterForDisplayedListOfEntries.add(entry.toString());
                         entriesArrList.add(entry);
                     }

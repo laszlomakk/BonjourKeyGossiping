@@ -50,6 +50,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".menu.PublicKeysActivity">
+            <intent-filter>
+                <action android:name="uk.ac.cam.cl.lm649.bonjourtesting.PUBLICKEYS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity android:name=".menu.LicensesActivity">
             <intent-filter>
                 <action android:name="uk.ac.cam.cl.lm649.bonjourtesting.LICENSES" />

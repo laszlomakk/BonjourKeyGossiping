@@ -82,7 +82,7 @@ public class ActiveBadgeActivity extends CustomActivity {
         // top area
         textViewBadgeId = (TextView) findViewById(R.id.badgeId);
         textViewCustomName = (TextView) findViewById(R.id.customName);
-        textViewRouterMac = (TextView) findViewById(R.id.routerMac) ;
+        textViewRouterMac = (TextView) findViewById(R.id.routerMac);
         textViewNumBadgesInList = (TextView) findViewById(R.id.nBadgesInList);
 
         // change sort order button
