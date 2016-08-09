@@ -35,6 +35,7 @@ public class MainMenuActivity extends CustomActivity {
     }
 
     private void setupUI() {
+        setupPublicKeysButton();
         setupActiveBadgeButton();
         setupPhoneBookButton();
         setupBonjourDebugButton();
@@ -45,9 +46,19 @@ public class MainMenuActivity extends CustomActivity {
         tvVersionNumber.setText(HelperMethods.getVersionNameExtended(this));
     }
 
+    private void setupPublicKeysButton() {
+        Button btn = (Button) findViewById(R.id.buttonPublicKeys);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.PUBLICKEYS"));
+            }
+        });
+    }
+
     private void setupActiveBadgeButton() {
-        Button btnActiveBadge = (Button) findViewById(R.id.buttonActiveBadge);
-        btnActiveBadge.setOnClickListener(new View.OnClickListener() {
+        Button btn = (Button) findViewById(R.id.buttonActiveBadge);
+        btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.ACTIVEBADGE"));
@@ -56,8 +67,8 @@ public class MainMenuActivity extends CustomActivity {
     }
 
     private void setupPhoneBookButton() {
-        Button btnActiveBadge = (Button) findViewById(R.id.buttonPhoneBook);
-        btnActiveBadge.setOnClickListener(new View.OnClickListener() {
+        Button btn = (Button) findViewById(R.id.buttonPhoneBook);
+        btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.PHONEBOOK"));
@@ -76,8 +87,8 @@ public class MainMenuActivity extends CustomActivity {
     }
 
     private void setupSettingsButton() {
-        Button btnSettings = (Button) findViewById(R.id.buttonSettings);
-        btnSettings.setOnClickListener(new View.OnClickListener() {
+        Button btn = (Button) findViewById(R.id.buttonSettings);
+        btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FLogger.i(TAG, "user clicked Settings button");
@@ -89,7 +100,7 @@ public class MainMenuActivity extends CustomActivity {
                 customNameDialogBuilder.create().show();
             }
         });
-        btnSettings.setOnLongClickListener(new View.OnLongClickListener() {
+        btn.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.SETTINGS"));
@@ -99,8 +110,8 @@ public class MainMenuActivity extends CustomActivity {
     }
 
     private void setupLicensesButton() {
-        Button btnLicenses = (Button) findViewById(R.id.buttonLicenses);
-        btnLicenses.setOnClickListener(new View.OnClickListener() {
+        Button btn = (Button) findViewById(R.id.buttonLicenses);
+        btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.LICENSES"));

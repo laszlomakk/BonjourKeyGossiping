@@ -123,7 +123,7 @@ public class BonjourDebugActivity extends CustomActivity {
         // top area
         textViewAppState = (TextView) findViewById(R.id.appState);
         textViewDeviceIp = (TextView) findViewById(R.id.deviceIp);
-        textViewLocalPort = (TextView) findViewById(R.id.localPort) ;
+        textViewLocalPort = (TextView) findViewById(R.id.localPort);
         textViewOwnService = (TextView) findViewById(R.id.ownService);
         textViewNumServicesFound = (TextView) findViewById(R.id.numberOfServicesFound);
 

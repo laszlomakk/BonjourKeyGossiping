@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".menu.ActiveBadgeActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorAlternateBg">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="6sp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="bID: "
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/badgeIdText"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_alignParentLeft="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/badgeId"
+                    android:textSize="14sp"
+                    android:layout_toRightOf="@+id/badgeIdText"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nick: "
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/customNameText"
+                    android:textSize="16sp"
+                    android:layout_below="@id/badgeIdText"
+                    android:layout_alignParentLeft="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/customName"
+                    android:textSize="16sp"
+                    android:layout_below="@id/badgeId"
+                    android:layout_toRightOf="@+id/customNameText"/>
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="phoneNum: "
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/phoneNumberText"
+                    android:textSize="16sp"
+                    android:layout_below="@id/customNameText"
+                    android:layout_alignParentLeft="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/phoneNumber"
+                    android:textSize="16sp"
+                    android:layout_below="@id/customName"
+                    android:layout_toRightOf="@+id/phoneNumberText"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="public_key: "
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/publicKeyText"
+                    android:textSize="16sp"
+                    android:layout_below="@id/phoneNumberText"
+                    android:layout_alignParentLeft="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/publicKey"
+                    android:textSize="16sp"
+                    android:layout_below="@id/phoneNumber"
+                    android:layout_toRightOf="@+id/publicKeyText"/>
+
+
+
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentRight="true"
+                    android:id="@+id/refreshButton"
+                    android:src="@android:drawable/stat_notify_sync" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:text="nEntries:"
+                    android:id="@+id/nEntriesInListText"
+                    android:layout_toLeftOf="@+id/nEntriesInList"
+                    android:textSize="14sp"
+                    android:layout_below="@+id/refreshButton"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/nEntriesInList"
+                    android:layout_alignParentRight="true"
+                    android:textSize="14sp"
+                    android:layout_below="@+id/refreshButton"
+                    android:layout_marginLeft="4sp"/>
+
+            </RelativeLayout>
+
+        </ScrollView>
+
+        <ListView android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/mainListView">
+        </ListView>
+
+    </LinearLayout>
+
+</RelativeLayout>
