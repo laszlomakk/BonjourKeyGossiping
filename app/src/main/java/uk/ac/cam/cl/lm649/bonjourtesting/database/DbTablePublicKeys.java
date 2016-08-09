@@ -164,7 +164,7 @@ public final class DbTablePublicKeys {
                 "SELECT %s, %s, %s, %s, %s, %s FROM %s LEFT JOIN %s ON %s=%s LEFT JOIN %s ON %s=%s ORDER BY %s DESC",
                 PhoneNumberEntry.TABLE_NAME + "." + PhoneNumberEntry.COLUMN_NAME_BADGE_ID,
                 BadgeEntry.TABLE_NAME       + "." + BadgeEntry.COLUMN_NAME_CUSTOM_NAME,
-                PhoneNumberEntry.TABLE_NAME + "." + PhoneNumberEntry.COLUMN_NAME_PHONE_NUMBER,
+                PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_PHONE_NUMBER,
                 PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_PUBLIC_KEY,
                 PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_TIMESTAMP_FIRST_SEEN_PUBLIC_KEY,
                 PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_TIMESTAMP_LAST_SEEN_ALIVE_PUBLIC_KEY,
