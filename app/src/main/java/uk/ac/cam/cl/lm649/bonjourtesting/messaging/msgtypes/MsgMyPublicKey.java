@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
+import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Hash;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePublicKeys;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
@@ -55,11 +56,12 @@ public class MsgMyPublicKey extends Message {
 
     @Override
     public void onReceive(MsgClient msgClient) throws IOException {
+        String fingerprint = Hash.hashStringToString(publicKey); // TODO hash byteKeys instead
         FLogger.i(MsgClient.TAG, String.format(Locale.US,
                 "%sreceived %s:\nphoneNum: %s, pubKey: %s",
-                msgClient.sFromAddress, getClass().getSimpleName(), phoneNumber, publicKey));
+                msgClient.sFromAddress, getClass().getSimpleName(), phoneNumber, fingerprint));
         boolean validPublicKey = Asymmetric.isValidKey(publicKey);
-        FLogger.i(MsgClient.TAG, "pubKey: " + publicKey + " tested to be valid: " + validPublicKey);
+        FLogger.i(MsgClient.TAG, "pubKey: " + fingerprint + " tested to be valid: " + validPublicKey);
         if (validPublicKey) {
             DbTablePublicKeys.Entry entry = new DbTablePublicKeys.Entry();
             entry.setPublicKey(publicKey);
