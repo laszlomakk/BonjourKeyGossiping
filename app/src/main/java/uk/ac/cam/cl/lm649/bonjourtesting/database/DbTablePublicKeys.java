@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -26,6 +27,15 @@ public final class DbTablePublicKeys {
         protected String phoneNumber;
         protected Long timestampFirstSeenPublicKey = null;
         protected Long timestampLastSeenAlivePublicKey = null;
+
+        public Entry() {}
+
+        protected Entry(Entry entry) {
+            this.publicKey = entry.publicKey;
+            this.phoneNumber = entry.phoneNumber;
+            this.timestampFirstSeenPublicKey = entry.timestampFirstSeenPublicKey;
+            this.timestampLastSeenAlivePublicKey = entry.timestampLastSeenAlivePublicKey;
+        }
 
         public String getPublicKey() {
             return publicKey;
@@ -62,11 +72,11 @@ public final class DbTablePublicKeys {
         @Override
         public String toString() {
             return String.format(Locale.US,
-                    "phoneNum: %s\npubKey: %s\nFS_time: %d\nLSA_time: %d",
+                    "phoneNum: %s\npubKey: %s\nFS_time: %s\nLSA_time: %s",
                     phoneNumber,
                     Hash.hashStringToString(publicKey), // TODO hash byteKeys instead
-                    timestampFirstSeenPublicKey,
-                    timestampLastSeenAlivePublicKey);
+                    new Date(timestampFirstSeenPublicKey),
+                    new Date(timestampLastSeenAlivePublicKey));
         }
     }
 
@@ -107,7 +117,7 @@ public final class DbTablePublicKeys {
 
         ContentValues values = createContentValues(entry);
 
-        db.insert(PhoneNumberEntry.TABLE_NAME, null, values);
+        db.insert(PublicKeyEntry.TABLE_NAME, null, values);
     }
 
     private static ContentValues createContentValues(Entry entry) {
@@ -122,7 +132,7 @@ public final class DbTablePublicKeys {
     public static Entry getEntry(String publicKey) {
         SQLiteDatabase db = DbHelper.getInstance().getReadableDatabase();
 
-        Cursor cursor = db.query(BadgeEntry.TABLE_NAME,
+        Cursor cursor = db.query(PublicKeyEntry.TABLE_NAME,
                 new String[] {
                         PublicKeyEntry.COLUMN_NAME_PUBLIC_KEY,
                         PublicKeyEntry.COLUMN_NAME_PHONE_NUMBER,
@@ -172,7 +182,7 @@ public final class DbTablePublicKeys {
         if (cursor.moveToFirst()) {
             do {
                 EntryWithBadgeData entry = new EntryWithBadgeData();
-                entry.badgeId = UUID.fromString(cursor.getString(0));
+                entry.badgeId = null == cursor.getString(0) ? null : UUID.fromString(cursor.getString(0));
                 entry.badgeCustomName = cursor.getString(1);
                 entry.phoneNumber = cursor.getString(2);
                 entry.publicKey = cursor.getString(3);
@@ -190,7 +200,7 @@ public final class DbTablePublicKeys {
         SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
 
         ContentValues values = createContentValues(entry);
-        db.update(PhoneNumberEntry.TABLE_NAME,
+        db.update(PublicKeyEntry.TABLE_NAME,
                 values, PublicKeyEntry.COLUMN_NAME_PUBLIC_KEY + " = ?",
                 new String[] { entry.publicKey });
     }
@@ -199,13 +209,12 @@ public final class DbTablePublicKeys {
         Entry oldEntry = getEntry(newEntry.publicKey);
         if (null == oldEntry) {
             // entry not yet in db
-            addEntry(newEntry);
+            Entry mergedEntry = new Entry(newEntry);
+            mergedEntry.timestampFirstSeenPublicKey = System.currentTimeMillis();
+            addEntry(mergedEntry);
         } else {
-            Entry mergedEntry = new Entry();
-            mergedEntry.publicKey = oldEntry.publicKey;
-            mergedEntry.phoneNumber = newEntry.phoneNumber;
+            Entry mergedEntry = new Entry(newEntry);
             mergedEntry.timestampFirstSeenPublicKey = oldEntry.timestampFirstSeenPublicKey;
-            mergedEntry.timestampLastSeenAlivePublicKey = newEntry.timestampLastSeenAlivePublicKey;
             updateEntry(mergedEntry);
         }
     }

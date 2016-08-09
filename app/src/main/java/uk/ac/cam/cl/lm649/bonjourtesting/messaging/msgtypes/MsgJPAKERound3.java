@@ -5,6 +5,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
@@ -57,9 +59,13 @@ public class MsgJPAKERound3 extends Message {
         }
         boolean round3Success = jpakeClient.round3Receive(msgClient, this);
         if (round3Success) {
-            String text = "round 3 succeeded! key: " + jpakeClient.getSessionKey().toString(Character.MAX_RADIX);
-            FLogger.i(TAG, text);
-            HelperMethods.displayMsgToUser(msgClient.context, text);
+            FLogger.i(TAG, "round 3 succeeded! key: " + jpakeClient.getSessionKey().toString(Character.MAX_RADIX));
+
+            String phoneNumber = SaveSettingsData.getInstance(msgClient.context).getPhoneNumber();
+            String publicKey = SaveBadgeData.getInstance(msgClient.context).getMyPublicKey();
+            long curTime = System.currentTimeMillis();
+            Message msg = new MsgMyPublicKey(phoneNumber, publicKey, curTime);
+            msgClient.sendMessage(msg);
         } else {
             FLogger.i(TAG, "round 3 failed.");
         }
