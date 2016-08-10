@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Hash;
+import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 
 import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.BadgeEntry;
 import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.PhoneNumberEntry;
@@ -74,7 +74,7 @@ public final class DbTablePublicKeys {
             return String.format(Locale.US,
                     "phoneNum: %s\npubKey: %s\nFS_time: %s\nLSA_time: %s",
                     phoneNumber,
-                    Hash.hashStringToString(publicKey), // TODO hash byteKeys instead
+                    Asymmetric.getFingerprint(publicKey),
                     new Date(timestampFirstSeenPublicKey),
                     new Date(timestampLastSeenAlivePublicKey));
         }

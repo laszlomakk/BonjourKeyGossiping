@@ -460,4 +460,41 @@ public class AsymmetricTest {
         }
     }
 
+    @Test
+    public void testFingerprinting() {
+        //test hardcoded keys
+        try {
+            String stringKey1 = HARDCODED_PUBLIC_KEY_1;
+            byte[] byteKey1 = Asymmetric.stringKeyToByteKey(stringKey1);
+            AsymmetricKeyParameter key1 = Asymmetric.stringKeyToKey(stringKey1);
+
+            assertEquals( Asymmetric.getFingerprint(stringKey1), Asymmetric.getFingerprint(byteKey1) );
+            assertEquals( Asymmetric.getFingerprint(stringKey1), Asymmetric.getFingerprint(key1) );
+            assertEquals( "22cc35f3ea7286b523af5ed842103acfeda101049b40bb32df9957dcc4022684", Asymmetric.getFingerprint(stringKey1) );
+
+            String stringKey2 = HARDCODED_PUBLIC_KEY_2;
+            byte[] byteKey2 = Asymmetric.stringKeyToByteKey(stringKey2);
+            AsymmetricKeyParameter key2 = Asymmetric.stringKeyToKey(stringKey2);
+
+            assertEquals( Asymmetric.getFingerprint(stringKey2), Asymmetric.getFingerprint(byteKey2) );
+            assertEquals( Asymmetric.getFingerprint(stringKey2), Asymmetric.getFingerprint(key2) );
+            assertEquals( "35edf18ba49d56fafa420dd9c25b817100fe705baebd339434a20f3fb6ff5c55", Asymmetric.getFingerprint(stringKey2) );
+        } catch (KeyDecodingException e1) {
+            fail();
+            return;
+        }
+
+        //test newly generated keys
+        if (LONG_TESTS) {
+            AsymmetricCipherKeyPair keyPair = Asymmetric.generateNewKeyPair();
+            AsymmetricKeyParameter key = keyPair.getPublic();
+
+            String stringKey = Asymmetric.keyToStringKey(key);
+            byte[] byteKey = Asymmetric.keyToByteKey(key);
+
+            assertEquals( Asymmetric.getFingerprint(stringKey), Asymmetric.getFingerprint(key) );
+            assertEquals( Asymmetric.getFingerprint(stringKey), Asymmetric.getFingerprint(byteKey) );
+        }
+    }
+
 }

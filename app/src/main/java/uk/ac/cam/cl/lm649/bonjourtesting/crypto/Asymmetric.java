@@ -244,6 +244,24 @@ public class Asymmetric {
         return true;
     }
 
+    public static String getFingerprint(String key) {
+        return Hash.hashStringToString(key);
+    }
+
+    public static String getFingerprint(byte[] key) {
+        String fingerprint;
+        try {
+            fingerprint = getFingerprint(byteKeyToStringKey(key));
+        } catch (KeyDecodingException e) {
+            fingerprint = "error";
+        }
+        return fingerprint;
+    }
+
+    public static String getFingerprint(AsymmetricKeyParameter key) {
+        return getFingerprint(keyToStringKey(key));
+    }
+
     public static void main(String args[]) throws KeyDecodingException {
         AsymmetricCipherKeyPair keyPair = generateNewKeyPair();
         System.out.println( keyToStringKey(keyPair.getPrivate()) );

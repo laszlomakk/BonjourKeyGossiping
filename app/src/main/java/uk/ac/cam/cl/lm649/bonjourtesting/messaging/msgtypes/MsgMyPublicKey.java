@@ -56,7 +56,7 @@ public class MsgMyPublicKey extends Message {
 
     @Override
     public void onReceive(MsgClient msgClient) throws IOException {
-        String fingerprint = Hash.hashStringToString(publicKey); // TODO hash byteKeys instead
+        String fingerprint = Asymmetric.getFingerprint(publicKey);
         FLogger.i(MsgClient.TAG, String.format(Locale.US,
                 "%sreceived %s:\nphoneNum: %s, pubKey: %s",
                 msgClient.sFromAddress, getClass().getSimpleName(), phoneNumber, fingerprint));

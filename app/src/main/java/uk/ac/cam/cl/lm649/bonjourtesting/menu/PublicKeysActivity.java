@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
-import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Hash;
+import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePublicKeys;
 import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
@@ -115,7 +115,7 @@ public class PublicKeysActivity extends CustomActivity {
         textViewPhoneNumber.setText(SaveSettingsData.getInstance(context).getPhoneNumber());
 
         textViewPublicKey.setText(
-                Hash.hashStringToString(SaveBadgeData.getInstance(context).getMyPublicKey()) // TODO hash byteKeys instead
+                Asymmetric.getFingerprint(SaveBadgeData.getInstance(context).getMyPublicKey())
         );
 
         String numEntriesInList;
