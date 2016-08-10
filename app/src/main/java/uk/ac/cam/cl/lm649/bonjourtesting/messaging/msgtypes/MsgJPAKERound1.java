@@ -78,7 +78,8 @@ public class MsgJPAKERound1 extends Message {
         JPAKEClient jpakeClient;
         if (JPAKEClient.canJPAKEBeStartedUsingThisMsgClient(msgClient)) {
             FLogger.d(TAG, "onReceive(). msgClient can be used for new JPAKE.");
-            jpakeClient = msgClient.jpakeClient = new JPAKEClient(false);
+            String sharedSecret = JPAKEClient.getMyOwnSharedSecret();
+            jpakeClient = msgClient.jpakeClient = new JPAKEClient(false, sharedSecret);
         } else {
             jpakeClient = msgClient.jpakeClient;
         }

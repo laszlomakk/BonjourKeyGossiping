@@ -1,6 +1,8 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.Digest;
@@ -16,7 +18,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Locale;
+import java.util.UUID;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
+import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound1;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound2;
@@ -48,7 +54,7 @@ public class JPAKEClient {
     // e.g. being in state State.ROUND_1_SEND means round1Send() has already been called
     private State state = State.INITIALISED;
 
-    public JPAKEClient(boolean iAmTheInitiator) {
+    public JPAKEClient(boolean iAmTheInitiator, @NonNull String sharedSecret) {
         if (iAmTheInitiator) {
             myParticipantId = "alice";
             otherParticipantId = "bob";
@@ -56,8 +62,6 @@ public class JPAKEClient {
             myParticipantId = "bob";
             otherParticipantId = "alice";
         }
-
-        String sharedSecret = "1234"; // TODO get phone number of otherBadgeId
 
         initJPAKEParticipant(sharedSecret);
     }
@@ -303,17 +307,35 @@ public class JPAKEClient {
      *
      * @return if JPAKE was started
      */
-    public static boolean startJPAKEifAppropriate(MsgClient msgClient) {
+    public static boolean startJPAKEifAppropriate(MsgClient msgClient, String sharedSecret) {
         FLogger.i(TAG, "startJPAKEifAppropriate() called.");
+        if (null == sharedSecret) {
+            FLogger.w(TAG, "startJPAKEifAppropriate(). sharedSecret is null.");
+            return false;
+        }
         if (JPAKEClient.canJPAKEBeStartedUsingThisMsgClient(msgClient)) {
             try {
-                JPAKEClient jpakeClient = msgClient.jpakeClient = new JPAKEClient(true);
+                JPAKEClient jpakeClient = msgClient.jpakeClient = new JPAKEClient(true, sharedSecret);
                 return jpakeClient.round1Send(msgClient);
             } catch (IOException e) {
                 FLogger.e(TAG, "startMessaging() - JPAKEClient.round1Send(). IOE - " + e.getMessage());
             }
         }
         return false;
+    }
+
+    @Nullable
+    public static String determineSharedSecret(String badgeId) {
+        if (null == badgeId) return null;
+        return DbTablePhoneNumbers.getPhoneNumber(UUID.fromString(badgeId));
+    }
+
+    /**
+     * @return the shared secret used if the other party initiated
+     */
+    public static String getMyOwnSharedSecret() {
+        Context context = CustomApplication.getInstance();
+        return SaveSettingsData.getInstance(context).getPhoneNumber();
     }
 
 }

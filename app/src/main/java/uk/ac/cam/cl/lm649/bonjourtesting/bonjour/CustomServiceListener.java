@@ -11,6 +11,7 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceListener;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeStatus;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
@@ -73,6 +74,9 @@ public class CustomServiceListener implements ServiceListener {
 
         MsgClient msgClient = getMsgClientForService(event, badgeIdOfOtherDevice);
         startMessaging(msgClient);
+
+        String sharedSecret = JPAKEClient.determineSharedSecret(badgeIdOfOtherDevice);
+        JPAKEClient.startJPAKEifAppropriate(msgClient, sharedSecret);
     }
 
     private MsgClient getMsgClientForService(ServiceEvent event, String badgeIdOfOtherDevice) {
@@ -103,8 +107,6 @@ public class CustomServiceListener implements ServiceListener {
 
         Message msgThisIsMyId = new MsgBadgeStatusUpdate(BadgeStatus.constructMyCurrentBadgeStatus());
         msgClient.sendMessage(msgThisIsMyId);
-
-        JPAKEClient.startJPAKEifAppropriate(msgClient);
     }
 
 }

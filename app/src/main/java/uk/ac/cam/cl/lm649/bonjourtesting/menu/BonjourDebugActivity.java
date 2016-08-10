@@ -111,7 +111,13 @@ public class BonjourDebugActivity extends CustomActivity {
                         FLogger.e(TAG, "onItemLongClick(). msgClient not found");
                         HelperMethods.displayMsgToUser(context, "error: msgClient not found");
                     } else {
-                        boolean jpakeStarted = JPAKEClient.startJPAKEifAppropriate(msgClient);
+                        String badgeIdOfOtherDevice = serviceInfo.getPropertyString(BonjourService.DNS_TXT_RECORD_MAP_KEY_FOR_BADGE_ID);
+                        if (null == badgeIdOfOtherDevice) {
+                            FLogger.i(TAG, "onItemLongClick(). badgeIdOfOtherDevice is null.");
+                            return true;
+                        }
+                        String sharedSecret = JPAKEClient.determineSharedSecret(badgeIdOfOtherDevice);
+                        boolean jpakeStarted = JPAKEClient.startJPAKEifAppropriate(msgClient, sharedSecret);
                         FLogger.i(TAG, "onItemLongClick(). jpakeStarted: " + jpakeStarted);
                         HelperMethods.displayMsgToUser(context, "jpakeStarted: " + jpakeStarted);
                     }
