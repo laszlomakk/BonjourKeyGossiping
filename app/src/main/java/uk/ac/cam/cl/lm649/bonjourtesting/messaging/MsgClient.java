@@ -56,7 +56,7 @@ public class MsgClient {
     public String sToAddress;
 
     private UUID badgeIdOfOtherEnd = null;
-    protected JPAKEClient jpakeClient;
+    public JPAKEClient jpakeClient;
 
     private MsgClient() {
         app = CustomApplication.getInstance();
@@ -270,7 +270,4 @@ public class MsgClient {
         }
     }
 
-    public JPAKEClient getJpakeClient() {
-        return jpakeClient;
-    }
 }

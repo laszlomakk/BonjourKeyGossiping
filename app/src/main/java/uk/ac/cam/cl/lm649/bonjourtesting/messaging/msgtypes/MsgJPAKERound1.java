@@ -75,10 +75,12 @@ public class MsgJPAKERound1 extends Message {
         FLogger.i(MsgClient.TAG, msgClient.sFromAddress + "received " +
                 getClass().getSimpleName());
 
-        JPAKEClient jpakeClient = msgClient.getJpakeClient();
-        if (JPAKEClient.shouldWeRunJPAKE(msgClient)) {
-            FLogger.d(TAG, "onReceive(). decided to do new JPAKE.");
-            jpakeClient = msgClient.getJpakeClient();
+        JPAKEClient jpakeClient;
+        if (JPAKEClient.canJPAKEBeStartedUsingThisMsgClient(msgClient)) {
+            FLogger.d(TAG, "onReceive(). msgClient can be used for new JPAKE.");
+            jpakeClient = msgClient.jpakeClient = new JPAKEClient(false);
+        } else {
+            jpakeClient = msgClient.jpakeClient;
         }
         if (null == jpakeClient) {
             FLogger.e(TAG, "onReceive(). jpakeClient is null.");

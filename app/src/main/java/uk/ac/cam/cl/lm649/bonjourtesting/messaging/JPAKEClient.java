@@ -1,6 +1,5 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 
 import org.bouncycastle.crypto.CryptoException;
@@ -17,10 +16,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Locale;
-import java.util.UUID;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound1;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound2;
@@ -33,8 +29,8 @@ public class JPAKEClient {
     private static final String TAG = "JPAKEClient";
 
     private JPAKEParticipant participant;
-    private String myParticipantId;
-    private String otherParticipantId;
+    private final String myParticipantId;
+    private final String otherParticipantId;
 
     private BigInteger keyingMaterial;
 
@@ -52,9 +48,14 @@ public class JPAKEClient {
     // e.g. being in state State.ROUND_1_SEND means round1Send() has already been called
     private State state = State.INITIALISED;
 
-    public JPAKEClient(@NonNull UUID myBadgeId, @NonNull UUID otherBadgeId) {
-        myParticipantId = myBadgeId.toString();
-        otherParticipantId = otherBadgeId.toString();
+    public JPAKEClient(boolean iAmTheInitiator) {
+        if (iAmTheInitiator) {
+            myParticipantId = "alice";
+            otherParticipantId = "bob";
+        } else {
+            myParticipantId = "bob";
+            otherParticipantId = "alice";
+        }
 
         String sharedSecret = "1234"; // TODO get phone number of otherBadgeId
 
@@ -124,8 +125,7 @@ public class JPAKEClient {
      */
     public boolean round1Receive(@NonNull MsgClient msgClient, @NonNull MsgJPAKERound1 msg) {
         try {
-            _round1Receive(msgClient, msg);
-            return true;
+            return _round1Receive(msgClient, msg);
         } catch (CryptoException e) {
             FLogger.w(TAG, String.format(Locale.US,
                     "round1Receive(). validation failed. IP: %s, badgeId: %s, oParticipantId: %s, Exception: %s",
@@ -190,8 +190,7 @@ public class JPAKEClient {
      */
     public boolean round2Receive(@NonNull MsgClient msgClient, @NonNull MsgJPAKERound2 msg) {
         try {
-            _round2Receive(msgClient, msg);
-            return true;
+            return _round2Receive(msgClient, msg);
         } catch (CryptoException e) {
             FLogger.w(TAG, String.format(Locale.US,
                     "round2Receive(). validation failed. IP: %s, badgeId: %s, oParticipantId: %s, Exception: %s",
@@ -255,8 +254,7 @@ public class JPAKEClient {
      */
     public boolean round3Receive(@NonNull MsgClient msgClient, @NonNull MsgJPAKERound3 msg) {
         try {
-            _round3Receive(msgClient, msg);
-            return true;
+            return _round3Receive(msgClient, msg);
         } catch (CryptoException e) {
             FLogger.w(TAG, String.format(Locale.US,
                     "round3Receive(). validation failed. IP: %s, badgeId: %s, oParticipantId: %s, Exception: %s",
@@ -288,24 +286,13 @@ public class JPAKEClient {
         }
     }
 
-    public static boolean shouldWeRunJPAKE(MsgClient msgClient) {
+    public static boolean canJPAKEBeStartedUsingThisMsgClient(MsgClient msgClient) {
         if (null == msgClient) {
             FLogger.e(TAG, "considerRunningJPAKE(). msgClient is null.");
             return false;
         }
-
-        // TODO some logic here to decide. do we know her phone number (etc) ?
-
-        Context context = CustomApplication.getInstance().getApplicationContext();
         if (null == msgClient.jpakeClient || msgClient.jpakeClient.state == State.FINISHED) {
             FLogger.d(TAG, "shouldWeRunJPAKE(). JPAKEClient not in use atm.");
-            UUID myBadgeId = SaveBadgeData.getInstance(context).getMyBadgeId();
-            UUID otherBadgeId = msgClient.getBadgeIdOfOtherEnd();
-            if (null == otherBadgeId) {
-                FLogger.d(TAG, "shouldWeRunJPAKE(). otherBadgeId is null.");
-                return false;
-            }
-            msgClient.jpakeClient = new JPAKEClient(myBadgeId, otherBadgeId);
             return true;
         }
         return false;
@@ -318,13 +305,9 @@ public class JPAKEClient {
      */
     public static boolean startJPAKEifAppropriate(MsgClient msgClient) {
         FLogger.i(TAG, "startJPAKEifAppropriate() called.");
-        if (JPAKEClient.shouldWeRunJPAKE(msgClient)) {
+        if (JPAKEClient.canJPAKEBeStartedUsingThisMsgClient(msgClient)) {
             try {
-                JPAKEClient jpakeClient = msgClient.getJpakeClient();
-                if (null == jpakeClient) {
-                    FLogger.e(TAG, "startMessaging(). jpakeClient is null BUT IT SHOULDN'T BE NULL HERE !");
-                    return false;
-                }
+                JPAKEClient jpakeClient = msgClient.jpakeClient = new JPAKEClient(true);
                 return jpakeClient.round1Send(msgClient);
             } catch (IOException e) {
                 FLogger.e(TAG, "startMessaging() - JPAKEClient.round1Send(). IOE - " + e.getMessage());
