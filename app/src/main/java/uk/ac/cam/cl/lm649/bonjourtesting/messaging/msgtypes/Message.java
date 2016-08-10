@@ -30,7 +30,10 @@ public abstract class Message {
 
     public abstract void serialiseToStream(DataOutputStream outStream) throws IOException;
 
-    public abstract void send(MsgClient msgClient) throws IOException;
+    public void send(MsgClient msgClient) throws IOException {
+        DataOutputStream outStream = msgClient.getOutStream();
+        serialiseToStream(outStream);
+    }
 
     public abstract void onReceive(MsgClient msgClient) throws IOException;
 

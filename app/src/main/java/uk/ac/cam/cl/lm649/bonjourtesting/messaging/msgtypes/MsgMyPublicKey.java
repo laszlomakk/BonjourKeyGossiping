@@ -49,12 +49,6 @@ public class MsgMyPublicKey extends Message {
     }
 
     @Override
-    public void send(MsgClient msgClient) throws IOException {
-        DataOutputStream outStream = msgClient.getOutStream();
-        serialiseToStream(outStream);
-    }
-
-    @Override
     public void onReceive(MsgClient msgClient) throws IOException {
         String fingerprint = Asymmetric.getFingerprint(publicKey);
         FLogger.i(MsgClient.TAG, String.format(Locale.US,

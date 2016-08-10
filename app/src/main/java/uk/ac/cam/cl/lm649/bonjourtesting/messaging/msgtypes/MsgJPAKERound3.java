@@ -43,12 +43,6 @@ public class MsgJPAKERound3 extends Message {
     }
 
     @Override
-    public void send(MsgClient msgClient) throws IOException {
-        DataOutputStream outStream = msgClient.getOutStream();
-        serialiseToStream(outStream);
-    }
-
-    @Override
     public void onReceive(MsgClient msgClient) throws IOException {
         FLogger.i(MsgClient.TAG, msgClient.sFromAddress + "received " +
                 getClass().getSimpleName());

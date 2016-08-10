@@ -52,8 +52,7 @@ public class MsgHistoryTransfer extends Message {
             FLogger.e(TAG, "send() called, but historyTransfer is disabled.");
             return;
         }
-        DataOutputStream outStream = msgClient.getOutStream();
-        serialiseToStream(outStream);
+        super.send(msgClient);
     }
 
     @Override

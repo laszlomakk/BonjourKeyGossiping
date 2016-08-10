@@ -32,8 +32,7 @@ public class MsgArbitraryText extends Message {
 
     @Override
     public void send(MsgClient msgClient) throws IOException {
-        DataOutputStream outStream = msgClient.getOutStream();
-        serialiseToStream(outStream);
+        super.send(msgClient);
         HelperMethods.displayMsgToUser(msgClient.context, "msg sent");
     }
 

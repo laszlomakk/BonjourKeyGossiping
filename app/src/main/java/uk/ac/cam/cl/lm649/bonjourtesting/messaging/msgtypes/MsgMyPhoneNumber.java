@@ -42,12 +42,6 @@ public class MsgMyPhoneNumber extends Message {
     }
 
     @Override
-    public void send(MsgClient msgClient) throws IOException {
-        DataOutputStream outStream = msgClient.getOutStream();
-        serialiseToStream(outStream);
-    }
-
-    @Override
     public void onReceive(MsgClient msgClient) throws IOException {
         FLogger.i(MsgClient.TAG, String.format(Locale.US,
                 "%sreceived %s:\nbadgeId: %s, phoneNum: %s",
