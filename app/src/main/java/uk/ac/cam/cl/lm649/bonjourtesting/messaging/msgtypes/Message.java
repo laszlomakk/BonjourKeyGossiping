@@ -51,8 +51,8 @@ public abstract class Message {
             long nBytesDiscarded = discardBytesUntilNextMessage(inStream); // discard end marker
             if (nBytesDiscarded != endMarker.length) {
                 FLogger.e(TAG, String.format(Locale.US,
-                        "tried to skip endMarker from the stream. expected %d bytes to be discarded, it was instead %d bytes",
-                        nBytesDiscarded, endMarker.length));
+                        "tried to skip endMarker on the stream. expected %d bytes to be discarded, it was instead %d bytes",
+                        endMarker.length, nBytesDiscarded));
             }
             return (Message) obj;
         } catch (NoSuchMethodException e) {

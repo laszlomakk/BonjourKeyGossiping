@@ -27,7 +27,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgArbitraryText;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgMyPhoneNumber;
@@ -79,7 +79,7 @@ public class BonjourDebugActivity extends CustomActivity {
                     BonjourService bonjourService = app.getBonjourService();
                     if (null != bonjourService){
                         String serviceName = bonjourService.getNameOfOurService();
-                        MsgClient msgClient = MsgServer.getInstance().serviceToMsgClientMap.get(new ServiceStub(serviceInfo));
+                        MsgClient msgClient = MsgServerManager.getInstance().serviceToMsgClientMap.get(new ServiceStub(serviceInfo));
                         if (null == msgClient) {
                             FLogger.e(TAG, "onItemClick(). msgClient not found");
                             HelperMethods.displayMsgToUser(context, "error: msgClient not found");
@@ -106,7 +106,7 @@ public class BonjourDebugActivity extends CustomActivity {
                         HelperMethods.displayMsgToUser(context, "error sending msg: serviceInfo is null (1)");
                         return true;
                     }
-                    MsgClient msgClient = MsgServer.getInstance().serviceToMsgClientMap.get(new ServiceStub(serviceInfo));
+                    MsgClient msgClient = MsgServerManager.getInstance().serviceToMsgClientMap.get(new ServiceStub(serviceInfo));
                     if (null == msgClient) {
                         FLogger.e(TAG, "onItemLongClick(). msgClient not found");
                         HelperMethods.displayMsgToUser(context, "error: msgClient not found");
@@ -140,7 +140,7 @@ public class BonjourDebugActivity extends CustomActivity {
                 FLogger.i(TAG, "user clicked announce button");
                 SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
                 SaveSettingsData saveSettingsData = SaveSettingsData.getInstance(context);
-                for (Map.Entry<ServiceStub, MsgClient> entry : MsgServer.getInstance().serviceToMsgClientMap.entrySet()) {
+                for (Map.Entry<ServiceStub, MsgClient> entry : MsgServerManager.getInstance().serviceToMsgClientMap.entrySet()) {
                     Message msg = new MsgMyPhoneNumber(
                             saveBadgeData.getMyBadgeId().toString(),
                             saveSettingsData.getPhoneNumber());
@@ -148,7 +148,7 @@ public class BonjourDebugActivity extends CustomActivity {
                     msgClient.sendMessage(msg);
                     ServiceStub serviceStub = entry.getKey();
                     FLogger.i(TAG, String.format(Locale.US, "sent %s to service %s (IP: %s)",
-                            msg.getClass().getSimpleName(), serviceStub.name, msgClient.socketAddress));
+                            msg.getClass().getSimpleName(), serviceStub.name, msgClient.strSocketAddress));
                 }
                 HelperMethods.displayMsgToUser(context, "announced phone number");
             }
@@ -198,7 +198,8 @@ public class BonjourDebugActivity extends CustomActivity {
         if (null != bonjourService) deviceIP = bonjourService.getIPAddress();
         textViewDeviceIp.setText(deviceIP);
 
-        textViewLocalPort.setText(String.format(Locale.US,"%d",MsgServer.getInstance().getPort()));
+        String port = "" + MsgServerManager.getInstance().getMsgServerPlaintext().getPort();
+        textViewLocalPort.setText(port);
 
         String ownServiceText = "-";
         if (null != bonjourService && null != bonjourService.getServiceInfoOfOurService()) {

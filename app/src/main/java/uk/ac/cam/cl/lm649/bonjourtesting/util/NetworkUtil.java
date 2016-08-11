@@ -78,4 +78,8 @@ public class NetworkUtil {
         return null == state ? "null" : state.name();
     }
 
+    public static boolean isPortValid(int port) {
+        return 0 <= port && port <= 65535;
+    }
+
 }

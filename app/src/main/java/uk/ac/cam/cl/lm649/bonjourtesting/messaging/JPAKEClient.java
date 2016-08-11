@@ -37,8 +37,11 @@ public class JPAKEClient {
     private JPAKEParticipant participant;
     private final String myParticipantId;
     private final String otherParticipantId;
+    public final boolean iAmTheInitiator;
 
     private BigInteger keyingMaterial;
+    private BigInteger sessionKey = null;
+    private boolean retrievedSessionKey = false;
 
     public enum State {
         INITIALISED,
@@ -55,6 +58,7 @@ public class JPAKEClient {
     private State state = State.INITIALISED;
 
     public JPAKEClient(boolean iAmTheInitiator, @NonNull String sharedSecret) {
+        this.iAmTheInitiator = iAmTheInitiator;
         if (iAmTheInitiator) {
             myParticipantId = "alice";
             otherParticipantId = "bob";
@@ -133,7 +137,7 @@ public class JPAKEClient {
         } catch (CryptoException e) {
             FLogger.w(TAG, String.format(Locale.US,
                     "round1Receive(). validation failed. IP: %s, badgeId: %s, oParticipantId: %s, Exception: %s",
-                    msgClient.socketAddress,
+                    msgClient.strSocketAddress,
                     msgClient.getBadgeIdOfOtherEnd(),
                     otherParticipantId,
                     e.getMessage()));
@@ -198,7 +202,7 @@ public class JPAKEClient {
         } catch (CryptoException e) {
             FLogger.w(TAG, String.format(Locale.US,
                     "round2Receive(). validation failed. IP: %s, badgeId: %s, oParticipantId: %s, Exception: %s",
-                    msgClient.socketAddress,
+                    msgClient.strSocketAddress,
                     msgClient.getBadgeIdOfOtherEnd(),
                     otherParticipantId,
                     e.getMessage()));
@@ -208,6 +212,7 @@ public class JPAKEClient {
 
     private synchronized void calcKeyingMaterial() {
         keyingMaterial = participant.calculateKeyingMaterial();
+        sessionKey = deriveSessionKey(keyingMaterial);
     }
 
     public synchronized boolean round3Send(@NonNull MsgClient msgClient) throws IOException {
@@ -220,7 +225,8 @@ public class JPAKEClient {
 
         JPAKERound3Payload round3Payload = participant.createRound3PayloadToSend(keyingMaterial);
 
-        Message msg = new MsgJPAKERound3(round3Payload.getMacTag());
+        int portForEncryptedComms = MsgServerManager.getInstance().getMsgServerEncrypted().getPort();
+        Message msg = new MsgJPAKERound3(round3Payload.getMacTag(), portForEncryptedComms);
         msgClient.sendMessage(msg);
 
         state = State.ROUND_3_SEND;
@@ -250,6 +256,9 @@ public class JPAKEClient {
         participant.validateRound3PayloadReceived(round3Payload, keyingMaterial);
 
         state = State.ROUND_3_RECEIVE;
+        if (retrievedSessionKey) {
+            state = State.FINISHED;
+        }
         return true;
     }
 
@@ -262,7 +271,7 @@ public class JPAKEClient {
         } catch (CryptoException e) {
             FLogger.w(TAG, String.format(Locale.US,
                     "round3Receive(). validation failed. IP: %s, badgeId: %s, oParticipantId: %s, Exception: %s",
-                    msgClient.socketAddress,
+                    msgClient.strSocketAddress,
                     msgClient.getBadgeIdOfOtherEnd(),
                     otherParticipantId,
                     e.getMessage()));
@@ -281,12 +290,17 @@ public class JPAKEClient {
     }
 
     public BigInteger getSessionKey() {
-        if (state == State.ROUND_3_RECEIVE || state == State.FINISHED) {
-            BigInteger sessionKey = deriveSessionKey(keyingMaterial);
-            state = State.FINISHED;
-            return sessionKey;
-        } else {
-            throw new IllegalStateException("state: " + state);
+        retrievedSessionKey = true;
+        switch (state) {
+            case ROUND_3_RECEIVE:
+                state = State.FINISHED;
+                // fall through
+            case FINISHED:
+            case ROUND_2_RECEIVE:
+            case ROUND_3_SEND:
+                return sessionKey;
+            default:
+                throw new IllegalStateException("state: " + state);
         }
     }
 

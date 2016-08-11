@@ -1,5 +1,8 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.crypto;
 
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 import org.bouncycastle.crypto.BlockCipher;
@@ -12,8 +15,14 @@ import org.bouncycastle.crypto.paddings.PKCS7Padding;
 import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
 public class Symmetric {
 
+    public static final int BLOCK_SIZE_IN_BYTES = 128 / 8;
     public static final int KEY_LENGTH_IN_BYTES = 256 / 8;
 
     private static byte[] _encryptBytes(boolean isEncrypting, byte[] data, byte[] key) throws DataLengthException, InvalidCipherTextException {
@@ -63,6 +72,22 @@ public class Symmetric {
         byte[] bytes = new byte[KEY_LENGTH_IN_BYTES];
         randomNumberGenerator.nextBytes(bytes);
         return bytes;
+    }
+
+    public static Cipher getInitialisedCipher(int opMode, byte[] keyBytes, byte[] ivBytes)
+            throws InvalidAlgorithmParameterException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
+        final SecretKeySpec keySpec = new SecretKeySpec(keyBytes, "AES");
+        final IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+        final Cipher cipher;
+        cipher = Cipher.getInstance("AES/CFB8/NoPadding");
+        cipher.init(opMode, keySpec, ivSpec);
+        return cipher;
+    }
+
+    public static Cipher getInitialisedCipher(int opMode, byte[] keyBytes)
+            throws InvalidAlgorithmParameterException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
+        byte[] zeroIv = new byte[Symmetric.BLOCK_SIZE_IN_BYTES];
+        return getInitialisedCipher(opMode, keyBytes, zeroIv);
     }
 
 }

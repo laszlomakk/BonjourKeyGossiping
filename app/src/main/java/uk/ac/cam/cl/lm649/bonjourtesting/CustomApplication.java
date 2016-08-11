@@ -20,6 +20,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgePollerService;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.DeviceIdleBroadcastReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.LoggingBroadcastReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
@@ -77,7 +78,7 @@ public class CustomApplication extends Application {
         FLogger.i(TAG, "startupOperationalCore() called.");
         if (SaveSettingsData.getInstance(this).isAppOperationalCoreEnabled()) {
             Log.i(TAG, "onCreate(). AppOperationalCore setting is ON, so starting up.");
-            initMsgServer();
+            startMsgServerManager();
             ActiveBadgePollerService.automaticPollingEnabled = true;
             ActiveBadgePollerService.schedulePolling(this);
             startBonjourService();
@@ -91,7 +92,7 @@ public class CustomApplication extends Application {
         stopBonjourService();
         ActiveBadgePollerService.automaticPollingEnabled = false;
         ActiveBadgePollerService.cancelPolling(this);
-        MsgServer.getInstance().stop();
+        MsgServerManager.getInstance().stop();
     }
 
     private void generateOurCryptoKeypair() {
@@ -131,12 +132,12 @@ public class CustomApplication extends Application {
         });
     }
 
-    private void initMsgServer() {
+    private void startMsgServerManager() {
         try {
-            MsgServer.getInstance().start();
+            MsgServerManager.getInstance().start();
         } catch (IOException e) {
-            FLogger.e(TAG, "onCreate(). Failed to init MsgServer. IOE - " + e.getMessage());
-            HelperMethods.displayMsgToUser(this, "failed to init MsgServer");
+            FLogger.e(TAG, "startMsgServerManager(). IOE - " + e.getMessage());
+            HelperMethods.displayMsgToUser(this, "failed to start MsgServers");
             FLogger.e(TAG, HelperMethods.formatStackTraceAsString(e));
         }
     }

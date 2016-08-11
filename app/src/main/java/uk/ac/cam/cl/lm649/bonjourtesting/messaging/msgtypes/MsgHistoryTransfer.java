@@ -58,17 +58,17 @@ public class MsgHistoryTransfer extends Message {
     @Override
     public void onReceive(MsgClient msgClient) throws IOException {
         int numBadges = badgeStatuses.size();
-        FLogger.i(MsgClient.TAG, msgClient.sFromAddress + "received " + getClass().getSimpleName() + ", containing "
+        FLogger.i(msgClient.logTag, msgClient.strFromAddress + "received " + getClass().getSimpleName() + ", containing "
                 + numBadges + " badges");
         if (!Constants.HISTORY_TRANSFER_ENABLED) {
-            FLogger.i(MsgClient.TAG, "rejecting message. historyTransfer is disabled.");
+            FLogger.i(msgClient.logTag, "rejecting message. historyTransfer is disabled.");
             return;
         }
         SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(msgClient.context);
         for (BadgeStatus badgeStatus : badgeStatuses) {
             if (!saveBadgeData.getMyBadgeId().equals(badgeStatus.getBadgeCore().getBadgeId())) {
                 DbTableBadges.smartUpdateBadge(badgeStatus);
-                FLogger.d(TAG, msgClient.sFromAddress + "historyTransfer contains badge:\n"
+                FLogger.d(TAG, msgClient.strFromAddress + "historyTransfer contains badge:\n"
                         + badgeStatus.toString());
             }
         }

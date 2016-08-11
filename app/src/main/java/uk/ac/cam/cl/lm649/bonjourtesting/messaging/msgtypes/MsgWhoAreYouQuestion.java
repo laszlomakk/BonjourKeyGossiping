@@ -27,7 +27,7 @@ public class MsgWhoAreYouQuestion extends Message {
 
     @Override
     public void onReceive(MsgClient msgClient) throws IOException {
-        FLogger.i(MsgClient.TAG, msgClient.sFromAddress + "received " + getClass().getSimpleName());
+        FLogger.i(msgClient.logTag, msgClient.strFromAddress + "received " + getClass().getSimpleName());
         Message msgThisIsMyId = new MsgBadgeStatusUpdate(BadgeStatus.constructMyCurrentBadgeStatus());
         msgClient.sendMessage(msgThisIsMyId);
     }
