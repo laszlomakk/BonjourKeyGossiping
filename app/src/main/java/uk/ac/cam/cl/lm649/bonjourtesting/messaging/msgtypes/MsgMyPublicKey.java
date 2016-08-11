@@ -1,5 +1,6 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import java.io.DataInputStream;
@@ -9,10 +10,12 @@ import java.util.Locale;
 import java.util.UUID;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
+import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Hash;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePublicKeys;
+import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
@@ -27,6 +30,13 @@ public class MsgMyPublicKey extends Message {
         this.phoneNumber = phoneNumber;
         this.publicKey = publicKey;
         this.timestamp = timestamp;
+    }
+
+    public static MsgMyPublicKey createNewMsgWithMyCurrentData(Context context) {
+        String phoneNumber = SaveSettingsData.getInstance(context).getPhoneNumber();
+        String publicKey = SaveBadgeData.getInstance(context).getMyPublicKey();
+        long curTime = System.currentTimeMillis();
+        return new MsgMyPublicKey(phoneNumber, publicKey, curTime);
     }
 
     public static MsgMyPublicKey createFromStream(DataInputStream inStream) throws IOException {

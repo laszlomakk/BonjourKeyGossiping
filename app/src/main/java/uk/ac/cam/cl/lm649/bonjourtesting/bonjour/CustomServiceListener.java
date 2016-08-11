@@ -103,6 +103,7 @@ public class CustomServiceListener implements ServiceListener {
             } else {
                 FLogger.w(TAG, "getMsgClientForService(). badgeIdOfOtherDevice is null.");
             }
+            msgClient.setServiceStubWeAreBoundTo(serviceStub);
             MsgServerManager.getInstance().serviceToMsgClientMap.put(serviceStub, msgClient);
         } else {
             FLogger.d(TAG, "getMsgClientForService(). __ reusing MsgClient for " + serviceStub);

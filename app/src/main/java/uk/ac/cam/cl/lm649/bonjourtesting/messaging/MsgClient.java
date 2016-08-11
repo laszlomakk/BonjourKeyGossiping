@@ -12,6 +12,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
@@ -43,6 +44,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgHistoryTransfer;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.UnknownMessageTypeException;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
 public class MsgClient {
 
@@ -53,7 +55,6 @@ public class MsgClient {
 
     public final CustomApplication app;
     public final Context context;
-    private final SaveBadgeData saveBadgeData;
 
     private final ExecutorService workerThreadIncoming = Executors.newFixedThreadPool(1);
     private final ExecutorService workerThreadOutgoing = Executors.newFixedThreadPool(1);
@@ -61,6 +62,12 @@ public class MsgClient {
     private DataInputStream inStream;
     private DataOutputStream outStream;
     private CountDownLatch outStreamReadyLatch = new CountDownLatch(1);
+
+    public final boolean iAmTheInitiator;
+
+    // if this MsgClient is in MsgServerManager.serviceToMsgClientMap,
+    // then the corresponding key for it is:
+    private ServiceStub serviceStubWeAreBoundTo;
 
     public final boolean encrypted;
 
@@ -73,10 +80,12 @@ public class MsgClient {
     private UUID badgeIdOfOtherEnd = null;
     public JPAKEClient jpakeClient;
 
-    private MsgClient(@Nullable byte[] secretKeyBytes) {
+    private MsgClient(@Nullable byte[] secretKeyBytes, boolean iAmTheInitiator) {
+        checkSecretKeyLength(secretKeyBytes);
+
         app = CustomApplication.getInstance();
-        context = app;
-        saveBadgeData = SaveBadgeData.getInstance(context);
+        context = app.getApplicationContext();
+        this.iAmTheInitiator = iAmTheInitiator;
         encrypted = (null != secretKeyBytes);
         if (encrypted) {
             logTag = TAG_BASE + "-Encrypted";
@@ -86,7 +95,7 @@ public class MsgClient {
     }
 
     protected MsgClient(Socket socket, @Nullable final byte[] secretKeyBytes) {
-        this(secretKeyBytes);
+        this(secretKeyBytes, false);
         this.socket = socket;
 
         Runnable runnable = new Runnable() {
@@ -103,7 +112,7 @@ public class MsgClient {
     }
 
     public MsgClient(@NonNull final InetAddress address, final int port, @Nullable final byte[] secretKeyBytes) {
-        this(secretKeyBytes);
+        this(secretKeyBytes, true);
 
         Runnable runnable = new Runnable() {
             @Override
@@ -280,13 +289,13 @@ public class MsgClient {
         DbTableHistoryTransfer.smartUpdateEntry(badgeIdOfOtherEnd, curTime);
     }
 
-    public void close() {
+    public synchronized void close() {
         FLogger.d(logTag, "close() called. address: " + socketAddress);
         if (closed) {
             FLogger.d(logTag, "close(). already closed.");
             return;
         }
-        closed = true;
+
         workerThreadOutgoing.shutdown();
         workerThreadIncoming.shutdownNow();
         try {
@@ -296,9 +305,10 @@ public class MsgClient {
         } catch (IOException e) {
             FLogger.e(logTag, "close(). trying to close streams and socket, IOE - " + e.getMessage());
         }
+        closed = true;
     }
 
-    public boolean isClosed() {
+    public synchronized boolean isClosed() {
         return closed;
     }
 
@@ -330,6 +340,41 @@ public class MsgClient {
                     badgeIdOfOtherEnd, badgeId));
             // TODO maybe throw an exception or call close() ?
         }
+    }
+
+    public ServiceStub getServiceStubWeAreBoundTo() {
+        return serviceStubWeAreBoundTo;
+    }
+
+    public void setServiceStubWeAreBoundTo(ServiceStub serviceStubWeAreBoundTo) {
+        this.serviceStubWeAreBoundTo = serviceStubWeAreBoundTo;
+    }
+
+    /**
+     * note: a msgClient can only be upgraded if (msgClient.iAmTheInitiator == true)
+     */
+    public static MsgClient upgradeToEncryptedMsgClient(MsgClient msgClient, int port, @NonNull final byte[] secretKeyBytes) {
+        if (!msgClient.iAmTheInitiator) {
+            throw new IllegalArgumentException("msgClient.iAmTheInitiator == false");
+        }
+
+        MsgClient msgClientEncrypted = new MsgClient(msgClient.socket.getInetAddress(), port, secretKeyBytes);
+        ServiceStub serviceStub = msgClient.serviceStubWeAreBoundTo;
+        msgClientEncrypted.setServiceStubWeAreBoundTo(serviceStub);
+        MsgServerManager.getInstance().serviceToMsgClientMap.put(serviceStub, msgClientEncrypted);
+
+        msgClient.close();
+
+        return msgClientEncrypted;
+    }
+
+    private static void checkSecretKeyLength(@Nullable final byte[] secretKeyBytes) {
+        if (isSecretKeyLengthValid(secretKeyBytes)) return;
+        throw new RuntimeException("invalid secret key length: " + secretKeyBytes.length + " bytes");
+    }
+
+    public static boolean isSecretKeyLengthValid(@Nullable final byte[] secretKeyBytes) {
+        return (null == secretKeyBytes) || (secretKeyBytes.length == Symmetric.KEY_LENGTH_IN_BYTES);
     }
 
 }

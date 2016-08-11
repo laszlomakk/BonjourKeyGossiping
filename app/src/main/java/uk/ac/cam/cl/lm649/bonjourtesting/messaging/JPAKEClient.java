@@ -37,6 +37,7 @@ public class JPAKEClient {
     private JPAKEParticipant participant;
     private final String myParticipantId;
     private final String otherParticipantId;
+    public final boolean iAmTheInitiator;
 
     private BigInteger keyingMaterial;
 
@@ -55,6 +56,7 @@ public class JPAKEClient {
     private State state = State.INITIALISED;
 
     public JPAKEClient(boolean iAmTheInitiator, @NonNull String sharedSecret) {
+        this.iAmTheInitiator = iAmTheInitiator;
         if (iAmTheInitiator) {
             myParticipantId = "alice";
             otherParticipantId = "bob";
@@ -220,7 +222,8 @@ public class JPAKEClient {
 
         JPAKERound3Payload round3Payload = participant.createRound3PayloadToSend(keyingMaterial);
 
-        Message msg = new MsgJPAKERound3(round3Payload.getMacTag());
+        int portForEncryptedComms = MsgServerManager.getInstance().getMsgServerEncrypted().getPort();
+        Message msg = new MsgJPAKERound3(round3Payload.getMacTag(), portForEncryptedComms);
         msgClient.sendMessage(msg);
 
         state = State.ROUND_3_SEND;
