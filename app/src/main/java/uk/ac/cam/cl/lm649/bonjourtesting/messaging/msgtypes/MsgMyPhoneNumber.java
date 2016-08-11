@@ -45,7 +45,7 @@ public class MsgMyPhoneNumber extends Message {
     public void onReceive(MsgClient msgClient) throws IOException {
         FLogger.i(msgClient.logTag, String.format(Locale.US,
                 "%sreceived %s:\nbadgeId: %s, phoneNum: %s",
-                msgClient.sFromAddress, getClass().getSimpleName(), badgeId, phoneNumber));
+                msgClient.strFromAddress, getClass().getSimpleName(), badgeId, phoneNumber));
         DbTablePhoneNumbers.smartUpdateEntry(UUID.fromString(badgeId), phoneNumber);
         CustomActivity.forceRefreshUIInTopActivity();
     }

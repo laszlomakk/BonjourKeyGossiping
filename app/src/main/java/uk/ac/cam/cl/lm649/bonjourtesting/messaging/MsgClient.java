@@ -12,7 +12,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
@@ -35,7 +34,6 @@ import javax.crypto.NoSuchPaddingException;
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeStatus;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Symmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTableBadges;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTableHistoryTransfer;
@@ -73,9 +71,10 @@ public class MsgClient {
 
     private boolean closed = false;
 
-    public String socketAddress;
-    public String sFromAddress;
-    public String sToAddress;
+    private InetAddress socketAddress;
+    public String strSocketAddress;
+    public String strFromAddress;
+    public String strToAddress;
 
     private UUID badgeIdOfOtherEnd = null;
     public JPAKEClient jpakeClient;
@@ -136,9 +135,10 @@ public class MsgClient {
 
     private void init(@Nullable byte[] secretKeyBytes) {
         try {
-            socketAddress = socket.getInetAddress().getHostAddress();
-            sFromAddress = "from addr: " + socketAddress + ", ";
-            sToAddress = "to addr: " + socketAddress + ", ";
+            socketAddress = socket.getInetAddress();
+            strSocketAddress = socketAddress.getHostAddress();
+            strFromAddress = "from addr: " + strSocketAddress + ", ";
+            strToAddress = "to addr: " + strSocketAddress + ", ";
 
             outStream = initOutStream(socket, secretKeyBytes);
             if (null == outStream) {
@@ -221,11 +221,11 @@ public class MsgClient {
         try {
             msg = Message.createFromStream(inStream);
         } catch (UnknownMessageTypeException e) {
-            FLogger.e(logTag, sFromAddress + "received msg. UnknownMessageTypeException: " + e.getMessage());
+            FLogger.e(logTag, strFromAddress + "received msg. UnknownMessageTypeException: " + e.getMessage());
             return;
         }
         if (null == msg) {
-            FLogger.e(logTag, sFromAddress + "received msg. But parsing it returned null.");
+            FLogger.e(logTag, strFromAddress + "received msg. But parsing it returned null.");
             return;
         }
         msg.onReceive(this);
@@ -243,7 +243,7 @@ public class MsgClient {
                 }
                 try {
                     msg.send(MsgClient.this);
-                    FLogger.i(logTag, sToAddress + "sent msg with type " + msg.getType()
+                    FLogger.i(logTag, strToAddress + "sent msg with type " + msg.getType()
                             + "/" + msg.getClass().getSimpleName());
                 } catch (IOException e) {
                     FLogger.e(logTag, "sendMessage(). IOE - " + e.getMessage());
@@ -290,7 +290,7 @@ public class MsgClient {
     }
 
     public synchronized void close() {
-        FLogger.d(logTag, "close() called. address: " + socketAddress);
+        FLogger.d(logTag, "close() called. address: " + strSocketAddress);
         if (closed) {
             FLogger.d(logTag, "close(). already closed.");
             return;
@@ -318,6 +318,10 @@ public class MsgClient {
 
     public UUID getBadgeIdOfOtherEnd() {
         return badgeIdOfOtherEnd;
+    }
+
+    public InetAddress getSocketAddress() {
+        return socketAddress;
     }
 
     /**

@@ -5,6 +5,8 @@
 
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging;
 
+import android.support.annotation.Nullable;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -49,6 +51,7 @@ public abstract class MsgServer {
         }
     }
 
+    @Nullable
     protected abstract MsgClient createMsgClientForIncomingConnection(Socket socket);
 
     public int getPort(){

@@ -27,7 +27,6 @@ import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgArbitraryText;
@@ -149,7 +148,7 @@ public class BonjourDebugActivity extends CustomActivity {
                     msgClient.sendMessage(msg);
                     ServiceStub serviceStub = entry.getKey();
                     FLogger.i(TAG, String.format(Locale.US, "sent %s to service %s (IP: %s)",
-                            msg.getClass().getSimpleName(), serviceStub.name, msgClient.socketAddress));
+                            msg.getClass().getSimpleName(), serviceStub.name, msgClient.strSocketAddress));
                 }
                 HelperMethods.displayMsgToUser(context, "announced phone number");
             }

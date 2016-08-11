@@ -7,13 +7,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.UUID;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
-import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Hash;
-import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePublicKeys;
 import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
@@ -63,7 +60,7 @@ public class MsgMyPublicKey extends Message {
         String fingerprint = Asymmetric.getFingerprint(publicKey);
         FLogger.i(msgClient.logTag, String.format(Locale.US,
                 "%sreceived %s:\nphoneNum: %s, pubKey: %s",
-                msgClient.sFromAddress, getClass().getSimpleName(), phoneNumber, fingerprint));
+                msgClient.strFromAddress, getClass().getSimpleName(), phoneNumber, fingerprint));
         boolean validPublicKey = Asymmetric.isValidKey(publicKey);
         FLogger.i(msgClient.logTag, "pubKey: " + fingerprint + " tested to be valid: " + validPublicKey);
         if (validPublicKey) {

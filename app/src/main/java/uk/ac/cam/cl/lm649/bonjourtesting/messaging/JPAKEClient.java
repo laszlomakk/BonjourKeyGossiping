@@ -135,7 +135,7 @@ public class JPAKEClient {
         } catch (CryptoException e) {
             FLogger.w(TAG, String.format(Locale.US,
                     "round1Receive(). validation failed. IP: %s, badgeId: %s, oParticipantId: %s, Exception: %s",
-                    msgClient.socketAddress,
+                    msgClient.strSocketAddress,
                     msgClient.getBadgeIdOfOtherEnd(),
                     otherParticipantId,
                     e.getMessage()));
@@ -200,7 +200,7 @@ public class JPAKEClient {
         } catch (CryptoException e) {
             FLogger.w(TAG, String.format(Locale.US,
                     "round2Receive(). validation failed. IP: %s, badgeId: %s, oParticipantId: %s, Exception: %s",
-                    msgClient.socketAddress,
+                    msgClient.strSocketAddress,
                     msgClient.getBadgeIdOfOtherEnd(),
                     otherParticipantId,
                     e.getMessage()));
@@ -265,7 +265,7 @@ public class JPAKEClient {
         } catch (CryptoException e) {
             FLogger.w(TAG, String.format(Locale.US,
                     "round3Receive(). validation failed. IP: %s, badgeId: %s, oParticipantId: %s, Exception: %s",
-                    msgClient.socketAddress,
+                    msgClient.strSocketAddress,
                     msgClient.getBadgeIdOfOtherEnd(),
                     otherParticipantId,
                     e.getMessage()));

@@ -6,13 +6,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.InetAddress;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
-import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 
 public class MsgJPAKERound3 extends Message {
@@ -51,7 +50,7 @@ public class MsgJPAKERound3 extends Message {
 
     @Override
     public void onReceive(MsgClient msgClient) throws IOException {
-        FLogger.i(msgClient.logTag, msgClient.sFromAddress + "received " +
+        FLogger.i(msgClient.logTag, msgClient.strFromAddress + "received " +
                 getClass().getSimpleName());
         JPAKEClient jpakeClient = msgClient.jpakeClient;
         if (null == jpakeClient) {
@@ -60,19 +59,23 @@ public class MsgJPAKERound3 extends Message {
         }
         boolean round3Success = jpakeClient.round3Receive(msgClient, this);
         if (round3Success) {
-            FLogger.i(TAG, "round 3 succeeded! key: " + jpakeClient.getSessionKey().toString(Character.MAX_RADIX));
+            BigInteger sessionKey = jpakeClient.getSessionKey();
+            FLogger.i(TAG, "round 3 succeeded! key: " + sessionKey.toString(Character.MAX_RADIX));
             FLogger.d(TAG, "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator);
             if (msgClient.iAmTheInitiator) {
-                startSettingUpAnEncryptedConnection(msgClient, jpakeClient.getSessionKey());
+                startSettingUpAnEncryptedConnection(msgClient, portForEncryptedComms, sessionKey);
+            } else {
+                InetAddress socketAddress = msgClient.getSocketAddress();
+                MsgServerManager.getInstance().getMsgServerEncrypted().inetAddressToSessionKeyMap
+                        .put(socketAddress, sessionKey);
             }
         } else {
             FLogger.i(TAG, "round 3 failed.");
         }
     }
 
-    private void startSettingUpAnEncryptedConnection(MsgClient msgClient, BigInteger sessionKey) {
+    private static void startSettingUpAnEncryptedConnection(MsgClient msgClient, int port, BigInteger sessionKey) {
         byte[] secretKeyBytes = sessionKey.toByteArray();
-        int port = portForEncryptedComms;
         if (!NetworkUtil.isPortValid(port)) {
             FLogger.w(TAG, "startSettingUpAnEncryptedConnection(). invalid port(" + port + "). exiting.");
             return;

@@ -35,7 +35,7 @@ public class MsgBadgeStatusUpdate extends Message {
 
     @Override
     public void onReceive(MsgClient msgClient) throws IOException {
-        FLogger.i(msgClient.logTag, msgClient.sFromAddress + "received " + getClass().getSimpleName()
+        FLogger.i(msgClient.logTag, msgClient.strFromAddress + "received " + getClass().getSimpleName()
                 + ":\n" + badgeStatus.toString());
         msgClient.reconfirmBadgeId(badgeStatus.getBadgeCore().getBadgeId());
         DbTableBadges.smartUpdateBadge(badgeStatus);

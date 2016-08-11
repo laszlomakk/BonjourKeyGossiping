@@ -19,8 +19,8 @@ public class MsgServerManager {
 
     public final ConcurrentHashMap<ServiceStub, MsgClient> serviceToMsgClientMap = new ConcurrentHashMap<>();
 
-    private final MsgServer msgServerPlaintext;
-    private final MsgServer msgServerEncrypted;
+    private final MsgServerPlaintext msgServerPlaintext;
+    private final MsgServerEncrypted msgServerEncrypted;
 
     private MsgServerManager() {
         msgServerPlaintext = new MsgServerPlaintext();
@@ -52,11 +52,11 @@ public class MsgServerManager {
         serviceToMsgClientMap.clear();
     }
 
-    public MsgServer getMsgServerPlaintext() {
+    public MsgServerPlaintext getMsgServerPlaintext() {
         return msgServerPlaintext;
     }
 
-    public MsgServer getMsgServerEncrypted() {
+    public MsgServerEncrypted getMsgServerEncrypted() {
         return msgServerEncrypted;
     }
 }
