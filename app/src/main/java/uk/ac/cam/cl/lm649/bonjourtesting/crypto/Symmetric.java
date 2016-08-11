@@ -79,7 +79,7 @@ public class Symmetric {
         final SecretKeySpec keySpec = new SecretKeySpec(keyBytes, "AES");
         final IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
         final Cipher cipher;
-        cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher = Cipher.getInstance("AES/CFB8/NoPadding");
         cipher.init(opMode, keySpec, ivSpec);
         return cipher;
     }
