@@ -15,6 +15,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgBadgeStatusUpdate;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgWhoAreYouQuestion;
@@ -56,7 +57,7 @@ public class CustomServiceListener implements ServiceListener {
         FLogger.i(TAG, "Service removed: " + event.getInfo());
 
         bonjourService.removeServiceFromRegistry(event);
-        MsgServer.getInstance().serviceToMsgClientMap.remove(new ServiceStub(event));
+        MsgServerManager.getInstance().serviceToMsgClientMap.remove(new ServiceStub(event));
     }
 
     @Override
@@ -81,7 +82,7 @@ public class CustomServiceListener implements ServiceListener {
 
     private MsgClient getMsgClientForService(ServiceEvent event, String badgeIdOfOtherDevice) {
         ServiceStub serviceStub = new ServiceStub(event);
-        MsgClient msgClient = MsgServer.getInstance().serviceToMsgClientMap.get(serviceStub);
+        MsgClient msgClient = MsgServerManager.getInstance().serviceToMsgClientMap.get(serviceStub);
         if (null == msgClient || msgClient.isClosed()) {
             FLogger.d(TAG, "getMsgClientForService(). ++ creating new MsgClient for " + serviceStub);
             msgClient = new MsgClient(event.getInfo());
@@ -90,7 +91,7 @@ public class CustomServiceListener implements ServiceListener {
             } else {
                 FLogger.w(TAG, "getMsgClientForService(). badgeIdOfOtherDevice is null.");
             }
-            MsgServer.getInstance().serviceToMsgClientMap.put(serviceStub, msgClient);
+            MsgServerManager.getInstance().serviceToMsgClientMap.put(serviceStub, msgClient);
         } else {
             FLogger.d(TAG, "getMsgClientForService(). __ reusing MsgClient for " + serviceStub);
         }

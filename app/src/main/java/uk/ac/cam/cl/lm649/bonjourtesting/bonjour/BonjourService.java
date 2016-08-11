@@ -29,6 +29,7 @@ import javax.jmdns.ServiceInfo;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.ConnectivityChangeReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
@@ -152,7 +153,7 @@ public class BonjourService extends Service {
         } else {
             nameOfOurService = SaveSettingsData.getInstance(this).getCustomServiceName();
         }
-        int port = MsgServer.getInstance().getPort();
+        int port = MsgServerManager.getInstance().getMsgServerPlaintext().getPort();
 
         serviceInfoOfOurService = ServiceInfo.create(Constants.DEFAULT_SERVICE_TYPE, nameOfOurService, port, "");
         Map<String, String> payload = new HashMap<>();

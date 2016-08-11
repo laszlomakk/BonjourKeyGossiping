@@ -16,21 +16,20 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
 public class MsgServer {
 
-    private final static String TAG = "MsgServer";
-    private static MsgServer INSTANCE = null;
-
-    public final ConcurrentHashMap<ServiceStub, MsgClient> serviceToMsgClientMap = new ConcurrentHashMap<>();
+    private final String logTag;
 
     private ServerSocket serverSocket;
 
     private boolean started = false;
 
-    private MsgServer() {}
+    protected MsgServer(String logTag) {
+        this.logTag = logTag;
+    }
 
-    public void start() throws IOException {
+    protected synchronized void start() throws IOException {
         if (started) return;
 
-        FLogger.i(TAG, "Starting MsgServer.");
+        FLogger.i(logTag, "Starting MsgServer.");
         serverSocket = new ServerSocket(0);
         Thread t = new Thread() {
             @Override
@@ -43,13 +42,6 @@ public class MsgServer {
         started = true;
     }
 
-    public static synchronized MsgServer getInstance() {
-        if (null == INSTANCE) {
-            INSTANCE = new MsgServer();
-        }
-        return INSTANCE;
-    }
-
     private void startWaitingForConnections(final ServerSocket serverSocket) {
         try {
             while (true) {
@@ -57,7 +49,7 @@ public class MsgServer {
                 new MsgClient(clientSocket);
             }
         } catch (IOException e) {
-            FLogger.e(TAG, "startWaitingForConnections(). error -- closing main thread. IOE - " + e.getMessage());
+            FLogger.e(logTag, "startWaitingForConnections(). error -- closing main thread. IOE - " + e.getMessage());
             //e.printStackTrace();
         }
     }
@@ -66,22 +58,17 @@ public class MsgServer {
         return null == serverSocket ? 0 : serverSocket.getLocalPort();
     }
 
-    public void stop(){
+    protected synchronized void stop(){
         if (!started) return;
 
-        FLogger.i(TAG, "Stopping MsgServer.");
+        FLogger.i(logTag, "Stopping MsgServer.");
         try {
             serverSocket.close();
-            FLogger.i(TAG, "serverSocket successfully closed.");
+            FLogger.i(logTag, "serverSocket successfully closed.");
         } catch (IOException e) {
-            FLogger.e(TAG, "error while closing serverSocket. IOE - " + e.getMessage());
-            FLogger.e(TAG, HelperMethods.formatStackTraceAsString(e));
+            FLogger.e(logTag, "error while closing serverSocket. IOE - " + e.getMessage());
+            FLogger.e(logTag, HelperMethods.formatStackTraceAsString(e));
         }
-
-        for (MsgClient msgClient : serviceToMsgClientMap.values()) {
-            msgClient.close();
-        }
-        serviceToMsgClientMap.clear();
 
         started = false;
     }
