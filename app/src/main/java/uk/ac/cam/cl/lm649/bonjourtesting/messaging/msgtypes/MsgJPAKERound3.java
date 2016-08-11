@@ -61,13 +61,10 @@ public class MsgJPAKERound3 extends Message {
         if (round3Success) {
             BigInteger sessionKey = jpakeClient.getSessionKey();
             FLogger.i(TAG, "round 3 succeeded! key: " + sessionKey.toString(Character.MAX_RADIX));
+
             FLogger.d(TAG, "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator);
             if (msgClient.iAmTheInitiator) {
                 startSettingUpAnEncryptedConnection(msgClient, portForEncryptedComms, sessionKey);
-            } else {
-                InetAddress socketAddress = msgClient.getSocketAddress();
-                MsgServerManager.getInstance().getMsgServerEncrypted().inetAddressToSessionKeyMap
-                        .put(socketAddress, sessionKey);
             }
         } else {
             FLogger.i(TAG, "round 3 failed.");

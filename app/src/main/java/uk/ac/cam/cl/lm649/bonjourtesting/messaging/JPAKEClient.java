@@ -40,6 +40,8 @@ public class JPAKEClient {
     public final boolean iAmTheInitiator;
 
     private BigInteger keyingMaterial;
+    private BigInteger sessionKey = null;
+    private boolean retrievedSessionKey = false;
 
     public enum State {
         INITIALISED,
@@ -210,6 +212,7 @@ public class JPAKEClient {
 
     private synchronized void calcKeyingMaterial() {
         keyingMaterial = participant.calculateKeyingMaterial();
+        sessionKey = deriveSessionKey(keyingMaterial);
     }
 
     public synchronized boolean round3Send(@NonNull MsgClient msgClient) throws IOException {
@@ -253,6 +256,9 @@ public class JPAKEClient {
         participant.validateRound3PayloadReceived(round3Payload, keyingMaterial);
 
         state = State.ROUND_3_RECEIVE;
+        if (retrievedSessionKey) {
+            state = State.FINISHED;
+        }
         return true;
     }
 
@@ -284,12 +290,17 @@ public class JPAKEClient {
     }
 
     public BigInteger getSessionKey() {
-        if (state == State.ROUND_3_RECEIVE || state == State.FINISHED) {
-            BigInteger sessionKey = deriveSessionKey(keyingMaterial);
-            state = State.FINISHED;
-            return sessionKey;
-        } else {
-            throw new IllegalStateException("state: " + state);
+        retrievedSessionKey = true;
+        switch (state) {
+            case ROUND_3_RECEIVE:
+                state = State.FINISHED;
+                // fall through
+            case FINISHED:
+            case ROUND_2_RECEIVE:
+            case ROUND_3_SEND:
+                return sessionKey;
+            default:
+                throw new IllegalStateException("state: " + state);
         }
     }
 

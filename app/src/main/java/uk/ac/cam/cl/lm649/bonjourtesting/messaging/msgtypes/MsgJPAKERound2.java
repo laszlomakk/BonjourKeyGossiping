@@ -4,9 +4,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.InetAddress;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
 public class MsgJPAKERound2 extends Message {
@@ -59,6 +61,16 @@ public class MsgJPAKERound2 extends Message {
         boolean round2Success = jpakeClient.round2Receive(msgClient, this);
         if (round2Success) {
             FLogger.i(TAG, "round 2 succeeded.");
+
+            FLogger.d(TAG, "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator);
+            if (!msgClient.iAmTheInitiator) {
+                BigInteger sessionKey = jpakeClient.getSessionKey();
+                InetAddress socketAddress = msgClient.getSocketAddress();
+                FLogger.i(TAG, "saving sessionKey for socketAddress: " + socketAddress.getHostAddress());
+                MsgServerManager.getInstance().getMsgServerEncrypted().inetAddressToSessionKeyMap
+                        .put(socketAddress, sessionKey);
+            }
+
             jpakeClient.round3Send(msgClient);
         } else {
             FLogger.i(TAG, "round 2 failed.");
