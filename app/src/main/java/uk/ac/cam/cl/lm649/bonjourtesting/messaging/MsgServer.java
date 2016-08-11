@@ -5,12 +5,14 @@
 
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
@@ -18,11 +20,17 @@ public abstract class MsgServer {
 
     protected static final String TAG = "MsgServer";
 
+    public final CustomApplication app;
+    public final Context context;
+
     private ServerSocket serverSocket;
 
     private boolean started = false;
 
-    protected MsgServer() {}
+    protected MsgServer() {
+        app = CustomApplication.getInstance();
+        context = app.getApplicationContext();
+    }
 
     protected synchronized void start() throws IOException {
         if (started) return;
