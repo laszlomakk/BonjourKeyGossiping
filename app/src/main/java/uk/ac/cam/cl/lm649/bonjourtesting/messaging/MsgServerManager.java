@@ -23,8 +23,8 @@ public class MsgServerManager {
     private final MsgServer msgServerEncrypted;
 
     private MsgServerManager() {
-        msgServerPlaintext = new MsgServer("MsgServerPlainText");
-        msgServerEncrypted = new MsgServer("MsgServerEncrypted");
+        msgServerPlaintext = new MsgServerPlaintext();
+        msgServerEncrypted = new MsgServerEncrypted();
     }
 
     public static synchronized MsgServerManager getInstance() {

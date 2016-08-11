@@ -1,6 +1,8 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -8,9 +10,14 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -19,23 +26,29 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 
-import javax.jmdns.ServiceInfo;
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.NoSuchPaddingException;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeStatus;
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Symmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTableBadges;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTableHistoryTransfer;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgHistoryTransfer;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.UnknownMessageTypeException;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.JmdnsUtil;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class MsgClient {
 
-    public static final String TAG = "MsgClient";
+    private static final String TAG_BASE = "MsgClient";
+    public final String logTag;
+
     private Socket socket = null;
 
     public final CustomApplication app;
@@ -49,6 +62,8 @@ public class MsgClient {
     private DataOutputStream outStream;
     private CountDownLatch outStreamReadyLatch = new CountDownLatch(1);
 
+    public final boolean encrypted;
+
     private boolean closed = false;
 
     public String socketAddress;
@@ -58,46 +73,46 @@ public class MsgClient {
     private UUID badgeIdOfOtherEnd = null;
     public JPAKEClient jpakeClient;
 
-    private MsgClient() {
+    private MsgClient(@Nullable byte[] secretKeyBytes) {
         app = CustomApplication.getInstance();
         context = app;
         saveBadgeData = SaveBadgeData.getInstance(context);
+        encrypted = (null != secretKeyBytes);
+        if (encrypted) {
+            logTag = TAG_BASE + "-Encrypted";
+        } else {
+            logTag = TAG_BASE + "-PlainText";
+        }
     }
 
-    protected MsgClient(Socket socket) {
-        this();
+    protected MsgClient(Socket socket, @Nullable final byte[] secretKeyBytes) {
+        this(secretKeyBytes);
         this.socket = socket;
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                init();
+                init(secretKeyBytes);
             }
         };
         try {
             workerThreadIncoming.execute(runnable);
         } catch (RejectedExecutionException e) {
-            FLogger.e(TAG, "MsgClient() 1. runnable was rejected by executor - " + e.getMessage());
+            FLogger.e(logTag, "MsgClient() 1. runnable was rejected by executor - " + e.getMessage());
         }
     }
 
-    public MsgClient(final ServiceInfo serviceInfo) {
-        this();
-        final InetAddress address = JmdnsUtil.getAddress(serviceInfo);
-        if (null == address) {
-            FLogger.e(TAG, "MsgClient(). address is null. closing MsgClient");
-            MsgClient.this.close();
-            return;
-        }
+    public MsgClient(@NonNull final InetAddress address, final int port, @Nullable final byte[] secretKeyBytes) {
+        this(secretKeyBytes);
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 try {
-                    MsgClient.this.socket = new Socket(address, serviceInfo.getPort());
-                    init();
+                    MsgClient.this.socket = new Socket(address, port);
+                    init(secretKeyBytes);
                 } catch (IOException e) { // TODO think about this
-                    FLogger.e(TAG, "MsgClient(). Failed to open socket. closing MsgClient. IOE - " + e.getMessage());
+                    FLogger.e(logTag, "MsgClient(). Failed to open socket. closing MsgClient. IOE - " + e.getMessage());
                     MsgClient.this.close();
                 }
             }
@@ -105,24 +120,71 @@ public class MsgClient {
         try {
             workerThreadIncoming.execute(runnable);
         } catch (RejectedExecutionException e) {
-            FLogger.e(TAG, "MsgClient() 2. runnable was rejected by executor - " + e.getMessage());
+            FLogger.e(logTag, "MsgClient() 2. runnable was rejected by executor - " + e.getMessage());
         }
 
     }
 
-    private void init() {
+    private void init(@Nullable byte[] secretKeyBytes) {
         try {
             socketAddress = socket.getInetAddress().getHostAddress();
             sFromAddress = "from addr: " + socketAddress + ", ";
             sToAddress = "to addr: " + socketAddress + ", ";
-            outStream = new DataOutputStream(
-                    new BufferedOutputStream(socket.getOutputStream()));
+
+            outStream = initOutStream(socket, secretKeyBytes);
+            if (null == outStream) {
+                FLogger.e(logTag, "outStream is null.");
+                this.close();
+                return;
+            }
             outStreamReadyLatch.countDown();
-            inStream = new DataInputStream(
-                    new BufferedInputStream(socket.getInputStream()));
+            inStream = initInStream(socket, secretKeyBytes);
+            if (null == inStream) {
+                FLogger.e(logTag, "inStream is null.");
+                this.close();
+                return;
+            }
             startWaitingForMessages();
         } catch (IOException e) {
-            FLogger.e(TAG, "init() failed. IOE - " + e.getMessage());
+            FLogger.e(logTag, "init() failed. IOE - " + e.getMessage());
+        }
+    }
+
+    private static DataOutputStream initOutStream(Socket socket, @Nullable byte[] secretKeyBytes) throws IOException {
+        OutputStream outStream = socket.getOutputStream();
+        boolean encrypted = (null != secretKeyBytes);
+        if (!encrypted) {
+            return new DataOutputStream(new BufferedOutputStream(outStream));
+        } else {
+            Cipher cipher;
+            try {
+                cipher = Symmetric.getInitialisedCipher(Cipher.ENCRYPT_MODE, secretKeyBytes);
+            } catch (InvalidAlgorithmParameterException | InvalidKeyException
+                    | NoSuchPaddingException | NoSuchAlgorithmException e) {
+                FLogger.e(TAG_BASE, "initOutStream(). Exception: " + e.getMessage());
+                FLogger.e(TAG_BASE, HelperMethods.formatStackTraceAsString(e));
+                return null;
+            }
+            return new DataOutputStream(new BufferedOutputStream(new CipherOutputStream(outStream, cipher)));
+        }
+    }
+
+    private static DataInputStream initInStream(Socket socket, @Nullable byte[] secretKeyBytes) throws IOException {
+        InputStream inStream = socket.getInputStream();
+        boolean encrypted = (null != secretKeyBytes);
+        if (!encrypted) {
+            return new DataInputStream(new BufferedInputStream(inStream));
+        } else {
+            Cipher cipher;
+            try {
+                cipher = Symmetric.getInitialisedCipher(Cipher.DECRYPT_MODE, secretKeyBytes);
+            } catch (InvalidAlgorithmParameterException | InvalidKeyException
+                    | NoSuchPaddingException | NoSuchAlgorithmException e) {
+                FLogger.e(TAG_BASE, "initInStream(). Exception: " + e.getMessage());
+                FLogger.e(TAG_BASE, HelperMethods.formatStackTraceAsString(e));
+                return null;
+            }
+            return new DataInputStream(new BufferedInputStream(new CipherInputStream(inStream, cipher)));
         }
     }
 
@@ -130,17 +192,17 @@ public class MsgClient {
         try {
             while (true) {
                 if (Thread.currentThread().isInterrupted()) {
-                    FLogger.i(TAG, "startWaitingForMessages() interrupted. finishing.");
+                    FLogger.i(logTag, "startWaitingForMessages() interrupted. finishing.");
                     break;
                 }
                 receiveMsg();
             }
         } catch (EOFException e) {
-            FLogger.i(TAG, "startWaitingForMessages(). EOF - " + e.getMessage());
+            FLogger.i(logTag, "startWaitingForMessages(). EOF - " + e.getMessage());
         } catch (SocketException e) {
-            FLogger.w(TAG, "startWaitingForMessages(). SockExc - " + e.getMessage());
+            FLogger.w(logTag, "startWaitingForMessages(). SockExc - " + e.getMessage());
         } catch (IOException e) {
-            FLogger.e(TAG, "startWaitingForMessages(). IOE - " + e.getMessage());
+            FLogger.e(logTag, "startWaitingForMessages(). IOE - " + e.getMessage());
         }
         close();
     }
@@ -150,11 +212,11 @@ public class MsgClient {
         try {
             msg = Message.createFromStream(inStream);
         } catch (UnknownMessageTypeException e) {
-            FLogger.e(TAG, sFromAddress + "received msg. UnknownMessageTypeException: " + e.getMessage());
+            FLogger.e(logTag, sFromAddress + "received msg. UnknownMessageTypeException: " + e.getMessage());
             return;
         }
         if (null == msg) {
-            FLogger.e(TAG, sFromAddress + "received msg. But parsing it returned null.");
+            FLogger.e(logTag, sFromAddress + "received msg. But parsing it returned null.");
             return;
         }
         msg.onReceive(this);
@@ -167,40 +229,40 @@ public class MsgClient {
                 try {
                     outStreamReadyLatch.await();
                 } catch (InterruptedException e) {
-                    FLogger.e(TAG, "sendMessage(). latch await interrupted - " + e.getMessage());
+                    FLogger.e(logTag, "sendMessage(). latch await interrupted - " + e.getMessage());
                     return;
                 }
                 try {
                     msg.send(MsgClient.this);
-                    FLogger.i(TAG, sToAddress + "sent msg with type " + msg.getType()
+                    FLogger.i(logTag, sToAddress + "sent msg with type " + msg.getType()
                             + "/" + msg.getClass().getSimpleName());
                 } catch (IOException e) {
-                    FLogger.e(TAG, "sendMessage(). IOE - " + e.getMessage());
+                    FLogger.e(logTag, "sendMessage(). IOE - " + e.getMessage());
                 }
             }
         };
         try {
             workerThreadOutgoing.execute(runnable);
         } catch (RejectedExecutionException e) {
-            FLogger.e(TAG, "sendMessage(). runnable was rejected by executor - " + e.getMessage());
+            FLogger.e(logTag, "sendMessage(). runnable was rejected by executor - " + e.getMessage());
         }
     }
 
     public void considerDoingAHistoryTransfer() {
-        FLogger.d(TAG, "considering doing a historyTransfer to " + badgeIdOfOtherEnd);
+        FLogger.d(logTag, "considering doing a historyTransfer to " + badgeIdOfOtherEnd);
         if (null == badgeIdOfOtherEnd) {
-            FLogger.e(TAG, "considerDoingAHistoryTransfer(). badgeIdOfOtherEnd is null.");
+            FLogger.e(logTag, "considerDoingAHistoryTransfer(). badgeIdOfOtherEnd is null.");
             return;
         }
         Long lastTimeWeSentHistoryToThatBadge = DbTableHistoryTransfer.getTimestamp(badgeIdOfOtherEnd);
         long curTime = System.currentTimeMillis();
         if (null == lastTimeWeSentHistoryToThatBadge
                 || curTime - lastTimeWeSentHistoryToThatBadge > Constants.HISTORY_TRANSFER_TO_SAME_CLIENT_COOLDOWN) {
-            FLogger.d(TAG, "decided to do historyTransfer to " + badgeIdOfOtherEnd.toString());
+            FLogger.d(logTag, "decided to do historyTransfer to " + badgeIdOfOtherEnd.toString());
             doHistoryTransfer();
         } else {
             long timeElapsed = curTime - lastTimeWeSentHistoryToThatBadge;
-            FLogger.d(TAG, "won't do historyTransfer to " + badgeIdOfOtherEnd
+            FLogger.d(logTag, "won't do historyTransfer to " + badgeIdOfOtherEnd
                     + ", last transfer was " + timeElapsed/1000 + " seconds ago ");
         }
     }
@@ -210,7 +272,7 @@ public class MsgClient {
         Long timeStampLastHistoryTransfer = DbTableHistoryTransfer.getTimestamp(badgeIdOfOtherEnd);
         List<BadgeStatus> badgeStatuses = DbTableBadges.getBadgesUpdatedSince(timeStampLastHistoryTransfer);
         for (BadgeStatus badgeStatus : badgeStatuses) {
-            FLogger.d(TAG, "historyTransfer to " + badgeIdOfOtherEnd + " contains badge:\n"
+            FLogger.d(logTag, "historyTransfer to " + badgeIdOfOtherEnd + " contains badge:\n"
                     + badgeStatus.toString());
         }
         Message msgHistoryTransfer = new MsgHistoryTransfer(badgeStatuses);
@@ -219,9 +281,9 @@ public class MsgClient {
     }
 
     public void close() {
-        FLogger.d(TAG, "close() called. address: " + socketAddress);
+        FLogger.d(logTag, "close() called. address: " + socketAddress);
         if (closed) {
-            FLogger.d(TAG, "close(). already closed.");
+            FLogger.d(logTag, "close(). already closed.");
             return;
         }
         closed = true;
@@ -232,7 +294,7 @@ public class MsgClient {
             if (null != inStream) inStream.close();
             if (null != socket) socket.close();
         } catch (IOException e) {
-            FLogger.e(TAG, "close(). trying to close streams and socket, IOE - " + e.getMessage());
+            FLogger.e(logTag, "close(). trying to close streams and socket, IOE - " + e.getMessage());
         }
     }
 
@@ -256,14 +318,14 @@ public class MsgClient {
         if (null == badgeIdOfOtherEnd) {
             if (null != badgeId) {
                 badgeIdOfOtherEnd = badgeId;
-                FLogger.d(TAG, "reconfirmBadgeId(). badgeIdOfOtherEnd set to " + badgeIdOfOtherEnd);
+                FLogger.d(logTag, "reconfirmBadgeId(). badgeIdOfOtherEnd set to " + badgeIdOfOtherEnd);
             } else {
-                FLogger.e(TAG, "reconfirmBadgeId(). badgeId == badgeIdOfOtherEnd == null.");
+                FLogger.e(logTag, "reconfirmBadgeId(). badgeId == badgeIdOfOtherEnd == null.");
             }
             return;
         }
         if (!badgeIdOfOtherEnd.equals(badgeId)) {
-            FLogger.e(TAG, String.format(Locale.US,
+            FLogger.e(logTag, String.format(Locale.US,
                     "reconfirmBadgeId(). wtf. badgeId mismatch! old: %s, new: %s",
                     badgeIdOfOtherEnd, badgeId));
             // TODO maybe throw an exception or call close() ?

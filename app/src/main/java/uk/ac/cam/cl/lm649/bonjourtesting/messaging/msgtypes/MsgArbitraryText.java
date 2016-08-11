@@ -38,7 +38,7 @@ public class MsgArbitraryText extends Message {
 
     @Override
     public void onReceive(MsgClient msgClient) throws IOException {
-        FLogger.i(MsgClient.TAG, msgClient.sFromAddress + "received " +
+        FLogger.i(msgClient.logTag, msgClient.sFromAddress + "received " +
                 getClass().getSimpleName() + ": " + text);
         HelperMethods.displayMsgToUser(msgClient.context, text);
     }

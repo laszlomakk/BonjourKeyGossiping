@@ -5,9 +5,13 @@
 
 package uk.ac.cam.cl.lm649.bonjourtesting.bonjour;
 
+import android.support.annotation.Nullable;
+
+import java.net.InetAddress;
 import java.util.UUID;
 
 import javax.jmdns.ServiceEvent;
+import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeStatus;
@@ -20,6 +24,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgBadgeStatusUpdate;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgWhoAreYouQuestion;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.JmdnsUtil;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
 public class CustomServiceListener implements ServiceListener {
@@ -80,12 +85,19 @@ public class CustomServiceListener implements ServiceListener {
         JPAKEClient.startJPAKEifAppropriate(msgClient, sharedSecret);
     }
 
+    @Nullable
     private MsgClient getMsgClientForService(ServiceEvent event, String badgeIdOfOtherDevice) {
         ServiceStub serviceStub = new ServiceStub(event);
         MsgClient msgClient = MsgServerManager.getInstance().serviceToMsgClientMap.get(serviceStub);
         if (null == msgClient || msgClient.isClosed()) {
             FLogger.d(TAG, "getMsgClientForService(). ++ creating new MsgClient for " + serviceStub);
-            msgClient = new MsgClient(event.getInfo());
+            ServiceInfo serviceInfo = event.getInfo();
+            InetAddress address = JmdnsUtil.getAddress(serviceInfo);
+            if (null == address) {
+                FLogger.e(TAG, "getMsgClientForService(). address is null.");
+                return null;
+            }
+            msgClient = new MsgClient(address, serviceInfo.getPort(), null);
             if (null != badgeIdOfOtherDevice) {
                 msgClient.reconfirmBadgeId(UUID.fromString(badgeIdOfOtherDevice));
             } else {
@@ -103,6 +115,11 @@ public class CustomServiceListener implements ServiceListener {
     }
 
     private void startMessaging(MsgClient msgClient) {
+        if (null == msgClient) {
+            FLogger.e(TAG, "startMessaging(). msgClient is null.");
+            return;
+        }
+
         Message msgWhoAreYouQuestion = new MsgWhoAreYouQuestion();
         msgClient.sendMessage(msgWhoAreYouQuestion);
 

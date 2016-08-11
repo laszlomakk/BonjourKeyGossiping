@@ -35,7 +35,7 @@ public class MsgBadgeStatusUpdate extends Message {
 
     @Override
     public void onReceive(MsgClient msgClient) throws IOException {
-        FLogger.i(MsgClient.TAG, msgClient.sFromAddress + "received " + getClass().getSimpleName()
+        FLogger.i(msgClient.logTag, msgClient.sFromAddress + "received " + getClass().getSimpleName()
                 + ":\n" + badgeStatus.toString());
         msgClient.reconfirmBadgeId(badgeStatus.getBadgeCore().getBadgeId());
         DbTableBadges.smartUpdateBadge(badgeStatus);
@@ -43,7 +43,7 @@ public class MsgBadgeStatusUpdate extends Message {
         if (Constants.HISTORY_TRANSFER_ENABLED) {
             msgClient.considerDoingAHistoryTransfer();
         } else {
-            FLogger.d(MsgClient.TAG, "would consider doing a historyTransfer now, but it is disabled");
+            FLogger.d(msgClient.logTag, "would consider doing a historyTransfer now, but it is disabled");
         }
     }
 

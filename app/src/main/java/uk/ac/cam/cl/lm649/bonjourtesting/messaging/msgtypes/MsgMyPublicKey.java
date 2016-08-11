@@ -51,11 +51,11 @@ public class MsgMyPublicKey extends Message {
     @Override
     public void onReceive(MsgClient msgClient) throws IOException {
         String fingerprint = Asymmetric.getFingerprint(publicKey);
-        FLogger.i(MsgClient.TAG, String.format(Locale.US,
+        FLogger.i(msgClient.logTag, String.format(Locale.US,
                 "%sreceived %s:\nphoneNum: %s, pubKey: %s",
                 msgClient.sFromAddress, getClass().getSimpleName(), phoneNumber, fingerprint));
         boolean validPublicKey = Asymmetric.isValidKey(publicKey);
-        FLogger.i(MsgClient.TAG, "pubKey: " + fingerprint + " tested to be valid: " + validPublicKey);
+        FLogger.i(msgClient.logTag, "pubKey: " + fingerprint + " tested to be valid: " + validPublicKey);
         if (validPublicKey) {
             DbTablePublicKeys.Entry entry = new DbTablePublicKeys.Entry();
             entry.setPublicKey(publicKey);

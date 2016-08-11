@@ -44,7 +44,7 @@ public class MsgJPAKERound3 extends Message {
 
     @Override
     public void onReceive(MsgClient msgClient) throws IOException {
-        FLogger.i(MsgClient.TAG, msgClient.sFromAddress + "received " +
+        FLogger.i(msgClient.logTag, msgClient.sFromAddress + "received " +
                 getClass().getSimpleName());
         JPAKEClient jpakeClient = msgClient.jpakeClient;
         if (null == jpakeClient) {
