@@ -86,24 +86,13 @@ public class HelperMethods {
     }
 
     public static String getVersionNameExtended(Context context) {
-        String opMode = "";
-        switch (Constants.APP_OPERATING_MODE) {
-            case NORMAL:
-                break;
-            case SIMULATION:
-                opMode = "-sim";
-                break;
-            default:
-                opMode = "-???";
-                break;
-        }
         String historyTransfer = "";
         if (Constants.HISTORY_TRANSFER_ENABLED) {
             historyTransfer = "-histON";
         } else {
             historyTransfer = "-histOFF";
         }
-        return getVersionName(context) + historyTransfer + opMode;
+        return getVersionName(context) + historyTransfer;
     }
 
     /**

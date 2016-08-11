@@ -75,24 +75,14 @@ public class CustomApplication extends Application {
 
     public void startupOperationalCore() {
         FLogger.i(TAG, "startupOperationalCore() called.");
-        switch (Constants.APP_OPERATING_MODE) {
-            case NORMAL:
-                if (SaveSettingsData.getInstance(this).isAppOperationalCoreEnabled()) {
-                    Log.i(TAG, "onCreate(). AppOperationalCore setting is ON, so starting up.");
-                    initMsgServer();
-                    ActiveBadgePollerService.automaticPollingEnabled = true;
-                    ActiveBadgePollerService.schedulePolling(this);
-                    startBonjourService();
-                } else {
-                    Log.i(TAG, "onCreate(). AppOperationalCore setting is OFF, won't start.");
-                }
-                break;
-            case SIMULATION:
-                initMsgServer();
-                startBonjourService();
-                ActiveBadgePollerService.automaticPollingEnabled = false;
-                Simulator.getInstance();
-                break;
+        if (SaveSettingsData.getInstance(this).isAppOperationalCoreEnabled()) {
+            Log.i(TAG, "onCreate(). AppOperationalCore setting is ON, so starting up.");
+            initMsgServer();
+            ActiveBadgePollerService.automaticPollingEnabled = true;
+            ActiveBadgePollerService.schedulePolling(this);
+            startBonjourService();
+        } else {
+            Log.i(TAG, "onCreate(). AppOperationalCore setting is OFF, won't start.");
         }
     }
 

@@ -14,12 +14,6 @@ public class Constants {
 
     public static final long HISTORY_TRANSFER_TO_SAME_CLIENT_COOLDOWN = 5 * 60 * 1000;
 
-    public enum OperatingMode {
-        NORMAL, SIMULATION
-    }
-
-    public static final OperatingMode APP_OPERATING_MODE = OperatingMode.NORMAL;
-
     public static final boolean HISTORY_TRANSFER_ENABLED = false;
 
 }

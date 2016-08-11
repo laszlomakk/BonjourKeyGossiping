@@ -75,9 +75,6 @@ public class SettingsActivity extends CustomActivity {
 
         switchMaster = (Switch)findViewById(R.id.masterSwitch);
         switchMaster.setChecked(saveSettingsData.isAppOperationalCoreEnabled());
-        if (Constants.APP_OPERATING_MODE != Constants.OperatingMode.NORMAL) {
-            switchMaster.setEnabled(false);
-        }
         switchMaster.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
