@@ -41,7 +41,7 @@ public class MsgBadgeStatusUpdate extends Message {
         DbTableBadges.smartUpdateBadge(badgeStatus);
         CustomActivity.forceRefreshUIInTopActivity();
         if (Constants.HISTORY_TRANSFER_ENABLED) {
-            msgClient.considerDoingAHistoryTransfer();
+            MsgHistoryTransfer.considerDoingAHistoryTransfer(msgClient);
         } else {
             FLogger.d(msgClient.logTag, "would consider doing a historyTransfer now, but it is disabled");
         }

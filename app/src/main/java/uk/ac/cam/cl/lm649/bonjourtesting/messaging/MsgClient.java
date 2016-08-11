@@ -257,38 +257,6 @@ public class MsgClient {
         }
     }
 
-    public void considerDoingAHistoryTransfer() {
-        FLogger.d(logTag, "considering doing a historyTransfer to " + badgeIdOfOtherEnd);
-        if (null == badgeIdOfOtherEnd) {
-            FLogger.e(logTag, "considerDoingAHistoryTransfer(). badgeIdOfOtherEnd is null.");
-            return;
-        }
-        Long lastTimeWeSentHistoryToThatBadge = DbTableHistoryTransfer.getTimestamp(badgeIdOfOtherEnd);
-        long curTime = System.currentTimeMillis();
-        if (null == lastTimeWeSentHistoryToThatBadge
-                || curTime - lastTimeWeSentHistoryToThatBadge > Constants.HISTORY_TRANSFER_TO_SAME_CLIENT_COOLDOWN) {
-            FLogger.d(logTag, "decided to do historyTransfer to " + badgeIdOfOtherEnd.toString());
-            doHistoryTransfer();
-        } else {
-            long timeElapsed = curTime - lastTimeWeSentHistoryToThatBadge;
-            FLogger.d(logTag, "won't do historyTransfer to " + badgeIdOfOtherEnd
-                    + ", last transfer was " + timeElapsed/1000 + " seconds ago ");
-        }
-    }
-
-    private void doHistoryTransfer() {
-        long curTime = System.currentTimeMillis();
-        Long timeStampLastHistoryTransfer = DbTableHistoryTransfer.getTimestamp(badgeIdOfOtherEnd);
-        List<BadgeStatus> badgeStatuses = DbTableBadges.getBadgesUpdatedSince(timeStampLastHistoryTransfer);
-        for (BadgeStatus badgeStatus : badgeStatuses) {
-            FLogger.d(logTag, "historyTransfer to " + badgeIdOfOtherEnd + " contains badge:\n"
-                    + badgeStatus.toString());
-        }
-        Message msgHistoryTransfer = new MsgHistoryTransfer(badgeStatuses);
-        sendMessage(msgHistoryTransfer);
-        DbTableHistoryTransfer.smartUpdateEntry(badgeIdOfOtherEnd, curTime);
-    }
-
     public synchronized void close() {
         FLogger.d(logTag, "close() called. address: " + strSocketAddress);
         if (closed) {
