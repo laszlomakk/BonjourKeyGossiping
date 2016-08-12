@@ -6,8 +6,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 
-import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.BadgeEntry;
-import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.HistoryTransferEntry;
 import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.PhoneNumberEntry;
 import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.PublicKeyEntry;
 
@@ -33,16 +31,12 @@ public class DbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(DbTableBadges.constructQueryToCreateTable());
-        db.execSQL(DbTableHistoryTransfer.constructQueryToCreateTable());
         db.execSQL(DbTablePhoneNumbers.constructQueryToCreateTable());
         db.execSQL(DbTablePublicKeys.constructQueryToCreateTable());
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + BadgeEntry.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + HistoryTransferEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + PhoneNumberEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + PublicKeyEntry.TABLE_NAME);
         onCreate(db);

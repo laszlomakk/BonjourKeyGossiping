@@ -17,19 +17,10 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Active Badge"
-        android:id="@+id/buttonActiveBadge"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/buttonPublicKeys"
-        android:layout_margin="10sp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="Phone Book"
         android:id="@+id/buttonPhoneBook"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/buttonActiveBadge"
+        android:layout_below="@+id/buttonPublicKeys"
         android:layout_margin="10sp" />
 
     <Button

@@ -27,7 +27,6 @@ public class PhoneBookActivity extends CustomActivity {
     private ArrayList<DbTablePhoneNumbers.Entry> entriesArrList = new ArrayList<>();
     private final Object displayedEntriesLock = new Object();
 
-    private TextView textViewBadgeId;
     private TextView textViewCustomName;
     private TextView textViewPhoneNumber;
     private TextView textViewNumEntriesInList;
@@ -62,7 +61,7 @@ public class PhoneBookActivity extends CustomActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             FLogger.i(TAG, "user deleted entry from DB");
                             FLogger.d(TAG, "deleted entry details: " + entry.toString());
-                            DbTablePhoneNumbers.deleteEntry(entry.getBadgeId());
+                            DbTablePhoneNumbers.deleteEntry(entry.getPhoneNumber());
                             updateListView();
                         }
                     };
@@ -78,7 +77,6 @@ public class PhoneBookActivity extends CustomActivity {
         });
 
         // top area
-        textViewBadgeId = (TextView) findViewById(R.id.badgeId);
         textViewCustomName = (TextView) findViewById(R.id.customName);
         textViewPhoneNumber = (TextView) findViewById(R.id.phoneNumber);
         textViewNumEntriesInList = (TextView) findViewById(R.id.nEntriesInList);
@@ -104,8 +102,6 @@ public class PhoneBookActivity extends CustomActivity {
     }
 
     private void refreshTopUIInternal() {
-        textViewBadgeId.setText(SaveBadgeData.getInstance(context).getMyBadgeId().toString());
-
         String customName = SaveBadgeData.getInstance(context).getMyBadgeCustomName();
         textViewCustomName.setText(customName);
 

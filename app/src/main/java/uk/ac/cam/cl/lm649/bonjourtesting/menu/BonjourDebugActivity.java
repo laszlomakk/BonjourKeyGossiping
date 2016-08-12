@@ -111,12 +111,7 @@ public class BonjourDebugActivity extends CustomActivity {
                         FLogger.e(TAG, "onItemLongClick(). msgClient not found");
                         HelperMethods.displayMsgToUser(context, "error: msgClient not found");
                     } else {
-                        String badgeIdOfOtherDevice = serviceInfo.getPropertyString(BonjourService.DNS_TXT_RECORD_MAP_KEY_FOR_BADGE_ID);
-                        if (null == badgeIdOfOtherDevice) {
-                            FLogger.i(TAG, "onItemLongClick(). badgeIdOfOtherDevice is null.");
-                            return true;
-                        }
-                        String sharedSecret = JPAKEClient.determineSharedSecret(badgeIdOfOtherDevice);
+                        String sharedSecret = JPAKEClient.determineSharedSecret();
                         boolean jpakeStarted = JPAKEClient.startJPAKEifAppropriate(msgClient, sharedSecret);
                         FLogger.i(TAG, "onItemLongClick(). jpakeStarted: " + jpakeStarted);
                         HelperMethods.displayMsgToUser(context, "jpakeStarted: " + jpakeStarted);
@@ -142,7 +137,7 @@ public class BonjourDebugActivity extends CustomActivity {
                 SaveSettingsData saveSettingsData = SaveSettingsData.getInstance(context);
                 for (Map.Entry<ServiceStub, MsgClient> entry : MsgServerManager.getInstance().serviceToMsgClientMap.entrySet()) {
                     Message msg = new MsgMyPhoneNumber(
-                            saveBadgeData.getMyBadgeId().toString(),
+                            saveBadgeData.getMyBadgeCustomName(),
                             saveSettingsData.getPhoneNumber());
                     MsgClient msgClient = entry.getValue();
                     msgClient.sendMessage(msg);

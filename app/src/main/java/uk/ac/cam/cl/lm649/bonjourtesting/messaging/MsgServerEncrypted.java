@@ -31,7 +31,7 @@ public class MsgServerEncrypted extends MsgServer {
                 socketAddress.getHostAddress(), sessionKeyFound));
 
         if (sessionKeyFound) {
-            MsgClient msgClientEncrypted = new MsgClient(socket, sessionKey.secretKeyBytes);
+            MsgClient msgClientEncrypted = new MsgClient(socket, sessionKey);
 
             Message msg = MsgMyPublicKey.createNewMsgWithMyCurrentData(context);
             msgClientEncrypted.sendMessage(msg);

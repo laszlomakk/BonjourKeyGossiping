@@ -8,21 +8,14 @@ package uk.ac.cam.cl.lm649.bonjourtesting.bonjour;
 import android.support.annotation.Nullable;
 
 import java.net.InetAddress;
-import java.util.UUID;
 
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeStatus;
-import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgBadgeStatusUpdate;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgWhoAreYouQuestion;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.JmdnsUtil;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
@@ -73,20 +66,16 @@ public class CustomServiceListener implements ServiceListener {
         }
         FLogger.i(TAG, "Service resolved: " + event.getInfo());
 
-        String badgeIdOfOtherDevice = event.getInfo().getPropertyString(BonjourService.DNS_TXT_RECORD_MAP_KEY_FOR_BADGE_ID);
-        FLogger.i(TAG, "serviceResolved(). service claims to have badgeID: " + badgeIdOfOtherDevice);
-
         bonjourService.addServiceToRegistry(event);
 
-        MsgClient msgClient = getMsgClientForService(event, badgeIdOfOtherDevice);
-        startMessaging(msgClient);
+        MsgClient msgClient = getMsgClientForService(event);
 
-        String sharedSecret = JPAKEClient.determineSharedSecret(badgeIdOfOtherDevice);
+        String sharedSecret = JPAKEClient.determineSharedSecret();
         JPAKEClient.startJPAKEifAppropriate(msgClient, sharedSecret);
     }
 
     @Nullable
-    private MsgClient getMsgClientForService(ServiceEvent event, String badgeIdOfOtherDevice) {
+    private MsgClient getMsgClientForService(ServiceEvent event) {
         ServiceStub serviceStub = new ServiceStub(event);
         MsgClient msgClient = MsgServerManager.getInstance().serviceToMsgClientMap.get(serviceStub);
         if (null == msgClient || msgClient.isClosed()) {
@@ -98,11 +87,6 @@ public class CustomServiceListener implements ServiceListener {
                 return null;
             }
             msgClient = new MsgClient(address, serviceInfo.getPort(), null);
-            if (null != badgeIdOfOtherDevice) {
-                msgClient.reconfirmBadgeId(UUID.fromString(badgeIdOfOtherDevice));
-            } else {
-                FLogger.w(TAG, "getMsgClientForService(). badgeIdOfOtherDevice is null.");
-            }
             msgClient.setServiceStubWeAreBoundTo(serviceStub);
             MsgServerManager.getInstance().serviceToMsgClientMap.put(serviceStub, msgClient);
         } else {
@@ -113,19 +97,6 @@ public class CustomServiceListener implements ServiceListener {
 
     public boolean getDiscoveredOurOwnService() {
         return discoveredOurOwnService;
-    }
-
-    private void startMessaging(MsgClient msgClient) {
-        if (null == msgClient) {
-            FLogger.e(TAG, "startMessaging(). msgClient is null.");
-            return;
-        }
-
-        Message msgWhoAreYouQuestion = new MsgWhoAreYouQuestion();
-        msgClient.sendMessage(msgWhoAreYouQuestion);
-
-        Message msgThisIsMyId = new MsgBadgeStatusUpdate(BadgeStatus.constructMyCurrentBadgeStatus());
-        msgClient.sendMessage(msgThisIsMyId);
     }
 
 }

@@ -38,12 +38,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".menu.ActiveBadgeActivity">
-            <intent-filter>
-                <action android:name="uk.ac.cam.cl.lm649.bonjourtesting.ACTIVEBADGE" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity android:name=".menu.PhoneBookActivity">
             <intent-filter>
                 <action android:name="uk.ac.cam.cl.lm649.bonjourtesting.PHONEBOOK" />

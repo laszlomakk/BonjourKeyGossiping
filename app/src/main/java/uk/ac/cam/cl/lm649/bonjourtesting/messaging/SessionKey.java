@@ -1,5 +1,7 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging;
 
+import android.support.annotation.Nullable;
+
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Symmetric;
 
 public class SessionKey {
@@ -12,7 +14,7 @@ public class SessionKey {
         if (null == secretKeyBytes || null == ivBytes) {
             throw new InvalidSessionKeySizeException("secret key or ivBytes is null");
         }
-        if (!MsgClient.isSecretKeyLengthValid(secretKeyBytes)) {
+        if (!isSecretKeyLengthValid(secretKeyBytes)) {
             throw new InvalidSessionKeySizeException("secret key length: " + secretKeyBytes.length);
         }
         if (Symmetric.BLOCK_SIZE_IN_BYTES != ivBytes.length) {
@@ -34,6 +36,10 @@ public class SessionKey {
         public InvalidSessionKeySizeException(String msg) {
             super(msg);
         }
+    }
+
+    public static boolean isSecretKeyLengthValid(@Nullable final byte[] secretKeyBytes) {
+        return (null == secretKeyBytes) || (secretKeyBytes.length == Symmetric.KEY_LENGTH_IN_BYTES);
     }
 
 }

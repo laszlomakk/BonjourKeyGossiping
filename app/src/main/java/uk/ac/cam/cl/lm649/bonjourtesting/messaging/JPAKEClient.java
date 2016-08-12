@@ -136,9 +136,8 @@ public class JPAKEClient {
             return _round1Receive(msgClient, msg);
         } catch (CryptoException e) {
             FLogger.w(TAG, String.format(Locale.US,
-                    "round1Receive(). validation failed. IP: %s, badgeId: %s, oParticipantId: %s, Exception: %s",
+                    "round1Receive(). validation failed. IP: %s, oParticipantId: %s, Exception: %s",
                     msgClient.strSocketAddress,
-                    msgClient.getBadgeIdOfOtherEnd(),
                     otherParticipantId,
                     e.getMessage()));
             return false;
@@ -201,9 +200,8 @@ public class JPAKEClient {
             return _round2Receive(msgClient, msg);
         } catch (CryptoException e) {
             FLogger.w(TAG, String.format(Locale.US,
-                    "round2Receive(). validation failed. IP: %s, badgeId: %s, oParticipantId: %s, Exception: %s",
+                    "round2Receive(). validation failed. IP: %s, oParticipantId: %s, Exception: %s",
                     msgClient.strSocketAddress,
-                    msgClient.getBadgeIdOfOtherEnd(),
                     otherParticipantId,
                     e.getMessage()));
             return false;
@@ -270,9 +268,8 @@ public class JPAKEClient {
             return _round3Receive(msgClient, msg);
         } catch (CryptoException e) {
             FLogger.w(TAG, String.format(Locale.US,
-                    "round3Receive(). validation failed. IP: %s, badgeId: %s, oParticipantId: %s, Exception: %s",
+                    "round3Receive(). validation failed. IP: %s, oParticipantId: %s, Exception: %s",
                     msgClient.strSocketAddress,
-                    msgClient.getBadgeIdOfOtherEnd(),
                     otherParticipantId,
                     e.getMessage()));
             return false;
@@ -339,17 +336,17 @@ public class JPAKEClient {
     }
 
     @Nullable
-    public static String determineSharedSecret(String badgeId) {
-        if (null == badgeId) return null;
-        return DbTablePhoneNumbers.getPhoneNumber(UUID.fromString(badgeId));
+    public static String determineSharedSecret() {
+        return "123456";
     }
 
     /**
      * @return the shared secret used if the other party initiated
      */
     public static String getMyOwnSharedSecret() {
-        Context context = CustomApplication.getInstance();
-        return SaveSettingsData.getInstance(context).getPhoneNumber();
+        return determineSharedSecret();
+        // Context context = CustomApplication.getInstance();
+        // return SaveSettingsData.getInstance(context).getPhoneNumber();
     }
 
 }

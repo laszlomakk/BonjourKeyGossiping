@@ -10,7 +10,6 @@ import java.util.Locale;
 import java.util.UUID;
 
 import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.PhoneNumberEntry;
-import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.BadgeEntry;
 
 public final class DbTablePhoneNumbers {
 
@@ -19,16 +18,11 @@ public final class DbTablePhoneNumbers {
     private DbTablePhoneNumbers() {}
 
     public static class Entry {
-        private UUID badgeId;
-        private String badgeCustomName = null;
         private String phoneNumber;
+        private String customName;
 
-        public UUID getBadgeId() {
-            return badgeId;
-        }
-
-        public String getBadgeCustomName() {
-            return badgeCustomName;
+        public String getCustomName() {
+            return customName;
         }
 
         public String getPhoneNumber() {
@@ -38,8 +32,8 @@ public final class DbTablePhoneNumbers {
         @Override
         public String toString() {
             return String.format(Locale.US,
-                    "badgeID: %s\nnick: %s\nphoneNum: %s",
-                    badgeId, badgeCustomName, phoneNumber);
+                    "nick: %s\nphoneNum: %s",
+                    customName, phoneNumber);
         }
     }
 
@@ -47,33 +41,33 @@ public final class DbTablePhoneNumbers {
         return String.format(Locale.US,
                 "CREATE TABLE %s(%s TEXT PRIMARY KEY, %s TEXT)",
                 PhoneNumberEntry.TABLE_NAME,
-                PhoneNumberEntry.COLUMN_NAME_BADGE_ID,
-                PhoneNumberEntry.COLUMN_NAME_PHONE_NUMBER);
+                PhoneNumberEntry.COLUMN_NAME_PHONE_NUMBER,
+                PhoneNumberEntry.COLUMN_NAME_CUSTOM_NAME);
     }
 
-    public static void addEntry(UUID badgeId, String phoneNumber) {
+    public static void addEntry(String phoneNumber, String customName) {
         SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
 
-        ContentValues values = createContentValues(badgeId, phoneNumber);
+        ContentValues values = createContentValues(phoneNumber, customName);
 
         db.insert(PhoneNumberEntry.TABLE_NAME, null, values);
     }
 
-    private static ContentValues createContentValues(UUID badgeId, String phoneNumber) {
+    private static ContentValues createContentValues(String phoneNumber, String customName) {
         ContentValues values = new ContentValues();
-        values.put(PhoneNumberEntry.COLUMN_NAME_BADGE_ID, badgeId.toString());
         values.put(PhoneNumberEntry.COLUMN_NAME_PHONE_NUMBER, phoneNumber);
+        values.put(PhoneNumberEntry.COLUMN_NAME_CUSTOM_NAME, customName);
         return values;
     }
 
-    public static String getPhoneNumber(UUID badgeId) {
+    public static String getCustomName(String phoneNumber) {
         SQLiteDatabase db = DbHelper.getInstance().getReadableDatabase();
 
         Cursor cursor = db.query(PhoneNumberEntry.TABLE_NAME,
                 new String[] {
-                        PhoneNumberEntry.COLUMN_NAME_PHONE_NUMBER
-                }, PhoneNumberEntry.COLUMN_NAME_BADGE_ID + "=?",
-                new String[] { badgeId.toString() }, null, null, null, null);
+                        PhoneNumberEntry.COLUMN_NAME_CUSTOM_NAME
+                }, PhoneNumberEntry.COLUMN_NAME_PHONE_NUMBER + "=?",
+                new String[] { phoneNumber }, null, null, null, null);
         if (null == cursor) return null;
         if (cursor.getCount() == 0) {
             cursor.close();
@@ -91,24 +85,19 @@ public final class DbTablePhoneNumbers {
         SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
 
         String selectQuery = String.format(Locale.US,
-                "SELECT %s, %s, %s FROM %s LEFT JOIN %s ON %s=%s ORDER BY %s ",
-                PhoneNumberEntry.TABLE_NAME + "." + PhoneNumberEntry.COLUMN_NAME_BADGE_ID,
-                BadgeEntry.TABLE_NAME       + "." + BadgeEntry.COLUMN_NAME_CUSTOM_NAME,
-                PhoneNumberEntry.TABLE_NAME + "." + PhoneNumberEntry.COLUMN_NAME_PHONE_NUMBER,
+                "SELECT %s, %s FROM %s ORDER BY %s ",
+                PhoneNumberEntry.COLUMN_NAME_PHONE_NUMBER,
+                PhoneNumberEntry.COLUMN_NAME_CUSTOM_NAME,
                 PhoneNumberEntry.TABLE_NAME,
-                BadgeEntry.TABLE_NAME,
-                PhoneNumberEntry.TABLE_NAME + "." + PhoneNumberEntry.COLUMN_NAME_BADGE_ID,
-                BadgeEntry.TABLE_NAME       + "." + BadgeEntry.COLUMN_NAME_BADGE_ID,
-                BadgeEntry.TABLE_NAME       + "." + BadgeEntry.COLUMN_NAME_CUSTOM_NAME);
+                PhoneNumberEntry.COLUMN_NAME_CUSTOM_NAME);
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         List<Entry> entries = new ArrayList<>();
         if (cursor.moveToFirst()) {
             do {
                 Entry entry = new Entry();
-                entry.badgeId = UUID.fromString(cursor.getString(0));
-                entry.badgeCustomName = cursor.getString(1);
-                entry.phoneNumber = cursor.getString(2);
+                entry.phoneNumber = cursor.getString(0);
+                entry.customName = cursor.getString(1);
                 entries.add(entry);
             } while (cursor.moveToNext());
         }
@@ -117,31 +106,31 @@ public final class DbTablePhoneNumbers {
         return entries;
     }
 
-    public static void updateEntry(UUID badgeId, String phoneNumber) {
+    public static void updateEntry(String phoneNumber, String customName) {
         SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
 
-        ContentValues values = createContentValues(badgeId, phoneNumber);
+        ContentValues values = createContentValues(phoneNumber, customName);
         db.update(PhoneNumberEntry.TABLE_NAME,
-                values, PhoneNumberEntry.COLUMN_NAME_BADGE_ID + " = ?",
-                new String[] { badgeId.toString() });
+                values, PhoneNumberEntry.COLUMN_NAME_PHONE_NUMBER + " = ?",
+                new String[] { phoneNumber });
     }
 
-    public static void smartUpdateEntry(UUID badgeId, String phoneNumber) {
-        String oldPhoneNumber = getPhoneNumber(badgeId);
-        if (null == oldPhoneNumber) {
+    public static void smartUpdateEntry(String phoneNumber, String customName) {
+        String oldCustomName = getCustomName(phoneNumber);
+        if (null == oldCustomName) {
             // entry not yet in db
-            addEntry(badgeId, phoneNumber);
+            addEntry(phoneNumber, customName);
         } else {
-            updateEntry(badgeId, phoneNumber);
+            updateEntry(phoneNumber, customName);
         }
     }
 
-    public static void deleteEntry(UUID badgeId) {
+    public static void deleteEntry(String phoneNumber) {
         SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
 
         db.delete(PhoneNumberEntry.TABLE_NAME,
-                PhoneNumberEntry.COLUMN_NAME_BADGE_ID + " = ?",
-                new String[] { badgeId.toString() });
+                PhoneNumberEntry.COLUMN_NAME_PHONE_NUMBER + " = ?",
+                new String[] { phoneNumber });
     }
     
 }

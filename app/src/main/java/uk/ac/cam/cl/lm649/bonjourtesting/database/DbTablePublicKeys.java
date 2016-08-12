@@ -12,7 +12,6 @@ import java.util.UUID;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 
-import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.BadgeEntry;
 import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.PhoneNumberEntry;
 import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.PublicKeyEntry;
 
@@ -80,24 +79,18 @@ public final class DbTablePublicKeys {
         }
     }
 
-    public static class EntryWithBadgeData extends Entry {
-        protected UUID badgeId = null;
-        protected String badgeCustomName = null;
+    public static class EntryWithName extends Entry {
+        protected String customName = null;
 
-        public UUID getBadgeId() {
-            return badgeId;
-        }
-
-        public String getBadgeCustomName() {
-            return badgeCustomName;
+        public String getCustomName() {
+            return customName;
         }
 
         @Override
         public String toString() {
             return String.format(Locale.US,
-                    "badgeID: %s\nnick: %s\n%s",
-                    badgeId,
-                    badgeCustomName,
+                    "nick: %s\n%s",
+                    customName,
                     super.toString());
         }
     }
@@ -157,13 +150,12 @@ public final class DbTablePublicKeys {
         return entry;
     }
 
-    public static List<EntryWithBadgeData> getAllEntries() {
+    public static List<EntryWithName> getAllEntries() {
         SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
 
         String selectQuery = String.format(Locale.US,
-                "SELECT %s, %s, %s, %s, %s, %s FROM %s LEFT JOIN %s ON %s=%s LEFT JOIN %s ON %s=%s ORDER BY %s DESC",
-                PhoneNumberEntry.TABLE_NAME + "." + PhoneNumberEntry.COLUMN_NAME_BADGE_ID,
-                BadgeEntry.TABLE_NAME       + "." + BadgeEntry.COLUMN_NAME_CUSTOM_NAME,
+                "SELECT %s, %s, %s, %s, %s FROM %s LEFT JOIN %s ON %s=%s ORDER BY %s DESC",
+                PhoneNumberEntry.TABLE_NAME + "." + PhoneNumberEntry.COLUMN_NAME_CUSTOM_NAME,
                 PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_PHONE_NUMBER,
                 PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_PUBLIC_KEY,
                 PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_TIMESTAMP_FIRST_SEEN_PUBLIC_KEY,
@@ -172,22 +164,18 @@ public final class DbTablePublicKeys {
                 PhoneNumberEntry.TABLE_NAME,
                 PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_PHONE_NUMBER,
                 PhoneNumberEntry.TABLE_NAME + "." + PhoneNumberEntry.COLUMN_NAME_PHONE_NUMBER,
-                BadgeEntry.TABLE_NAME,
-                PhoneNumberEntry.TABLE_NAME + "." + PhoneNumberEntry.COLUMN_NAME_BADGE_ID,
-                BadgeEntry.TABLE_NAME       + "." + BadgeEntry.COLUMN_NAME_BADGE_ID,
                 PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_TIMESTAMP_LAST_SEEN_ALIVE_PUBLIC_KEY);
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        List<EntryWithBadgeData> entries = new ArrayList<>();
+        List<EntryWithName> entries = new ArrayList<>();
         if (cursor.moveToFirst()) {
             do {
-                EntryWithBadgeData entry = new EntryWithBadgeData();
-                entry.badgeId = null == cursor.getString(0) ? null : UUID.fromString(cursor.getString(0));
-                entry.badgeCustomName = cursor.getString(1);
-                entry.phoneNumber = cursor.getString(2);
-                entry.publicKey = cursor.getString(3);
-                entry.timestampFirstSeenPublicKey = cursor.getLong(4);
-                entry.timestampLastSeenAlivePublicKey = cursor.getLong(5);
+                EntryWithName entry = new EntryWithName();
+                entry.customName = cursor.getString(0);
+                entry.phoneNumber = cursor.getString(1);
+                entry.publicKey = cursor.getString(2);
+                entry.timestampFirstSeenPublicKey = cursor.getLong(3);
+                entry.timestampLastSeenAlivePublicKey = cursor.getLong(4);
                 entries.add(entry);
             } while (cursor.moveToNext());
         }
