@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePublicKeys;
 import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
@@ -105,13 +105,14 @@ public class PublicKeysActivity extends CustomActivity {
     }
 
     private void refreshTopUIInternal() {
-        String customName = SaveBadgeData.getInstance(context).getMyBadgeCustomName();
+        String customName = saveIdentityData.getMyCustomName();
         textViewCustomName.setText(customName);
 
-        textViewPhoneNumber.setText(SaveSettingsData.getInstance(context).getPhoneNumber());
+        String phoneNumber = saveIdentityData.getPhoneNumber();
+        textViewPhoneNumber.setText(phoneNumber);
 
         textViewPublicKey.setText(
-                Asymmetric.getFingerprint(SaveBadgeData.getInstance(context).getMyPublicKey())
+                Asymmetric.getFingerprint(saveIdentityData.getMyPublicKey())
         );
 
         String numEntriesInList;

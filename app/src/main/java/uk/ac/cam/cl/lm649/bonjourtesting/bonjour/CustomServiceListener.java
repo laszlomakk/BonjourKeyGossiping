@@ -17,8 +17,6 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.JmdnsUtil;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
 public class CustomServiceListener implements ServiceListener {
 

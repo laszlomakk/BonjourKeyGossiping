@@ -2,5 +2,5 @@
     <string name="app_name">Bonjour Active Badge</string>
 
     <string name="settings_save_location">uk.ac.cam.cl.lm649.bonjourtesting.SETTINGS_SAVE</string>
-    <string name="badge_save_location">uk.ac.cam.cl.lm649.bonjourtesting.BADGE_SAVE</string>
+    <string name="identity_save_location">uk.ac.cam.cl.lm649.bonjourtesting.IDENTITY_SAVE</string>
 </resources>

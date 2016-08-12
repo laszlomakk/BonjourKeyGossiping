@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
 public class CustomActivity extends Activity {
@@ -13,11 +14,17 @@ public class CustomActivity extends Activity {
     protected CustomApplication app;
     protected Context context;
 
+    protected SaveIdentityData saveIdentityData;
+    protected SaveSettingsData saveSettingsData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         app = (CustomApplication) getApplication();
         context = app;
+
+        saveIdentityData = SaveIdentityData.getInstance(this);
+        saveSettingsData = SaveSettingsData.getInstance(this);
     }
 
     @Override

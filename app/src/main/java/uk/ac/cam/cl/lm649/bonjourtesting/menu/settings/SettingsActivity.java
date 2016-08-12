@@ -13,7 +13,7 @@ import java.util.Locale;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
@@ -21,9 +21,6 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 public class SettingsActivity extends CustomActivity {
 
     private static final String TAG = "SettingsActivity";
-
-    private SaveSettingsData saveSettingsData;
-    private SaveBadgeData saveBadgeData;
 
     private EditText editTextFixedServiceNameInput;
     private EditText editTextBadgeCustomNameInput;
@@ -37,9 +34,6 @@ public class SettingsActivity extends CustomActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_view);
 
-        saveSettingsData = SaveSettingsData.getInstance(this);
-        saveBadgeData = SaveBadgeData.getInstance(this);
-
         setupUI();
     }
 
@@ -48,10 +42,10 @@ public class SettingsActivity extends CustomActivity {
         editTextFixedServiceNameInput.setText(saveSettingsData.getCustomServiceName());
 
         editTextBadgeCustomNameInput = (EditText)findViewById(R.id.editTextBadgeCustomNameInput);
-        editTextBadgeCustomNameInput.setText(saveBadgeData.getMyBadgeCustomName());
+        editTextBadgeCustomNameInput.setText(saveIdentityData.getMyCustomName());
 
         editTextPhoneNumberInput = (EditText)findViewById(R.id.editTextPhoneNumberInput);
-        editTextPhoneNumberInput.setText(saveSettingsData.getPhoneNumber());
+        editTextPhoneNumberInput.setText(saveIdentityData.getPhoneNumber());
 
         checkBoxRandomServiceName = (CheckBox)findViewById(R.id.checkBoxRandomServiceName);
         checkBoxRandomServiceName.setChecked(saveSettingsData.isUsingRandomServiceName());
@@ -118,8 +112,8 @@ public class SettingsActivity extends CustomActivity {
 
         saveSettingsData.saveCustomServiceName(serviceName);
         saveSettingsData.saveUsingRandomServiceName(usingRandomServiceName);
-        saveBadgeData.saveMyBadgeCustomName(badgeName);
-        saveSettingsData.savePhoneNumber(phoneNumber);
+        saveIdentityData.saveMyCustomName(badgeName);
+        saveIdentityData.savePhoneNumber(phoneNumber);
     }
 
     public static void quickRenameBadgeAndService(Context context, String name) {
@@ -127,14 +121,14 @@ public class SettingsActivity extends CustomActivity {
         SaveSettingsData saveSettingsData = SaveSettingsData.getInstance(context);
         saveSettingsData.saveCustomServiceName(name);
         saveSettingsData.saveUsingRandomServiceName(false);
-        SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
-        saveBadgeData.saveMyBadgeCustomName(name);
+        SaveIdentityData saveIdentityData = SaveIdentityData.getInstance(context);
+        saveIdentityData.saveMyCustomName(name);
     }
 
     public static void quickChangePhoneNumber(Context context, String phoneNumber) {
         FLogger.i(TAG, "quickChangePhoneNumber() called. phone number: " + phoneNumber);
-        SaveSettingsData saveSettingsData = SaveSettingsData.getInstance(context);
-        saveSettingsData.savePhoneNumber(phoneNumber);
+        SaveIdentityData saveIdentityData = SaveIdentityData.getInstance(context);
+        saveIdentityData.savePhoneNumber(phoneNumber);
     }
 
 }

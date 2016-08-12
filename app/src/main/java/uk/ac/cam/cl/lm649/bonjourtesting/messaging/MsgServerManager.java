@@ -9,8 +9,7 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
+import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.ServiceStub;
 
 public class MsgServerManager {
 

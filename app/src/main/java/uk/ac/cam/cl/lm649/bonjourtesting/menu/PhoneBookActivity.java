@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
@@ -102,10 +102,11 @@ public class PhoneBookActivity extends CustomActivity {
     }
 
     private void refreshTopUIInternal() {
-        String customName = SaveBadgeData.getInstance(context).getMyBadgeCustomName();
+        String customName = saveIdentityData.getMyCustomName();
         textViewCustomName.setText(customName);
 
-        textViewPhoneNumber.setText(SaveSettingsData.getInstance(context).getPhoneNumber());
+        String phoneNumber = saveIdentityData.getPhoneNumber();
+        textViewPhoneNumber.setText(phoneNumber);
 
         String numEntriesInList;
         synchronized (displayedEntriesLock) {

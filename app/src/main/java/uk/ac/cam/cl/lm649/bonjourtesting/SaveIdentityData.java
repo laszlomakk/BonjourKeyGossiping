@@ -1,45 +1,43 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.activebadge;
+package uk.ac.cam.cl.lm649.bonjourtesting;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 
-import java.util.UUID;
-
-import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.SaveData;
+import uk.ac.cam.cl.lm649.bonjourtesting.savedata.SaveData;
 
-public class SaveBadgeData extends SaveData {
+public class SaveIdentityData extends SaveData {
 
     private static final String TAG = "SaveBadgeData";
 
-    private static SaveBadgeData INSTANCE = null;
+    private static SaveIdentityData INSTANCE = null;
 
     private static final String SAVE_LOCATION_FOR_OWN_BADGE_CUSTOM_NAME = "my_badge_custom_name";
     private static final String SAVE_LOCATION_FOR_OWN_PRIVATE_KEY = "my_private_key";
     private static final String SAVE_LOCATION_FOR_OWN_PUBLIC_KEY = "my_public_key";
+    private static final String SAVE_LOCATION_FOR_OWN_PHONE_NUMBER = "phone_number";
 
-    private SaveBadgeData(Context context) {
-        super(context, context.getString(R.string.badge_save_location));
+    private SaveIdentityData(Context context) {
+        super(context, context.getString(R.string.identity_save_location));
     }
 
-    public static synchronized SaveBadgeData getInstance(Context context) {
+    public static synchronized SaveIdentityData getInstance(Context context) {
         if (null == INSTANCE) {
-            INSTANCE = new SaveBadgeData(context);
+            INSTANCE = new SaveIdentityData(context);
         }
         return INSTANCE;
     }
 
-    public void saveMyBadgeCustomName(String customName) {
+    public void saveMyCustomName(String customName) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(SAVE_LOCATION_FOR_OWN_BADGE_CUSTOM_NAME, customName);
         editor.apply();
     }
 
-    public String getMyBadgeCustomName() {
+    public String getMyCustomName() {
         return sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_BADGE_CUSTOM_NAME, "");
     }
 
@@ -109,6 +107,16 @@ public class SaveBadgeData extends SaveData {
         String privateKey = sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_PRIVATE_KEY, "");
         String publicKey = sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_PUBLIC_KEY, "");
         return !"".equals(privateKey) && !"".equals(publicKey);
+    }
+
+    public void savePhoneNumber(String str) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(SAVE_LOCATION_FOR_OWN_PHONE_NUMBER, str);
+        editor.apply();
+    }
+
+    public String getPhoneNumber(){
+        return sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_PHONE_NUMBER, "+441234567890");
     }
 
 }

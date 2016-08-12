@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.util;
+package uk.ac.cam.cl.lm649.bonjourtesting.bonjour;
 
 import android.support.annotation.Nullable;
 
@@ -6,6 +6,8 @@ import java.net.InetAddress;
 
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
+
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
 public class JmdnsUtil {
 

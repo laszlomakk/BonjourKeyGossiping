@@ -23,7 +23,7 @@ import javax.jmdns.ServiceInfo;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
@@ -34,8 +34,8 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgMyPhoneNumber;
 import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.JmdnsUtil;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
+import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.JmdnsUtil;
+import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.ServiceStub;
 
 public class BonjourDebugActivity extends CustomActivity {
 
@@ -133,12 +133,10 @@ public class BonjourDebugActivity extends CustomActivity {
             @Override
             public void onClick(View v) {
                 FLogger.i(TAG, "user clicked announce button");
-                SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
-                SaveSettingsData saveSettingsData = SaveSettingsData.getInstance(context);
                 for (Map.Entry<ServiceStub, MsgClient> entry : MsgServerManager.getInstance().serviceToMsgClientMap.entrySet()) {
                     Message msg = new MsgMyPhoneNumber(
-                            saveBadgeData.getMyBadgeCustomName(),
-                            saveSettingsData.getPhoneNumber());
+                            saveIdentityData.getMyCustomName(),
+                            saveIdentityData.getPhoneNumber());
                     MsgClient msgClient = entry.getValue();
                     msgClient.sendMessage(msg);
                     ServiceStub serviceStub = entry.getKey();

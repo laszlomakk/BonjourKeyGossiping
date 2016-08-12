@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.util;
+package uk.ac.cam.cl.lm649.bonjourtesting.savedata;
 
 import android.content.Context;
 import android.content.SharedPreferences;

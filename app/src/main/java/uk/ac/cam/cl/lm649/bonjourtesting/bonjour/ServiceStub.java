@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.util;
+package uk.ac.cam.cl.lm649.bonjourtesting.bonjour;
 
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
