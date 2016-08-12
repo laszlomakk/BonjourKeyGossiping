@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
-import uk.ac.cam.cl.lm649.bonjourtesting.savedata.SaveData;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.SaveData;
 
 public class SaveSettingsData extends SaveData {
 

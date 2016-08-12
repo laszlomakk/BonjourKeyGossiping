@@ -7,7 +7,7 @@ import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
-import uk.ac.cam.cl.lm649.bonjourtesting.savedata.SaveData;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.SaveData;
 
 public class SaveIdentityData extends SaveData {
 
