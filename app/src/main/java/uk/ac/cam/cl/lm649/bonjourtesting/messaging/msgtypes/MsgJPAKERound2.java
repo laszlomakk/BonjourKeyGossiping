@@ -64,11 +64,11 @@ public class MsgJPAKERound2 extends Message {
 
             FLogger.d(TAG, "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator);
             if (!msgClient.iAmTheInitiator) {
-                BigInteger sessionKey = jpakeClient.getSessionKey();
+                byte[] sessionKeyBytes = jpakeClient.getSessionKey().toByteArray();
                 InetAddress socketAddress = msgClient.getSocketAddress();
                 FLogger.i(TAG, "saving sessionKey for socketAddress: " + socketAddress.getHostAddress());
                 MsgServerManager.getInstance().getMsgServerEncrypted().inetAddressToSessionKeyMap
-                        .put(socketAddress, sessionKey);
+                        .put(socketAddress, sessionKeyBytes);
             }
 
             jpakeClient.round3Send(msgClient);
