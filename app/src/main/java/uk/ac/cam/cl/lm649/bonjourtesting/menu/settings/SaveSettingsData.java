@@ -11,7 +11,6 @@ public class SaveSettingsData extends SaveData {
     private static SaveSettingsData INSTANCE = null;
 
     private static final String SAVE_LOCATION_FOR_APP_OPERATIONAL_CORE_ENABLED = "app_operations_enabled";
-    private static final String SAVE_LOCATION_FOR_CUSTOM_SERVICE_NAME = "custom_service_name";
     private static final String SAVE_LOCATION_FOR_RANDOM_SERVICE_NAME = "service_name_is_random";
 
     private SaveSettingsData(Context context) {
@@ -23,16 +22,6 @@ public class SaveSettingsData extends SaveData {
             INSTANCE = new SaveSettingsData(context);
         }
         return INSTANCE;
-    }
-
-    public void saveCustomServiceName(String str){
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(SAVE_LOCATION_FOR_CUSTOM_SERVICE_NAME, str);
-        editor.apply();
-    }
-
-    public String getCustomServiceName(){
-        return sharedPreferences.getString(SAVE_LOCATION_FOR_CUSTOM_SERVICE_NAME, "myServiceName");
     }
 
     public void saveAppOperationalCoreEnabled(boolean bool) {

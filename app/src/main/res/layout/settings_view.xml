@@ -27,32 +27,16 @@
         android:layout_marginTop="24sp"
         android:layout_marginLeft="16sp" />
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="servName"
-        android:id="@+id/editTextFixedServiceNameInput"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginLeft="20sp"
-        android:enabled="true"
-        android:minWidth="200dp"
-        android:minLines="1"
-        android:layout_toRightOf="@+id/textViewFixedServiceNameText"
-        android:layout_alignTop="@+id/textViewFixedServiceNameText"
-        android:maxLines="1"
-        android:inputType="text" />
-
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="use random instead"
+        android:text="use random instead of nick"
         android:id="@+id/checkBoxRandomServiceName"
         android:layout_gravity="center_horizontal"
         android:checked="false"
-        android:layout_below="@+id/textViewFixedServiceNameText"
+        android:layout_below="@id/masterSwitch"
         android:layout_toRightOf="@+id/textViewFixedServiceNameText"
-        android:layout_alignLeft="@+id/editTextFixedServiceNameInput"
+        android:layout_marginLeft="12sp"
         android:layout_marginTop="24sp" />
 
 
@@ -72,8 +56,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Badge Name:"
-        android:id="@+id/textViewBadgeCustomNameText"
+        android:text="Custom Nickname:"
+        android:id="@+id/textViewCustomNameText"
         android:layout_gravity="center_horizontal"
         android:layout_below="@+id/buttonRestartBonjourService"
         android:layout_alignParentLeft="true"
@@ -85,14 +69,13 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text=""
-        android:id="@+id/editTextBadgeCustomNameInput"
+        android:id="@+id/editTextCustomNameInput"
         android:layout_gravity="center_horizontal"
         android:enabled="true"
         android:minWidth="200dp"
         android:minLines="1"
-        android:layout_alignLeft="@+id/editTextPhoneNumberInput"
-        android:layout_alignTop="@+id/textViewBadgeCustomNameText"
-        android:layout_toRightOf="@+id/textViewBadgeCustomNameText"
+        android:layout_alignTop="@+id/textViewCustomNameText"
+        android:layout_toRightOf="@+id/textViewCustomNameText"
         android:maxLines="1"
         android:inputType="text" />
 
@@ -104,7 +87,7 @@
         android:text="Phone Number:"
         android:id="@+id/textViewPhoneNumberText"
         android:layout_gravity="center_horizontal"
-        android:layout_below="@+id/textViewBadgeCustomNameText"
+        android:layout_below="@+id/textViewCustomNameText"
         android:layout_alignParentLeft="true"
         android:layout_marginTop="35dp"
         android:layout_marginLeft="16sp" />
@@ -119,6 +102,7 @@
         android:enabled="true"
         android:minWidth="200dp"
         android:minLines="1"
+        android:layout_alignLeft="@+id/editTextCustomNameInput"
         android:layout_alignTop="@+id/textViewPhoneNumberText"
         android:layout_toRightOf="@+id/textViewPhoneNumberText"
         android:maxLines="1"
