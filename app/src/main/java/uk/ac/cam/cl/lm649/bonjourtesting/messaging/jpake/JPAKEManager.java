@@ -3,6 +3,7 @@ package uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake;
 import android.support.annotation.Nullable;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -16,12 +17,18 @@ public class JPAKEManager {
     private final ConcurrentSkipListMap<UUID, JPAKEClient> handshakeIdToClientMap = new ConcurrentSkipListMap<>();
 
     public synchronized boolean canNewJPAKEWaveBeStarted() {
-        for (JPAKEClient jpakeClient : handshakeIdToClientMap.values()) {
+        boolean allHandshakesFinished = true;
+        for (Map.Entry<UUID, JPAKEClient> entry : handshakeIdToClientMap.entrySet()) {
+            UUID handshakeId = entry.getKey();
+            JPAKEClient jpakeClient = entry.getValue();
+
             if (jpakeClient.isInProgress()) {
-                return false;
+                allHandshakesFinished = false;
+            } else {
+                handshakeIdToClientMap.remove(handshakeId);
             }
         }
-        return true;
+        return allHandshakesFinished;
     }
 
     public static boolean startJPAKEWave(MsgClient msgClient) {
