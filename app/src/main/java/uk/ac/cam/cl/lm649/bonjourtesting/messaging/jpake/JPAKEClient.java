@@ -41,6 +41,9 @@ public class JPAKEClient {
     private boolean retrievedSessionKey = false;
 
     private final UUID handshakeId;
+    private final long creationTime;
+
+    public static final long TIMEOUT_IN_MSEC = 5 * 60 * 1000;
 
     public enum State {
         INITIALISED,
@@ -68,6 +71,8 @@ public class JPAKEClient {
         }
 
         this.handshakeId = handshakeId;
+
+        creationTime = android.os.SystemClock.elapsedRealtime();
 
         initJPAKEParticipant(sharedSecret);
     }
@@ -315,15 +320,19 @@ public class JPAKEClient {
         return state;
     }
 
-    // TODO if message get "lost" we might get stuck in-progress for ever (timeout?)
     public boolean isInProgress() {
         switch (state) {
             case FAILED:
             case FINISHED:
                 return false;
             default:
-                return true;
+                return !hasTimedOut();
         }
+    }
+
+    private boolean hasTimedOut() {
+        long curTime = android.os.SystemClock.elapsedRealtime();
+        return creationTime + TIMEOUT_IN_MSEC < curTime;
     }
 
 }
