@@ -9,7 +9,9 @@ import java.net.InetAddress;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.SessionKey;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class MsgJPAKERound2 extends Message {
 
@@ -60,21 +62,33 @@ public class MsgJPAKERound2 extends Message {
         }
         boolean round2Success = jpakeClient.round2Receive(msgClient, this);
         if (round2Success) {
-            FLogger.i(TAG, "round 2 succeeded.");
-
-            FLogger.d(TAG, "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator);
-            if (!msgClient.iAmTheInitiator) {
-                byte[] sessionKeyBytes = jpakeClient.getSessionKey().toByteArray();
-                InetAddress socketAddress = msgClient.getSocketAddress();
-                FLogger.i(TAG, "saving sessionKey for socketAddress: " + socketAddress.getHostAddress());
-                MsgServerManager.getInstance().getMsgServerEncrypted().inetAddressToSessionKeyMap
-                        .put(socketAddress, sessionKeyBytes);
-            }
-
-            jpakeClient.round3Send(msgClient);
+            onSuccessfulRound2(msgClient, jpakeClient);
         } else {
             FLogger.i(TAG, "round 2 failed.");
         }
+    }
+
+    private void onSuccessfulRound2(MsgClient msgClient, JPAKEClient jpakeClient) throws IOException {
+        FLogger.i(TAG, "round 2 succeeded.");
+
+        FLogger.d(TAG, "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator);
+        if (!msgClient.iAmTheInitiator) {
+            byte[] sessionKeyBytes = jpakeClient.getSessionKey().toByteArray();
+            SessionKey sessionKey = null;
+            try {
+                sessionKey = new SessionKey(sessionKeyBytes);
+            } catch (SessionKey.InvalidSessionKeySizeException e) {
+                FLogger.e(TAG, "InvalidSessionKeySizeException: " + e.getMessage());
+                FLogger.d(TAG, HelperMethods.formatStackTraceAsString(e));
+                // we need to continue though, as otherwise JPAKE would hang.
+            }
+            InetAddress socketAddress = msgClient.getSocketAddress();
+            FLogger.i(TAG, "saving sessionKey for socketAddress: " + socketAddress.getHostAddress());
+            MsgServerManager.getInstance().getMsgServerEncrypted().inetAddressToSessionKeyMap
+                    .put(socketAddress, sessionKey);
+        }
+
+        jpakeClient.round3Send(msgClient);
     }
 
 }

@@ -16,23 +16,22 @@ public class MsgServerEncrypted extends MsgServer {
 
     protected static final String TAG = "MsgServerEncrypted";
 
-    public final ConcurrentHashMap<InetAddress, byte[]> inetAddressToSessionKeyMap = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<InetAddress, SessionKey> inetAddressToSessionKeyMap = new ConcurrentHashMap<>();
 
     @Override
     @Nullable
     protected MsgClient createMsgClientForIncomingConnection(Socket socket) {
         InetAddress socketAddress = socket.getInetAddress();
-        byte[] sessionKeyBytes = inetAddressToSessionKeyMap.remove(socketAddress);
+        SessionKey sessionKey = inetAddressToSessionKeyMap.remove(socketAddress);
 
-        boolean sessionKeyFound = (null != sessionKeyBytes);
-        boolean sessionKeyHasValidLength = MsgClient.isSecretKeyLengthValid(sessionKeyBytes);
+        boolean sessionKeyFound = (null != sessionKey);
 
         FLogger.i(TAG, String.format(Locale.US,
-                "incoming connection from %s, session key found: %b, has valid length: %s",
-                socketAddress.getHostAddress(), sessionKeyFound, sessionKeyHasValidLength));
+                "incoming connection from %s, session key found: %b",
+                socketAddress.getHostAddress(), sessionKeyFound));
 
-        if (sessionKeyFound && sessionKeyHasValidLength) {
-            MsgClient msgClientEncrypted = new MsgClient(socket, sessionKeyBytes);
+        if (sessionKeyFound) {
+            MsgClient msgClientEncrypted = new MsgClient(socket, sessionKey.secretKeyBytes);
 
             Message msg = MsgMyPublicKey.createNewMsgWithMyCurrentData(context);
             msgClientEncrypted.sendMessage(msg);
