@@ -30,6 +30,8 @@ import javax.crypto.NoSuchPaddingException;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Symmetric;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.UnknownMessageTypeException;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
@@ -68,7 +70,7 @@ public class MsgClient {
     public String strFromAddress;
     public String strToAddress;
 
-    public JPAKEClient jpakeClient;
+    public final JPAKEManager jpakeManager = new JPAKEManager();
 
     private MsgClient(@Nullable SessionKey sessionKey, boolean iAmTheInitiator) {
         app = CustomApplication.getInstance();

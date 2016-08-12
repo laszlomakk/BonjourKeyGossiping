@@ -38,7 +38,11 @@ public class SaveIdentityData extends SaveData {
     }
 
     public String getMyCustomName() {
-        return sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_BADGE_CUSTOM_NAME, "");
+        String customName = sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_BADGE_CUSTOM_NAME, "");
+        if ("".equals(customName)) { // completely disallow empty names
+            customName = "anon";
+        }
+        return customName;
     }
 
     // TODO if we end up regenerating our key pair at arbitrary times, locking will be needed.

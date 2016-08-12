@@ -21,6 +21,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Random;
+import java.util.UUID;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 
@@ -112,6 +113,18 @@ public class HelperMethods {
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         return sw.toString();
+    }
+
+    public static UUID uuidFromStringDefensively(String str) {
+        UUID ret;
+        try {
+            ret = UUID.fromString(str);
+        } catch (Exception e) {
+            FLogger.e(TAG, "uuidFromStringDefensively() encountered Exception: " + e.getMessage());
+            FLogger.d(TAG, formatStackTraceAsString(e));
+            return null;
+        }
+        return ret;
     }
 
 }

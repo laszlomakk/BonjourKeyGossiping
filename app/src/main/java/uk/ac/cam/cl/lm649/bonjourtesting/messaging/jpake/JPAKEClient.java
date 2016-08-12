@@ -1,8 +1,6 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.messaging;
+package uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.Digest;
@@ -20,9 +18,8 @@ import java.security.SecureRandom;
 import java.util.Locale;
 import java.util.UUID;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
-import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
-import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound1;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound2;
@@ -43,6 +40,8 @@ public class JPAKEClient {
     private BigInteger sessionKey = null;
     private boolean retrievedSessionKey = false;
 
+    private final UUID handshakeId;
+
     public enum State {
         INITIALISED,
         ROUND_1_SEND,
@@ -51,13 +50,14 @@ public class JPAKEClient {
         ROUND_2_RECEIVE,
         ROUND_3_SEND,
         ROUND_3_RECEIVE,
-        FINISHED
+        FINISHED,
+        FAILED
     }
     // note: being in a state shows what the last thing we did is
     // e.g. being in state State.ROUND_1_SEND means round1Send() has already been called
     private State state = State.INITIALISED;
 
-    public JPAKEClient(boolean iAmTheInitiator, @NonNull String sharedSecret) {
+    protected JPAKEClient(boolean iAmTheInitiator, UUID handshakeId, @NonNull String sharedSecret) {
         this.iAmTheInitiator = iAmTheInitiator;
         if (iAmTheInitiator) {
             myParticipantId = "alice";
@@ -66,6 +66,8 @@ public class JPAKEClient {
             myParticipantId = "bob";
             otherParticipantId = "alice";
         }
+
+        this.handshakeId = handshakeId;
 
         initJPAKEParticipant(sharedSecret);
     }
@@ -90,6 +92,7 @@ public class JPAKEClient {
         JPAKERound1Payload round1Payload = participant.createRound1PayloadToSend();
 
         Message msg = new MsgJPAKERound1(
+                handshakeId,
                 round1Payload.getGx1(),
                 round1Payload.getGx2(),
                 round1Payload.getKnowledgeProofForX1(),
@@ -135,6 +138,7 @@ public class JPAKEClient {
         try {
             return _round1Receive(msgClient, msg);
         } catch (CryptoException e) {
+            state = State.FAILED;
             FLogger.w(TAG, String.format(Locale.US,
                     "round1Receive(). validation failed. IP: %s, oParticipantId: %s, Exception: %s",
                     msgClient.strSocketAddress,
@@ -155,6 +159,7 @@ public class JPAKEClient {
         JPAKERound2Payload round2Payload = participant.createRound2PayloadToSend();
 
         Message msg = new MsgJPAKERound2(
+                handshakeId,
                 round2Payload.getA(),
                 round2Payload.getKnowledgeProofForX2s()
         );
@@ -199,6 +204,7 @@ public class JPAKEClient {
         try {
             return _round2Receive(msgClient, msg);
         } catch (CryptoException e) {
+            state = State.FAILED;
             FLogger.w(TAG, String.format(Locale.US,
                     "round2Receive(). validation failed. IP: %s, oParticipantId: %s, Exception: %s",
                     msgClient.strSocketAddress,
@@ -224,7 +230,10 @@ public class JPAKEClient {
         JPAKERound3Payload round3Payload = participant.createRound3PayloadToSend(keyingMaterial);
 
         int portForEncryptedComms = MsgServerManager.getInstance().getMsgServerEncrypted().getPort();
-        Message msg = new MsgJPAKERound3(round3Payload.getMacTag(), portForEncryptedComms);
+        Message msg = new MsgJPAKERound3(
+                handshakeId,
+                round3Payload.getMacTag(),
+                portForEncryptedComms);
         msgClient.sendMessage(msg);
 
         state = State.ROUND_3_SEND;
@@ -267,6 +276,7 @@ public class JPAKEClient {
         try {
             return _round3Receive(msgClient, msg);
         } catch (CryptoException e) {
+            state = State.FAILED;
             FLogger.w(TAG, String.format(Locale.US,
                     "round3Receive(). validation failed. IP: %s, oParticipantId: %s, Exception: %s",
                     msgClient.strSocketAddress,
@@ -301,52 +311,19 @@ public class JPAKEClient {
         }
     }
 
-    public static boolean canJPAKEBeStartedUsingThisMsgClient(MsgClient msgClient) {
-        if (null == msgClient) {
-            FLogger.e(TAG, "considerRunningJPAKE(). msgClient is null.");
-            return false;
-        }
-        if (null == msgClient.jpakeClient || msgClient.jpakeClient.state == State.FINISHED) {
-            FLogger.d(TAG, "shouldWeRunJPAKE(). JPAKEClient not in use atm.");
-            return true;
-        }
-        return false;
+    protected State getState() {
+        return state;
     }
 
-    /**
-     * Tries to start JPAKE using the given MsgClient instance from the init / round 1 sending phase.
-     *
-     * @return if JPAKE was started
-     */
-    public static boolean startJPAKEifAppropriate(MsgClient msgClient, String sharedSecret) {
-        FLogger.i(TAG, "startJPAKEifAppropriate() called.");
-        if (null == sharedSecret) {
-            FLogger.w(TAG, "startJPAKEifAppropriate(). sharedSecret is null.");
-            return false;
+    // TODO if message get "lost" we might get stuck in-progress for ever (timeout?)
+    public boolean isInProgress() {
+        switch (state) {
+            case FAILED:
+            case FINISHED:
+                return false;
+            default:
+                return true;
         }
-        if (JPAKEClient.canJPAKEBeStartedUsingThisMsgClient(msgClient)) {
-            try {
-                JPAKEClient jpakeClient = msgClient.jpakeClient = new JPAKEClient(true, sharedSecret);
-                return jpakeClient.round1Send(msgClient);
-            } catch (IOException e) {
-                FLogger.e(TAG, "startMessaging() - JPAKEClient.round1Send(). IOE - " + e.getMessage());
-            }
-        }
-        return false;
-    }
-
-    @Nullable
-    public static String determineSharedSecret() {
-        return "123456";
-    }
-
-    /**
-     * @return the shared secret used if the other party initiated
-     */
-    public static String getMyOwnSharedSecret() {
-        return determineSharedSecret();
-        // Context context = CustomApplication.getInstance();
-        // return SaveSettingsData.getInstance(context).getPhoneNumber();
     }
 
 }

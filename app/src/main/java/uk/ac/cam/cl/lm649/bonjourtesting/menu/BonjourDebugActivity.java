@@ -23,15 +23,12 @@ import javax.jmdns.ServiceInfo;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
-import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgArbitraryText;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgMyPhoneNumber;
-import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.JmdnsUtil;
@@ -92,31 +89,6 @@ public class BonjourDebugActivity extends CustomActivity {
                         FLogger.e(TAG, "onItemClick(). bonjourService is null.");
                         HelperMethods.displayMsgToUser(context, "error: bonjourService is null");
                     }
-                }
-            }
-        });
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                synchronized (displayedServicesLock){
-                    FLogger.i(TAG, "onItemLongClick() - user clicked on an item in the list");
-                    ServiceInfo serviceInfo = servicesFoundArrList.get(position).getInfo();
-                    if (null == serviceInfo){
-                        FLogger.e(TAG, "onItemLongClick(). error sending msg: serviceInfo is null");
-                        HelperMethods.displayMsgToUser(context, "error sending msg: serviceInfo is null (1)");
-                        return true;
-                    }
-                    MsgClient msgClient = MsgServerManager.getInstance().serviceToMsgClientMap.get(new ServiceStub(serviceInfo));
-                    if (null == msgClient) {
-                        FLogger.e(TAG, "onItemLongClick(). msgClient not found");
-                        HelperMethods.displayMsgToUser(context, "error: msgClient not found");
-                    } else {
-                        String sharedSecret = JPAKEClient.determineSharedSecret();
-                        boolean jpakeStarted = JPAKEClient.startJPAKEifAppropriate(msgClient, sharedSecret);
-                        FLogger.i(TAG, "onItemLongClick(). jpakeStarted: " + jpakeStarted);
-                        HelperMethods.displayMsgToUser(context, "jpakeStarted: " + jpakeStarted);
-                    }
-                    return true;
                 }
             }
         });

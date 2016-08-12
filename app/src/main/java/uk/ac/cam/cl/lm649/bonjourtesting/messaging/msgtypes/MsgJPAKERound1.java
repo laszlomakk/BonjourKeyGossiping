@@ -4,21 +4,26 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.UUID;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class MsgJPAKERound1 extends Message {
 
     private static final String TAG = "MsgJPAKERound1";
 
+    public final UUID handshakeId;
     public final BigInteger gx1;
     public final BigInteger gx2;
     public final BigInteger[] knowledgeProofForX1;
     public final BigInteger[] knowledgeProofForX2;
 
     public MsgJPAKERound1(
+            UUID handshakeId,
             BigInteger gx1,
             BigInteger gx2,
             BigInteger[] knowledgeProofForX1,
@@ -26,6 +31,7 @@ public class MsgJPAKERound1 extends Message {
     {
         super();
 
+        this.handshakeId = handshakeId;
         this.gx1 = gx1;
         this.gx2 = gx2;
         this.knowledgeProofForX1 = knowledgeProofForX1;
@@ -33,6 +39,10 @@ public class MsgJPAKERound1 extends Message {
     }
 
     public static MsgJPAKERound1 createFromStream(DataInputStream inStream) throws IOException {
+        String strHandshakeId = inStream.readUTF();
+        UUID handshakeId = HelperMethods.uuidFromStringDefensively(strHandshakeId);
+        if (null == handshakeId) return null;
+
         int radix = inStream.readInt();
         BigInteger gx1 = new BigInteger(inStream.readUTF(), radix);
         BigInteger gx2 = new BigInteger(inStream.readUTF(), radix);
@@ -44,13 +54,14 @@ public class MsgJPAKERound1 extends Message {
                 new BigInteger(inStream.readUTF(), radix),
                 new BigInteger(inStream.readUTF(), radix)
         };
-        return new MsgJPAKERound1(gx1, gx2, knowledgeProofForX1, knowledgeProofForX2);
+        return new MsgJPAKERound1(handshakeId, gx1, gx2, knowledgeProofForX1, knowledgeProofForX2);
     }
 
     @Override
     public void serialiseToStream(DataOutputStream outStream) throws IOException {
         outStream.writeInt(type);
 
+        outStream.writeUTF(handshakeId.toString());
         int radix = Character.MAX_RADIX;
         outStream.writeInt(radix);
         outStream.writeUTF(gx1.toString(radix));
@@ -69,16 +80,14 @@ public class MsgJPAKERound1 extends Message {
         FLogger.i(msgClient.logTag, msgClient.strFromAddress + "received " +
                 getClass().getSimpleName());
 
-        JPAKEClient jpakeClient;
-        if (JPAKEClient.canJPAKEBeStartedUsingThisMsgClient(msgClient)) {
-            FLogger.d(TAG, "onReceive(). msgClient can be used for new JPAKE.");
-            String sharedSecret = JPAKEClient.getMyOwnSharedSecret();
-            jpakeClient = msgClient.jpakeClient = new JPAKEClient(false, sharedSecret);
-        } else {
-            jpakeClient = msgClient.jpakeClient;
+        JPAKEManager jpakeManager = msgClient.jpakeManager;
+        JPAKEClient jpakeClient = jpakeManager.findJPAKEClient(handshakeId);
+        if (null == jpakeClient) {
+            FLogger.d(TAG, "onReceive(). this is a new handshakeId, the other end initiated.");
+            jpakeClient = jpakeManager.createJPAKEClientDueToIncomingMessage(handshakeId);
         }
         if (null == jpakeClient) {
-            FLogger.e(TAG, "onReceive(). jpakeClient is null.");
+            FLogger.e(TAG, "onReceive(). wtf. jpakeClient is null.");
             return;
         }
         boolean round1Success = jpakeClient.round1Receive(msgClient, this);

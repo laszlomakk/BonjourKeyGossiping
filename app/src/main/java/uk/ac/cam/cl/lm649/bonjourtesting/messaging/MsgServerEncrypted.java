@@ -2,7 +2,6 @@ package uk.ac.cam.cl.lm649.bonjourtesting.messaging;
 
 import android.support.annotation.Nullable;
 
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Locale;
