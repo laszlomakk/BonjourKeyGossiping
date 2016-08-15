@@ -5,6 +5,7 @@
 
 package uk.ac.cam.cl.lm649.bonjourtesting.bonjour;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 
 import java.net.InetAddress;
@@ -17,12 +18,15 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEManager;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgSaltedPhoneNumber;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
 public class CustomServiceListener implements ServiceListener {
 
     private static final String TAG = "CustomServiceListener";
-    private BonjourService bonjourService;
+    private final BonjourService bonjourService;
+    private final Context context;
 
     private boolean discoveredOurOwnService = false;
 
@@ -30,6 +34,7 @@ public class CustomServiceListener implements ServiceListener {
 
     protected CustomServiceListener(BonjourService bonjourService){
         this.bonjourService = bonjourService;
+        this.context = bonjourService.getApplicationContext();
     }
 
     @Override
@@ -69,7 +74,10 @@ public class CustomServiceListener implements ServiceListener {
 
         MsgClient msgClient = getMsgClientForService(event);
 
-        JPAKEManager.startJPAKEWave(msgClient);
+        if (null != msgClient) {
+            Message msg = MsgSaltedPhoneNumber.createNewMsgWithMyCurrentData(context);
+            msgClient.sendMessage(msg);
+        }
     }
 
     @Nullable

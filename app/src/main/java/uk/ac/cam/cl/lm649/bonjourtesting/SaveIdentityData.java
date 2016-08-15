@@ -2,8 +2,11 @@ package uk.ac.cam.cl.lm649.bonjourtesting;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Base64;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+
+import java.security.SecureRandom;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
@@ -19,6 +22,7 @@ public class SaveIdentityData extends SaveData {
     private static final String SAVE_LOCATION_FOR_OWN_PRIVATE_KEY = "my_private_key";
     private static final String SAVE_LOCATION_FOR_OWN_PUBLIC_KEY = "my_public_key";
     private static final String SAVE_LOCATION_FOR_OWN_PHONE_NUMBER = "phone_number";
+    private static final String SAVE_LOCATION_FOR_OWN_STATIC_SALT = "static_salt";
 
     private SaveIdentityData(Context context) {
         super(context, context.getString(R.string.identity_save_location));
@@ -121,6 +125,27 @@ public class SaveIdentityData extends SaveData {
 
     public String getPhoneNumber(){
         return sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_PHONE_NUMBER, "+441234567890");
+    }
+
+    private void saveStaticSalt(byte[] staticSalt) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        String base64StaticSalt = Base64.encodeToString(staticSalt, Base64.DEFAULT);
+        editor.putString(SAVE_LOCATION_FOR_OWN_STATIC_SALT, base64StaticSalt);
+        editor.apply();
+    }
+
+    public byte[] getStaticSalt() {
+        String base64StaticSalt = sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_STATIC_SALT, "");
+        if (!"".equals(base64StaticSalt)) {
+            // found it
+            return Base64.decode(base64StaticSalt, Base64.DEFAULT);
+        } else {
+            // generate it now
+            byte[] staticSalt = new byte[Constants.STATIC_SALT_SIZE_IN_BYTES];
+            new SecureRandom().nextBytes(staticSalt);
+            saveStaticSalt(staticSalt);
+            return staticSalt;
+        }
     }
 
 }

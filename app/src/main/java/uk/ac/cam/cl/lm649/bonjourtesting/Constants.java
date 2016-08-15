@@ -16,4 +16,8 @@ public class Constants {
 
     public static final boolean HISTORY_TRANSFER_ENABLED = false;
 
+    public static final int STATIC_SALT_SIZE_IN_BYTES = 16;
+
+    public static final int NUM_REVEALED_BITS_OF_PHONE_NUMBER_HASH = 9;
+
 }

@@ -18,6 +18,7 @@ public class MessageTypes {
         JPAKE_ROUND3        (6, MsgJPAKERound3.class),
         MY_PHONE_NUMBER     (7, MsgMyPhoneNumber.class),
         MY_PUBLIC_KEY       (8, MsgMyPublicKey.class),
+        SALTED_PHONE_NUMBER (9, MsgSaltedPhoneNumber.class),
         ;
 
         private int msgNum;

@@ -11,6 +11,8 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.util.Base64;
 import android.widget.Toast;
 
 import java.io.PrintWriter;
@@ -24,6 +26,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
+import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Hash;
 
 public class HelperMethods {
 
@@ -125,6 +128,24 @@ public class HelperMethods {
             return null;
         }
         return ret;
+    }
+
+    public static byte[] getNLowBitsOfByteArray(@NonNull byte[] byteArr, int nBitsToReveal) {
+        nBitsToReveal = Math.min(nBitsToReveal, byteArr.length * 8);
+        nBitsToReveal = Math.max(nBitsToReveal, 0);
+
+        int nBytesNeededToStoreNBits = (nBitsToReveal + 7) / 8;
+        byte[] revealedBitsOfHash = new byte[nBytesNeededToStoreNBits];
+        System.arraycopy(byteArr, 0, revealedBitsOfHash, 0, revealedBitsOfHash.length);
+
+        int nBitsToKeepInLastByte = nBitsToReveal % 8;
+        if (nBitsToKeepInLastByte != 0) { // zero means we keep the whole byte
+            // need to hide a few bits of last byte
+            int mask = (1 << nBitsToKeepInLastByte) - 1;
+            revealedBitsOfHash[revealedBitsOfHash.length-1] &= mask;
+        }
+
+        return revealedBitsOfHash;
     }
 
 }
