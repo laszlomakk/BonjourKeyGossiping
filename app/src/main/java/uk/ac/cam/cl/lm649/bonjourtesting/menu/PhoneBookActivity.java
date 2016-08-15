@@ -1,8 +1,14 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.menu;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,9 +19,7 @@ import java.util.ArrayList;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
-import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
-import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
@@ -30,6 +34,8 @@ public class PhoneBookActivity extends CustomActivity {
     private TextView textViewCustomName;
     private TextView textViewPhoneNumber;
     private TextView textViewNumEntriesInList;
+
+    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 10001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,11 +91,19 @@ public class PhoneBookActivity extends CustomActivity {
         findViewById(R.id.refreshButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateListView();
+                FLogger.d(TAG, "onClick(). user clicked refresh button.");
+                if (doWeHavePermissionToReadContacts()) {
+                    FLogger.d(TAG, "onClick(). we have permissions to read contacts.");
+                    asyncImportContactsFromSystemToInternalDb();
+                    forceRefreshUI();
+                } else {
+                    FLogger.d(TAG, "onClick(). we don't have permissions to read contacts -> asking now.");
+                    askForPermissionToReadContacts();
+                }
             }
         });
 
-        updateListView();
+        forceRefreshUI();
     }
 
     public void refreshTopUI() {
@@ -138,6 +152,57 @@ public class PhoneBookActivity extends CustomActivity {
     @Override
     public void forceRefreshUI() {
         updateListView();
+    }
+
+    private boolean doWeHavePermissionToReadContacts() {
+        return ContextCompat.checkSelfPermission(
+                PhoneBookActivity.this,
+                Manifest.permission.READ_CONTACTS)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void askForPermissionToReadContacts() {
+        ActivityCompat.requestPermissions(
+                PhoneBookActivity.this,
+                new String[]{Manifest.permission.READ_CONTACTS},
+                MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+    }
+
+    private void asyncImportContactsFromSystemToInternalDb() {
+        new Thread() {
+            @Override
+            public void run() {
+                Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+                if (null != cursor) {
+                    int nameIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+                    int phoneNumberIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+                    cursor.moveToFirst();
+                    do {
+                        String name = cursor.getString(nameIdx);
+                        String phoneNumber = cursor.getString(phoneNumberIdx);
+                        DbTablePhoneNumbers.smartUpdateEntry(phoneNumber, name);
+                        FLogger.i(TAG, "contact imported - name: " + name +", phoneNum: " + phoneNumber);
+                    } while (cursor.moveToNext());
+                    cursor.close();
+                }
+            }
+        }.start();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    FLogger.d(TAG, "onRequestPermissionsResult(). READ_CONTACTS permission was granted");
+                    asyncImportContactsFromSystemToInternalDb();
+                    forceRefreshUI();
+                } else {
+                    FLogger.d(TAG, "onRequestPermissionsResult(). READ_CONTACTS permission was denied");
+                }
+                break;
+            }
+        }
     }
 
 }
