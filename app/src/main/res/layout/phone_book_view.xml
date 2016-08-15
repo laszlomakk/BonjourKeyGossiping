@@ -61,8 +61,14 @@
                 <ImageButton
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:id="@+id/buttonAddContact"
+                    android:layout_toLeftOf="@+id/buttonRefresh"
+                    android:src="@android:drawable/ic_menu_add" />
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_alignParentRight="true"
-                    android:id="@+id/refreshButton"
+                    android:id="@+id/buttonRefresh"
                     android:src="@android:drawable/stat_notify_sync" />
                 <TextView
                     android:layout_width="wrap_content"
@@ -72,7 +78,7 @@
                     android:id="@+id/nEntriesInListText"
                     android:layout_toLeftOf="@+id/nEntriesInList"
                     android:textSize="14sp"
-                    android:layout_below="@+id/refreshButton"/>
+                    android:layout_below="@+id/buttonRefresh"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -80,7 +86,7 @@
                     android:id="@+id/nEntriesInList"
                     android:layout_alignParentRight="true"
                     android:textSize="14sp"
-                    android:layout_below="@+id/refreshButton"
+                    android:layout_below="@+id/buttonRefresh"
                     android:layout_marginLeft="4sp"/>
 
             </RelativeLayout>

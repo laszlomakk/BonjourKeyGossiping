@@ -9,9 +9,11 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -87,8 +89,15 @@ public class PhoneBookActivity extends CustomActivity {
         textViewPhoneNumber = (TextView) findViewById(R.id.phoneNumber);
         textViewNumEntriesInList = (TextView) findViewById(R.id.nEntriesInList);
 
-        // refresh button
-        View refreshButton = findViewById(R.id.refreshButton);
+        // buttons
+        setupRefreshButton();
+        setupAddContactButton();
+
+        forceRefreshUI();
+    }
+
+    private void setupRefreshButton() {
+        View refreshButton = findViewById(R.id.buttonRefresh);
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,7 +115,7 @@ public class PhoneBookActivity extends CustomActivity {
             @Override
             public boolean onLongClick(View v) {
                 synchronized (displayedEntriesLock) {
-                    FLogger.i(TAG, "onClick(). user long-clicked refresh button.");
+                    FLogger.i(TAG, "onLongClick(). user long-clicked refresh button.");
                     DialogInterface.OnClickListener deleteAllEntries = new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -126,8 +135,39 @@ public class PhoneBookActivity extends CustomActivity {
                 }
             }
         });
+    }
 
-        forceRefreshUI();
+    private void setupAddContactButton() {
+        View addContactButton = findViewById(R.id.buttonAddContact);
+        addContactButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FLogger.i(TAG, "onClick(). user clicked Add Contact button");
+                LayoutInflater li = LayoutInflater.from(PhoneBookActivity.this);
+                AlertDialog.Builder addContactDialogBuilder = createAddContactPromptBuilder(li);
+                addContactDialogBuilder.create().show();
+            }
+        });
+    }
+
+    private AlertDialog.Builder createAddContactPromptBuilder(LayoutInflater li) {
+        View promptView = li.inflate(R.layout.phone_book_add_contact_prompt, null);
+        final EditText editTextNameInput = (EditText) promptView.findViewById(R.id.editTextNameInput);
+        final EditText editTextPhoneNumberInput = (EditText) promptView.findViewById(R.id.editTextPhoneNumberInput);
+
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(PhoneBookActivity.this)
+                .setView(promptView)
+                .setPositiveButton(android.R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                String contactName = editTextNameInput.getText().toString();
+                                String contactPhoneNumber = editTextPhoneNumberInput.getText().toString();
+                                DbTablePhoneNumbers.smartUpdateEntry(contactPhoneNumber, contactName);
+                                forceRefreshUI();
+                            }
+                        })
+                .setNegativeButton(android.R.string.no, null);
+        return dialogBuilder;
     }
 
     public void refreshTopUI() {
