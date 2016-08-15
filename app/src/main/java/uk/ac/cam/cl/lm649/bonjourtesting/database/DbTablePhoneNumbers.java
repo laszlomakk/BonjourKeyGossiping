@@ -132,5 +132,10 @@ public final class DbTablePhoneNumbers {
                 PhoneNumberEntry.COLUMN_NAME_PHONE_NUMBER + " = ?",
                 new String[] { phoneNumber });
     }
+
+    public static void deleteAllEntries() {
+        SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
+        db.delete(PhoneNumberEntry.TABLE_NAME, null, null);
+    }
     
 }
