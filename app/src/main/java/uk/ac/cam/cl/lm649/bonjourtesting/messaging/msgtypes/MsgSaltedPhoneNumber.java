@@ -9,6 +9,9 @@ import org.bouncycastle.util.encoders.Hex;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
@@ -17,6 +20,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Hash;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
@@ -84,7 +88,23 @@ public class MsgSaltedPhoneNumber extends Message {
                 Hex.toHexString(hashOfSaltedPhoneNumber),
                 Hex.toHexString(salt),
                 nRevealedBitsOfHash));
-
+        List<String> hopefulPhoneNumbers = new ArrayList<>();
+        for (DbTablePhoneNumbers.Entry entry : DbTablePhoneNumbers.getAllEntries()) {
+            byte[] partialHashCandidate = calcPartialHashOfPhoneNumberAndSalt(
+                    entry.getPhoneNumber(), salt, nRevealedBitsOfHash);
+            if (Arrays.equals(partialHashCandidate, hashOfSaltedPhoneNumber)) {
+                FLogger.i(msgClient.logTag, String.format(Locale.US,
+                        "match found for hash %s, where phoneNumber is %s",
+                        Hex.toHexString(hashOfSaltedPhoneNumber),
+                        entry.getPhoneNumber()));
+                hopefulPhoneNumbers.add(entry.getPhoneNumber());
+            }
+        }
+        if (hopefulPhoneNumbers.size() == 0) {
+            FLogger.i(msgClient.logTag, "no match found for hash " + Hex.toHexString(hashOfSaltedPhoneNumber));
+        } else {
+            JPAKEManager.startJPAKEWave(msgClient, hopefulPhoneNumbers);
+        }
     }
 
     public static byte[] calcPartialHashOfPhoneNumberAndSalt(String phoneNumber, byte[] salt, int nBitsToReveal) {

@@ -1,12 +1,17 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
+import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
+import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
@@ -31,16 +36,23 @@ public class JPAKEManager {
         return allHandshakesFinished;
     }
 
-    public static boolean startJPAKEWave(MsgClient msgClient) {
+    /**
+     * Tries to start one JPAKE handshake for every given sharedSecret using the given MsgClient instance.
+     *
+     * @return the number of handshakes started, or -1 if a previous JPAKE wave is still in progress
+     */
+    public static int startJPAKEWave(MsgClient msgClient, List<String> sharedSecrets) {
         FLogger.i(TAG, "startJPAKEWave() called.");
         JPAKEManager jpakeManager = msgClient.jpakeManager;
         if (!jpakeManager.canNewJPAKEWaveBeStarted()) {
             FLogger.i(TAG, "startJPAKEWave(). can't start new wave.");
-            return false;
+            return -1;
         }
-
-        String sharedSecret = determineSharedSecret();
-        return startJPAKEHandshake(msgClient, sharedSecret);
+        int nHandshakesStarted = 0;
+        for (String sharedSecret : sharedSecrets) {
+            nHandshakesStarted += startJPAKEHandshake(msgClient, sharedSecret) ? 1 : 0;
+        }
+        return nHandshakesStarted;
     }
 
     /**
@@ -85,18 +97,12 @@ public class JPAKEManager {
         return jpakeClient;
     }
 
-    @Nullable
-    private static String determineSharedSecret() {
-        return "123456";
-    }
-
     /**
      * @return the shared secret used if the other party initiated
      */
     private static String getMyOwnSharedSecret() {
-        return determineSharedSecret();
-        // Context context = CustomApplication.getInstance();
-        // return SaveSettingsData.getInstance(context).getPhoneNumber();
+        Context context = CustomApplication.getInstance();
+        return SaveIdentityData.getInstance(context).getPhoneNumber();
     }
 
 }
