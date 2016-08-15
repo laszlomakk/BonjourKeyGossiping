@@ -12,12 +12,12 @@ public class Constants {
 
     public static final Level JmDnsLogLevel = Level.ERROR;
 
-    public static final long HISTORY_TRANSFER_TO_SAME_CLIENT_COOLDOWN = 5 * 60 * 1000;
-
     public static final boolean HISTORY_TRANSFER_ENABLED = false;
 
     public static final int STATIC_SALT_SIZE_IN_BYTES = 16;
 
     public static final int NUM_REVEALED_BITS_OF_PHONE_NUMBER_HASH = 9;
+
+    public static final boolean RESPONDER_ALSO_SENDS_PUBLIC_KEY = false;
 
 }
