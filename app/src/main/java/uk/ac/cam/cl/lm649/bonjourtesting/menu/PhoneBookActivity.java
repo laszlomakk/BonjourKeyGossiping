@@ -1,11 +1,19 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.menu;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -13,9 +21,7 @@ import java.util.ArrayList;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
-import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
-import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
@@ -30,6 +36,8 @@ public class PhoneBookActivity extends CustomActivity {
     private TextView textViewCustomName;
     private TextView textViewPhoneNumber;
     private TextView textViewNumEntriesInList;
+
+    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 10001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +57,10 @@ public class PhoneBookActivity extends CustomActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 synchronized (displayedEntriesLock) {
-                    FLogger.i(TAG, "onItemClick() - user clicked on an item in the list");
+                    FLogger.i(TAG, "onItemLongClick() - user clicked on an item in the list");
                     final DbTablePhoneNumbers.Entry entry = entriesArrList.get(position);
                     if (null == entry){
-                        FLogger.e(TAG, "onItemClick(). clicked entry is null ??");
+                        FLogger.e(TAG, "onItemLongClick(). clicked entry is null ??");
                         HelperMethods.displayMsgToUser(context, "error: clicked entry is null");
                         return true;
                     }
@@ -81,15 +89,85 @@ public class PhoneBookActivity extends CustomActivity {
         textViewPhoneNumber = (TextView) findViewById(R.id.phoneNumber);
         textViewNumEntriesInList = (TextView) findViewById(R.id.nEntriesInList);
 
-        // refresh button
-        findViewById(R.id.refreshButton).setOnClickListener(new View.OnClickListener() {
+        // buttons
+        setupRefreshButton();
+        setupAddContactButton();
+
+        forceRefreshUI();
+    }
+
+    private void setupRefreshButton() {
+        View refreshButton = findViewById(R.id.buttonRefresh);
+        refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateListView();
+                FLogger.d(TAG, "onClick(). user clicked refresh button.");
+                if (doWeHavePermissionToReadContacts()) {
+                    FLogger.d(TAG, "onClick(). we have permissions to read contacts.");
+                    asyncImportContactsFromSystemToInternalDb();
+                } else {
+                    FLogger.d(TAG, "onClick(). we don't have permissions to read contacts -> asking now.");
+                    askForPermissionToReadContacts();
+                }
             }
         });
+        refreshButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                synchronized (displayedEntriesLock) {
+                    FLogger.i(TAG, "onLongClick(). user long-clicked refresh button.");
+                    DialogInterface.OnClickListener deleteAllEntries = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            FLogger.i(TAG, "user deleted all entries from phone book DB");
+                            DbTablePhoneNumbers.deleteAllEntries();
+                            forceRefreshUI();
+                        }
+                    };
+                    new AlertDialog.Builder(PhoneBookActivity.this)
+                            .setTitle("Confirm Delete All")
+                            .setMessage("Do you really want to delete all entries from the internal phone book DB?")
+                            //.setIcon(R.drawable.maybe_a_cool_icon_here)
+                            .setPositiveButton(android.R.string.yes, deleteAllEntries)
+                            .setNegativeButton(android.R.string.no, null).show();
 
-        updateListView();
+                    return true;
+                }
+            }
+        });
+    }
+
+    private void setupAddContactButton() {
+        View addContactButton = findViewById(R.id.buttonAddContact);
+        addContactButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FLogger.i(TAG, "onClick(). user clicked Add Contact button");
+                LayoutInflater li = LayoutInflater.from(PhoneBookActivity.this);
+                AlertDialog.Builder addContactDialogBuilder = createAddContactPromptBuilder(li);
+                addContactDialogBuilder.create().show();
+            }
+        });
+    }
+
+    private AlertDialog.Builder createAddContactPromptBuilder(LayoutInflater li) {
+        View promptView = li.inflate(R.layout.phone_book_add_contact_prompt, null);
+        final EditText editTextNameInput = (EditText) promptView.findViewById(R.id.editTextNameInput);
+        final EditText editTextPhoneNumberInput = (EditText) promptView.findViewById(R.id.editTextPhoneNumberInput);
+
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(PhoneBookActivity.this)
+                .setView(promptView)
+                .setPositiveButton(android.R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                String contactName = editTextNameInput.getText().toString();
+                                String contactPhoneNumber = editTextPhoneNumberInput.getText().toString();
+                                DbTablePhoneNumbers.smartUpdateEntry(contactPhoneNumber, contactName);
+                                forceRefreshUI();
+                            }
+                        })
+                .setNegativeButton(android.R.string.no, null);
+        return dialogBuilder;
     }
 
     public void refreshTopUI() {
@@ -138,6 +216,59 @@ public class PhoneBookActivity extends CustomActivity {
     @Override
     public void forceRefreshUI() {
         updateListView();
+    }
+
+    private boolean doWeHavePermissionToReadContacts() {
+        return ContextCompat.checkSelfPermission(
+                PhoneBookActivity.this,
+                Manifest.permission.READ_CONTACTS)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void askForPermissionToReadContacts() {
+        ActivityCompat.requestPermissions(
+                PhoneBookActivity.this,
+                new String[]{Manifest.permission.READ_CONTACTS},
+                MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+    }
+
+    private void asyncImportContactsFromSystemToInternalDb() {
+        new Thread() {
+            @Override
+            public void run() {
+                synchronized (displayedEntriesLock) {
+                    Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+                    if (null != cursor) {
+                        int nameIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+                        int phoneNumberIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+                        cursor.moveToFirst();
+                        do {
+                            String name = cursor.getString(nameIdx);
+                            String phoneNumber = cursor.getString(phoneNumberIdx);
+                            DbTablePhoneNumbers.smartUpdateEntry(phoneNumber, name);
+                            FLogger.i(TAG, "contact imported - name: " + name + ", phoneNum: " + phoneNumber);
+                        } while (cursor.moveToNext());
+                        cursor.close();
+                    }
+                    forceRefreshUI();
+                }
+            }
+        }.start();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    FLogger.d(TAG, "onRequestPermissionsResult(). READ_CONTACTS permission was granted");
+                    asyncImportContactsFromSystemToInternalDb();
+                } else {
+                    FLogger.d(TAG, "onRequestPermissionsResult(). READ_CONTACTS permission was denied");
+                }
+                break;
+            }
+        }
     }
 
 }

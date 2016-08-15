@@ -11,7 +11,11 @@
     <!-- for automatic startup -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <!-- for reliable operation with the screen off -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- for importing contacts into internal phone book -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
         android:name=".CustomApplication"

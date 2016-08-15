@@ -71,8 +71,8 @@
                     android:textColor="@color/colorPrimaryDark"
                     android:id="@+id/publicKey"
                     android:textSize="16sp"
-                    android:layout_below="@id/phoneNumber"
-                    android:layout_toRightOf="@+id/publicKeyText"/>
+                    android:layout_below="@id/publicKeyText"
+                    android:layout_marginLeft="20dp" />
 
 
 
