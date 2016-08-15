@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".menu.ActiveBadgeActivity">
+    tools:context=".menu.PhoneBookActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,28 +24,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="bID: "
-                    android:textColor="@color/colorPrimaryDark"
-                    android:id="@+id/badgeIdText"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:layout_alignParentLeft="true"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:id="@+id/badgeId"
-                    android:textSize="14sp"
-                    android:layout_toRightOf="@+id/badgeIdText"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="Nick: "
                     android:textColor="@color/colorPrimaryDark"
                     android:id="@+id/customNameText"
                     android:textSize="16sp"
-                    android:layout_below="@id/badgeIdText"
                     android:layout_alignParentLeft="true"/>
                 <TextView
                     android:layout_width="wrap_content"
@@ -53,7 +35,6 @@
                     android:textColor="@color/colorPrimaryDark"
                     android:id="@+id/customName"
                     android:textSize="16sp"
-                    android:layout_below="@id/badgeId"
                     android:layout_toRightOf="@+id/customNameText"/>
 
 

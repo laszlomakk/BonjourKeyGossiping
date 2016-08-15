@@ -1,74 +1,52 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.activebadge;
+package uk.ac.cam.cl.lm649.bonjourtesting;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Base64;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 
-import java.util.UUID;
+import java.security.SecureRandom;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.SaveData;
 
-public class SaveBadgeData extends SaveData {
+public class SaveIdentityData extends SaveData {
 
     private static final String TAG = "SaveBadgeData";
 
-    private static SaveBadgeData INSTANCE = null;
+    private static SaveIdentityData INSTANCE = null;
 
-    private static final String SAVE_LOCATION_FOR_OWN_BADGE_ID = "my_badge_id";
     private static final String SAVE_LOCATION_FOR_OWN_BADGE_CUSTOM_NAME = "my_badge_custom_name";
     private static final String SAVE_LOCATION_FOR_OWN_PRIVATE_KEY = "my_private_key";
     private static final String SAVE_LOCATION_FOR_OWN_PUBLIC_KEY = "my_public_key";
+    private static final String SAVE_LOCATION_FOR_OWN_PHONE_NUMBER = "phone_number";
+    private static final String SAVE_LOCATION_FOR_OWN_STATIC_SALT = "static_salt";
 
-    private SaveBadgeData(Context context) {
-        super(context, context.getString(R.string.badge_save_location));
+    private SaveIdentityData(Context context) {
+        super(context, context.getString(R.string.identity_save_location));
     }
 
-    public static synchronized SaveBadgeData getInstance(Context context) {
+    public static synchronized SaveIdentityData getInstance(Context context) {
         if (null == INSTANCE) {
-            INSTANCE = new SaveBadgeData(context);
+            INSTANCE = new SaveIdentityData(context);
         }
         return INSTANCE;
     }
 
-    public void deleteMyBadge() {
-        FLogger.i(TAG, "deleteMyBadge() called.");
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear();
-        editor.apply();
-    }
-
-    private void saveMyBadgeId(UUID badgeId) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        String strId = badgeId.toString();
-        editor.putString(SAVE_LOCATION_FOR_OWN_BADGE_ID, strId);
-        editor.apply();
-    }
-
-    public UUID getMyBadgeId() {
-        String strId = sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_BADGE_ID, "");
-        UUID ret;
-        if ("".equals(strId)) {
-            ret = UUID.randomUUID();
-            FLogger.i(TAG, "Generated a new badgeId for us: " + ret.toString());
-            saveMyBadgeId(ret);
-        } else {
-            ret = UUID.fromString(strId);
-        }
-        return ret;
-    }
-
-    public void saveMyBadgeCustomName(String customName) {
+    public void saveMyCustomName(String customName) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(SAVE_LOCATION_FOR_OWN_BADGE_CUSTOM_NAME, customName);
         editor.apply();
     }
 
-    public String getMyBadgeCustomName() {
-        return sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_BADGE_CUSTOM_NAME, "");
+    public String getMyCustomName() {
+        String customName = sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_BADGE_CUSTOM_NAME, "");
+        if ("".equals(customName)) { // completely disallow empty names
+            customName = "anon";
+        }
+        return customName;
     }
 
     // TODO if we end up regenerating our key pair at arbitrary times, locking will be needed.
@@ -137,6 +115,37 @@ public class SaveBadgeData extends SaveData {
         String privateKey = sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_PRIVATE_KEY, "");
         String publicKey = sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_PUBLIC_KEY, "");
         return !"".equals(privateKey) && !"".equals(publicKey);
+    }
+
+    public void savePhoneNumber(String str) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(SAVE_LOCATION_FOR_OWN_PHONE_NUMBER, str);
+        editor.apply();
+    }
+
+    public String getPhoneNumber(){
+        return sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_PHONE_NUMBER, "+441234567890");
+    }
+
+    private void saveStaticSalt(byte[] staticSalt) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        String base64StaticSalt = Base64.encodeToString(staticSalt, Base64.DEFAULT);
+        editor.putString(SAVE_LOCATION_FOR_OWN_STATIC_SALT, base64StaticSalt);
+        editor.apply();
+    }
+
+    public byte[] getStaticSalt() {
+        String base64StaticSalt = sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_STATIC_SALT, "");
+        if (!"".equals(base64StaticSalt)) {
+            // found it
+            return Base64.decode(base64StaticSalt, Base64.DEFAULT);
+        } else {
+            // generate it now
+            byte[] staticSalt = new byte[Constants.STATIC_SALT_SIZE_IN_BYTES];
+            new SecureRandom().nextBytes(staticSalt);
+            saveStaticSalt(staticSalt);
+            return staticSalt;
+        }
     }
 
 }

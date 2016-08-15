@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Locale;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePublicKeys;
 import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
@@ -30,8 +30,9 @@ public class MsgMyPublicKey extends Message {
     }
 
     public static MsgMyPublicKey createNewMsgWithMyCurrentData(Context context) {
-        String phoneNumber = SaveSettingsData.getInstance(context).getPhoneNumber();
-        String publicKey = SaveBadgeData.getInstance(context).getMyPublicKey();
+        SaveIdentityData saveIdentityData = SaveIdentityData.getInstance(context);
+        String phoneNumber = saveIdentityData.getPhoneNumber();
+        String publicKey = saveIdentityData.getMyPublicKey();
         long curTime = System.currentTimeMillis();
         return new MsgMyPublicKey(phoneNumber, publicKey, curTime);
     }

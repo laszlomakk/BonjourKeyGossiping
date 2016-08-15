@@ -18,9 +18,6 @@ import java.net.SocketException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,18 +28,15 @@ import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.BadgeStatus;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Symmetric;
-import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTableBadges;
-import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTableHistoryTransfer;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgHistoryTransfer;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.UnknownMessageTypeException;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
+import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.ServiceStub;
 
 public class MsgClient {
 
@@ -76,16 +70,13 @@ public class MsgClient {
     public String strFromAddress;
     public String strToAddress;
 
-    private UUID badgeIdOfOtherEnd = null;
-    public JPAKEClient jpakeClient;
+    public final JPAKEManager jpakeManager = new JPAKEManager();
 
-    private MsgClient(@Nullable byte[] secretKeyBytes, boolean iAmTheInitiator) {
-        checkSecretKeyLength(secretKeyBytes);
-
+    private MsgClient(@Nullable SessionKey sessionKey, boolean iAmTheInitiator) {
         app = CustomApplication.getInstance();
         context = app.getApplicationContext();
         this.iAmTheInitiator = iAmTheInitiator;
-        encrypted = (null != secretKeyBytes);
+        encrypted = (null != sessionKey);
         if (encrypted) {
             logTag = TAG_BASE + "-Encrypted";
         } else {
@@ -93,14 +84,14 @@ public class MsgClient {
         }
     }
 
-    protected MsgClient(Socket socket, @Nullable final byte[] secretKeyBytes) {
-        this(secretKeyBytes, false);
+    protected MsgClient(Socket socket, @Nullable final SessionKey sessionKey) {
+        this(sessionKey, false);
         this.socket = socket;
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                init(secretKeyBytes);
+                init(sessionKey);
             }
         };
         try {
@@ -110,15 +101,15 @@ public class MsgClient {
         }
     }
 
-    public MsgClient(@NonNull final InetAddress address, final int port, @Nullable final byte[] secretKeyBytes) {
-        this(secretKeyBytes, true);
+    public MsgClient(@NonNull final InetAddress address, final int port, @Nullable final SessionKey sessionKey) {
+        this(sessionKey, true);
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 try {
                     MsgClient.this.socket = new Socket(address, port);
-                    init(secretKeyBytes);
+                    init(sessionKey);
                 } catch (IOException e) { // TODO think about this
                     FLogger.e(logTag, "MsgClient(). Failed to open socket. closing MsgClient. IOE - " + e.getMessage());
                     MsgClient.this.close();
@@ -133,21 +124,21 @@ public class MsgClient {
 
     }
 
-    private void init(@Nullable byte[] secretKeyBytes) {
+    private void init(@Nullable SessionKey sessionKey) {
         try {
             socketAddress = socket.getInetAddress();
             strSocketAddress = socketAddress.getHostAddress();
             strFromAddress = "from addr: " + strSocketAddress + ", ";
             strToAddress = "to addr: " + strSocketAddress + ", ";
 
-            outStream = initOutStream(socket, secretKeyBytes);
+            outStream = initOutStream(socket, sessionKey);
             if (null == outStream) {
                 FLogger.e(logTag, "outStream is null.");
                 this.close();
                 return;
             }
             outStreamReadyLatch.countDown();
-            inStream = initInStream(socket, secretKeyBytes);
+            inStream = initInStream(socket, sessionKey);
             if (null == inStream) {
                 FLogger.e(logTag, "inStream is null.");
                 this.close();
@@ -159,15 +150,15 @@ public class MsgClient {
         }
     }
 
-    private static DataOutputStream initOutStream(Socket socket, @Nullable byte[] secretKeyBytes) throws IOException {
+    private static DataOutputStream initOutStream(Socket socket, @Nullable SessionKey sessionKey) throws IOException {
         OutputStream outStream = socket.getOutputStream();
-        boolean encrypted = (null != secretKeyBytes);
+        boolean encrypted = (null != sessionKey);
         if (!encrypted) {
             return new DataOutputStream(new BufferedOutputStream(outStream));
         } else {
             Cipher cipher;
             try {
-                cipher = Symmetric.getInitialisedCipher(Cipher.ENCRYPT_MODE, secretKeyBytes);
+                cipher = Symmetric.getInitialisedCipher(Cipher.ENCRYPT_MODE, sessionKey.secretKeyBytes, sessionKey.ivBytes);
             } catch (InvalidAlgorithmParameterException | InvalidKeyException
                     | NoSuchPaddingException | NoSuchAlgorithmException e) {
                 FLogger.e(TAG_BASE, "initOutStream(). Exception: " + e.getMessage());
@@ -178,15 +169,15 @@ public class MsgClient {
         }
     }
 
-    private static DataInputStream initInStream(Socket socket, @Nullable byte[] secretKeyBytes) throws IOException {
+    private static DataInputStream initInStream(Socket socket, @Nullable SessionKey sessionKey) throws IOException {
         InputStream inStream = socket.getInputStream();
-        boolean encrypted = (null != secretKeyBytes);
+        boolean encrypted = (null != sessionKey);
         if (!encrypted) {
             return new DataInputStream(new BufferedInputStream(inStream));
         } else {
             Cipher cipher;
             try {
-                cipher = Symmetric.getInitialisedCipher(Cipher.DECRYPT_MODE, secretKeyBytes);
+                cipher = Symmetric.getInitialisedCipher(Cipher.DECRYPT_MODE, sessionKey.secretKeyBytes, sessionKey.ivBytes);
             } catch (InvalidAlgorithmParameterException | InvalidKeyException
                     | NoSuchPaddingException | NoSuchAlgorithmException e) {
                 FLogger.e(TAG_BASE, "initInStream(). Exception: " + e.getMessage());
@@ -284,34 +275,8 @@ public class MsgClient {
         return outStream;
     }
 
-    public UUID getBadgeIdOfOtherEnd() {
-        return badgeIdOfOtherEnd;
-    }
-
     public InetAddress getSocketAddress() {
         return socketAddress;
-    }
-
-    /**
-     * Sets this.badgeIdOfOtherEnd to badgeId on first call. Tests for equality and
-     * "produces" error on mismatch for subsequent calls.
-     */
-    public void reconfirmBadgeId(UUID badgeId) {
-        if (null == badgeIdOfOtherEnd) {
-            if (null != badgeId) {
-                badgeIdOfOtherEnd = badgeId;
-                FLogger.d(logTag, "reconfirmBadgeId(). badgeIdOfOtherEnd set to " + badgeIdOfOtherEnd);
-            } else {
-                FLogger.e(logTag, "reconfirmBadgeId(). badgeId == badgeIdOfOtherEnd == null.");
-            }
-            return;
-        }
-        if (!badgeIdOfOtherEnd.equals(badgeId)) {
-            FLogger.e(logTag, String.format(Locale.US,
-                    "reconfirmBadgeId(). wtf. badgeId mismatch! old: %s, new: %s",
-                    badgeIdOfOtherEnd, badgeId));
-            // TODO maybe throw an exception or call close() ?
-        }
     }
 
     public ServiceStub getServiceStubWeAreBoundTo() {
@@ -325,12 +290,15 @@ public class MsgClient {
     /**
      * note: a msgClient can only be upgraded if (msgClient.iAmTheInitiator == true)
      */
-    public static MsgClient upgradeToEncryptedMsgClient(MsgClient msgClient, int port, @NonNull final byte[] secretKeyBytes) {
+    public static MsgClient upgradeToEncryptedMsgClient(MsgClient msgClient, int port, final SessionKey sessionKey) {
         if (!msgClient.iAmTheInitiator) {
             throw new IllegalArgumentException("msgClient.iAmTheInitiator == false");
         }
+        if (null == sessionKey) {
+            throw new IllegalArgumentException("sessionKey == null");
+        }
 
-        MsgClient msgClientEncrypted = new MsgClient(msgClient.socket.getInetAddress(), port, secretKeyBytes);
+        MsgClient msgClientEncrypted = new MsgClient(msgClient.socket.getInetAddress(), port, sessionKey);
         ServiceStub serviceStub = msgClient.serviceStubWeAreBoundTo;
         msgClientEncrypted.setServiceStubWeAreBoundTo(serviceStub);
         MsgServerManager.getInstance().serviceToMsgClientMap.put(serviceStub, msgClientEncrypted);
@@ -338,15 +306,6 @@ public class MsgClient {
         msgClient.close();
 
         return msgClientEncrypted;
-    }
-
-    private static void checkSecretKeyLength(@Nullable final byte[] secretKeyBytes) {
-        if (isSecretKeyLengthValid(secretKeyBytes)) return;
-        throw new RuntimeException("invalid secret key length: " + secretKeyBytes.length + " bytes");
-    }
-
-    public static boolean isSecretKeyLengthValid(@Nullable final byte[] secretKeyBytes) {
-        return (null == secretKeyBytes) || (secretKeyBytes.length == Symmetric.KEY_LENGTH_IN_BYTES);
     }
 
 }

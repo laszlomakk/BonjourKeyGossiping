@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePublicKeys;
 import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
@@ -25,10 +25,9 @@ public class PublicKeysActivity extends CustomActivity {
     private static final String TAG = "PublicKeysActivity";
 
     private ArrayAdapter<String> listAdapterForDisplayedListOfEntries;
-    private ArrayList<DbTablePublicKeys.EntryWithBadgeData> entriesArrList = new ArrayList<>();
+    private ArrayList<DbTablePublicKeys.EntryWithName> entriesArrList = new ArrayList<>();
     private final Object displayedEntriesLock = new Object();
 
-    private TextView textViewBadgeId;
     private TextView textViewCustomName;
     private TextView textViewPhoneNumber;
     private TextView textViewPublicKey;
@@ -80,7 +79,6 @@ public class PublicKeysActivity extends CustomActivity {
         });
 
         // top area
-        textViewBadgeId = (TextView) findViewById(R.id.badgeId);
         textViewCustomName = (TextView) findViewById(R.id.customName);
         textViewPhoneNumber = (TextView) findViewById(R.id.phoneNumber);
         textViewPublicKey = (TextView) findViewById(R.id.publicKey);
@@ -107,15 +105,14 @@ public class PublicKeysActivity extends CustomActivity {
     }
 
     private void refreshTopUIInternal() {
-        textViewBadgeId.setText(SaveBadgeData.getInstance(context).getMyBadgeId().toString());
-
-        String customName = SaveBadgeData.getInstance(context).getMyBadgeCustomName();
+        String customName = saveIdentityData.getMyCustomName();
         textViewCustomName.setText(customName);
 
-        textViewPhoneNumber.setText(SaveSettingsData.getInstance(context).getPhoneNumber());
+        String phoneNumber = saveIdentityData.getPhoneNumber();
+        textViewPhoneNumber.setText(phoneNumber);
 
         textViewPublicKey.setText(
-                Asymmetric.getFingerprint(SaveBadgeData.getInstance(context).getMyPublicKey())
+                Asymmetric.getFingerprint(saveIdentityData.getMyPublicKey())
         );
 
         String numEntriesInList;
@@ -134,7 +131,7 @@ public class PublicKeysActivity extends CustomActivity {
                     FLogger.v(TAG, "updateListView() doing actual update.");
                     listAdapterForDisplayedListOfEntries.clear();
                     entriesArrList.clear();
-                    for (DbTablePublicKeys.EntryWithBadgeData entry : DbTablePublicKeys.getAllEntries()) {
+                    for (DbTablePublicKeys.EntryWithName entry : DbTablePublicKeys.getAllEntries()) {
                         listAdapterForDisplayedListOfEntries.add(entry.toString());
                         entriesArrList.add(entry);
                     }

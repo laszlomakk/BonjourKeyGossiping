@@ -23,19 +23,16 @@ import javax.jmdns.ServiceInfo;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgArbitraryText;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgMyPhoneNumber;
-import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.JmdnsUtil;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
+import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.JmdnsUtil;
+import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.ServiceStub;
 
 public class BonjourDebugActivity extends CustomActivity {
 
@@ -95,36 +92,6 @@ public class BonjourDebugActivity extends CustomActivity {
                 }
             }
         });
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                synchronized (displayedServicesLock){
-                    FLogger.i(TAG, "onItemLongClick() - user clicked on an item in the list");
-                    ServiceInfo serviceInfo = servicesFoundArrList.get(position).getInfo();
-                    if (null == serviceInfo){
-                        FLogger.e(TAG, "onItemLongClick(). error sending msg: serviceInfo is null");
-                        HelperMethods.displayMsgToUser(context, "error sending msg: serviceInfo is null (1)");
-                        return true;
-                    }
-                    MsgClient msgClient = MsgServerManager.getInstance().serviceToMsgClientMap.get(new ServiceStub(serviceInfo));
-                    if (null == msgClient) {
-                        FLogger.e(TAG, "onItemLongClick(). msgClient not found");
-                        HelperMethods.displayMsgToUser(context, "error: msgClient not found");
-                    } else {
-                        String badgeIdOfOtherDevice = serviceInfo.getPropertyString(BonjourService.DNS_TXT_RECORD_MAP_KEY_FOR_BADGE_ID);
-                        if (null == badgeIdOfOtherDevice) {
-                            FLogger.i(TAG, "onItemLongClick(). badgeIdOfOtherDevice is null.");
-                            return true;
-                        }
-                        String sharedSecret = JPAKEClient.determineSharedSecret(badgeIdOfOtherDevice);
-                        boolean jpakeStarted = JPAKEClient.startJPAKEifAppropriate(msgClient, sharedSecret);
-                        FLogger.i(TAG, "onItemLongClick(). jpakeStarted: " + jpakeStarted);
-                        HelperMethods.displayMsgToUser(context, "jpakeStarted: " + jpakeStarted);
-                    }
-                    return true;
-                }
-            }
-        });
 
         // top area
         textViewAppState = (TextView) findViewById(R.id.appState);
@@ -138,12 +105,10 @@ public class BonjourDebugActivity extends CustomActivity {
             @Override
             public void onClick(View v) {
                 FLogger.i(TAG, "user clicked announce button");
-                SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
-                SaveSettingsData saveSettingsData = SaveSettingsData.getInstance(context);
                 for (Map.Entry<ServiceStub, MsgClient> entry : MsgServerManager.getInstance().serviceToMsgClientMap.entrySet()) {
                     Message msg = new MsgMyPhoneNumber(
-                            saveBadgeData.getMyBadgeId().toString(),
-                            saveSettingsData.getPhoneNumber());
+                            saveIdentityData.getMyCustomName(),
+                            saveIdentityData.getPhoneNumber());
                     MsgClient msgClient = entry.getValue();
                     msgClient.sendMessage(msg);
                     ServiceStub serviceStub = entry.getKey();

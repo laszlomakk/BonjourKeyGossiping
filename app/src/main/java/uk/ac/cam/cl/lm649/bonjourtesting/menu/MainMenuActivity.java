@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SettingsActivity;
@@ -36,7 +36,6 @@ public class MainMenuActivity extends CustomActivity {
 
     private void setupUI() {
         setupPublicKeysButton();
-        setupActiveBadgeButton();
         setupPhoneBookButton();
         setupBonjourDebugButton();
         setupSettingsButton();
@@ -52,16 +51,6 @@ public class MainMenuActivity extends CustomActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.PUBLICKEYS"));
-            }
-        });
-    }
-
-    private void setupActiveBadgeButton() {
-        Button btn = (Button) findViewById(R.id.buttonActiveBadge);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent("uk.ac.cam.cl.lm649.bonjourtesting.ACTIVEBADGE"));
             }
         });
     }
@@ -120,10 +109,9 @@ public class MainMenuActivity extends CustomActivity {
     }
 
     private AlertDialog.Builder createCustomNamePromptBuilder(LayoutInflater li, final AlertDialog.Builder nextPrompt) {
-        SaveBadgeData saveBadgeData = SaveBadgeData.getInstance(context);
         View customNamePromptView = li.inflate(R.layout.settings_custom_name_prompt, null);
         final EditText editTextCustomNameInput = (EditText) customNamePromptView.findViewById(R.id.editTextCustomNameInput);
-        editTextCustomNameInput.setText(saveBadgeData.getMyBadgeCustomName());
+        editTextCustomNameInput.setText(saveIdentityData.getMyCustomName());
 
         final AlertDialog.Builder customNameDialogBuilder = new AlertDialog.Builder(context)
                 .setView(customNamePromptView)
@@ -146,10 +134,9 @@ public class MainMenuActivity extends CustomActivity {
     }
 
     private AlertDialog.Builder createPhoneNumberPromptBuilder(LayoutInflater li, final AlertDialog.Builder nextPrompt) {
-        SaveSettingsData saveSettingsData = SaveSettingsData.getInstance(context);
         View phoneNumberPromptView = li.inflate(R.layout.settings_phone_number_prompt, null);
         final EditText editTextPhoneNumberInput = (EditText) phoneNumberPromptView.findViewById(R.id.editTextPhoneNumberInput);
-        editTextPhoneNumberInput.setText(saveSettingsData.getPhoneNumber());
+        editTextPhoneNumberInput.setText(saveIdentityData.getPhoneNumber());
 
         final AlertDialog.Builder phoneNumberDialogBuilder = new AlertDialog.Builder(context)
                 .setView(phoneNumberPromptView)

@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.util;
+package uk.ac.cam.cl.lm649.bonjourtesting.bonjour;
 
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
@@ -9,7 +9,7 @@ public class ServiceStub implements Comparable<ServiceStub> {
     public final String name;
 
     public ServiceStub(String type, String name){
-        if (null == type || null == name) throw new IllegalArgumentException();
+        if (null == type || null == name) throw new IllegalArgumentException("type or name is null");
         this.type = type;
         this.name = name;
     }

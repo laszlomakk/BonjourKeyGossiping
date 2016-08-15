@@ -28,17 +28,15 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
+import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.ConnectivityChangeReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
 
 public class BonjourService extends Service {
 
@@ -149,15 +147,15 @@ public class BonjourService extends Service {
         FLogger.i(TAG, "Registering our own service.");
         changeServiceState("registering our service");
         if (SaveSettingsData.getInstance(this).isUsingRandomServiceName()) {
-            nameOfOurService = Constants.RANDOM_SERVICE_NAMES_START_WITH + HelperMethods.getNRandomDigits(5);
+            nameOfOurService = Constants.RANDOM_SERVICE_NAMES_START_WITH + HelperMethods.getNRandomDigits(7);
         } else {
-            nameOfOurService = SaveSettingsData.getInstance(this).getCustomServiceName();
+            nameOfOurService = SaveIdentityData.getInstance(this).getMyCustomName();
         }
         int port = MsgServerManager.getInstance().getMsgServerPlaintext().getPort();
 
         serviceInfoOfOurService = ServiceInfo.create(Constants.DEFAULT_SERVICE_TYPE, nameOfOurService, port, "");
         Map<String, String> payload = new HashMap<>();
-        payload.put(DNS_TXT_RECORD_MAP_KEY_FOR_BADGE_ID, SaveBadgeData.getInstance(app).getMyBadgeId().toString());
+        // note: DNS txt records can be set here -- not used atm
         serviceInfoOfOurService.setText(payload);
 
         jmdns.registerService(serviceInfoOfOurService);

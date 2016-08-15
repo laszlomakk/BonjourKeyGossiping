@@ -6,18 +6,17 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging;
 
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.ServiceStub;
+import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.ServiceStub;
 
 public class MsgServerManager {
 
     private final static String TAG = "MsgServerManager";
     private static MsgServerManager INSTANCE = null;
 
-    public final ConcurrentHashMap<ServiceStub, MsgClient> serviceToMsgClientMap = new ConcurrentHashMap<>();
+    public final ConcurrentSkipListMap<ServiceStub, MsgClient> serviceToMsgClientMap = new ConcurrentSkipListMap<>();
 
     private final MsgServerPlaintext msgServerPlaintext;
     private final MsgServerEncrypted msgServerEncrypted;

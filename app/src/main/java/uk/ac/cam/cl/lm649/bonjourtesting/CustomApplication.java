@@ -16,10 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.ActiveBadgePollerService;
-import uk.ac.cam.cl.lm649.bonjourtesting.activebadge.SaveBadgeData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServer;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.DeviceIdleBroadcastReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.LoggingBroadcastReceiver;
@@ -79,8 +76,8 @@ public class CustomApplication extends Application {
         if (SaveSettingsData.getInstance(this).isAppOperationalCoreEnabled()) {
             Log.i(TAG, "onCreate(). AppOperationalCore setting is ON, so starting up.");
             startMsgServerManager();
-            ActiveBadgePollerService.automaticPollingEnabled = true;
-            ActiveBadgePollerService.schedulePolling(this);
+            PollingService.automaticPollingEnabled = true;
+            PollingService.schedulePolling(this);
             startBonjourService();
         } else {
             Log.i(TAG, "onCreate(). AppOperationalCore setting is OFF, won't start.");
@@ -90,8 +87,8 @@ public class CustomApplication extends Application {
     public void shutdownOperationalCore() {
         FLogger.i(TAG, "shutdownOperationalCore() called.");
         stopBonjourService();
-        ActiveBadgePollerService.automaticPollingEnabled = false;
-        ActiveBadgePollerService.cancelPolling(this);
+        PollingService.automaticPollingEnabled = false;
+        PollingService.cancelPolling(this);
         MsgServerManager.getInstance().stop();
     }
 
@@ -100,7 +97,7 @@ public class CustomApplication extends Application {
         new Thread() {
             @Override
             public void run() {
-                SaveBadgeData.getInstance(CustomApplication.this).generateAndSaveMyKeypair(false);
+                SaveIdentityData.getInstance(CustomApplication.this).generateAndSaveMyKeypair(false);
             }
         }.start();
     }

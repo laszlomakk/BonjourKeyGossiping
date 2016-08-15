@@ -13,14 +13,12 @@ public class MessageTypes {
 
     public enum Type {
         ARBITRARY_TEXT      (0, MsgArbitraryText.class),
-        WHO_ARE_YOU_QUESTION(1, MsgWhoAreYouQuestion.class),
-        BADGE_STATUS_UPDATE (2, MsgBadgeStatusUpdate.class),
-        HISTORY_TRANSFER    (3, MsgHistoryTransfer.class),
         JPAKE_ROUND1        (4, MsgJPAKERound1.class),
         JPAKE_ROUND2        (5, MsgJPAKERound2.class),
         JPAKE_ROUND3        (6, MsgJPAKERound3.class),
         MY_PHONE_NUMBER     (7, MsgMyPhoneNumber.class),
         MY_PUBLIC_KEY       (8, MsgMyPublicKey.class),
+        SALTED_PHONE_NUMBER (9, MsgSaltedPhoneNumber.class),
         ;
 
         private int msgNum;
