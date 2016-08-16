@@ -149,14 +149,23 @@ public class PhoneBookActivity extends CustomActivity {
             @Override
             public void onClick(View v) {
                 FLogger.i(TAG, "onClick(). user clicked Add Contact button");
-                LayoutInflater li = LayoutInflater.from(PhoneBookActivity.this);
-                AlertDialog.Builder addContactDialogBuilder = createAddContactPromptBuilder(li);
+                AlertDialog.Builder addContactDialogBuilder = createAddContactPromptBuilder(true);
                 addContactDialogBuilder.create().show();
+            }
+        });
+        addContactButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                FLogger.i(TAG, "onLongClick(). user long-clicked Add Contact button");
+                AlertDialog.Builder addContactDialogBuilder = createAddContactPromptBuilder(false);
+                addContactDialogBuilder.create().show();
+                return true;
             }
         });
     }
 
-    private AlertDialog.Builder createAddContactPromptBuilder(LayoutInflater li) {
+    private AlertDialog.Builder createAddContactPromptBuilder(final boolean sanitizePhoneNumber) {
+        LayoutInflater li = LayoutInflater.from(PhoneBookActivity.this);
         View promptView = li.inflate(R.layout.phone_book_add_contact_prompt, null);
         final EditText editTextNameInput = (EditText) promptView.findViewById(R.id.editTextNameInput);
         final EditText editTextPhoneNumberInput = (EditText) promptView.findViewById(R.id.editTextPhoneNumberInput);
@@ -168,7 +177,9 @@ public class PhoneBookActivity extends CustomActivity {
                             public void onClick(DialogInterface dialog,int id) {
                                 String contactName = editTextNameInput.getText().toString();
                                 String contactPhoneNumber = editTextPhoneNumberInput.getText().toString();
-                                contactPhoneNumber = PhoneNumUtil.formatPhoneNumber(contactPhoneNumber, phoneNumberOfLocalDevice);
+                                if (sanitizePhoneNumber) {
+                                    contactPhoneNumber = PhoneNumUtil.formatPhoneNumber(contactPhoneNumber, phoneNumberOfLocalDevice);
+                                }
                                 DbTablePhoneNumbers.smartUpdateEntry(contactPhoneNumber, contactName);
                                 forceRefreshUI();
                             }
