@@ -19,7 +19,6 @@ import java.util.Locale;
 import java.util.UUID;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound1;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound2;
@@ -239,11 +238,9 @@ public class JPAKEClient {
 
         JPAKERound3Payload round3Payload = participant.createRound3PayloadToSend(keyingMaterial);
 
-        int portForEncryptedComms = MsgServerManager.getInstance().getMsgServerEncrypted().getPort();
         Message msg = new MsgJPAKERound3(
                 handshakeId,
-                round3Payload.getMacTag(),
-                portForEncryptedComms);
+                round3Payload.getMacTag());
         msgClient.sendMessage(msg);
 
         state = State.ROUND_3_SEND;
@@ -313,16 +310,10 @@ public class JPAKEClient {
                 state = State.FINISHED;
                 // fall through
             case FINISHED:
-            case ROUND_2_RECEIVE:
-            case ROUND_3_SEND:
                 return sessionKey;
             default:
                 throw new IllegalStateException("state: " + state);
         }
-    }
-
-    protected State getState() {
-        return state;
     }
 
     public boolean isInProgress() {
@@ -333,6 +324,10 @@ public class JPAKEClient {
             default:
                 return !hasTimedOut();
         }
+    }
+
+    public boolean hasHandshakeFinishedSuccessfully() {
+        return state == State.FINISHED || state == State.ROUND_3_RECEIVE;
     }
 
     private boolean hasTimedOut() {

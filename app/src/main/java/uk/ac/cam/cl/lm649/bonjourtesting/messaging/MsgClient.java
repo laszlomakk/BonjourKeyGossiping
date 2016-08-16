@@ -30,12 +30,10 @@ import javax.crypto.NoSuchPaddingException;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Symmetric;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.UnknownMessageTypeException;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.ServiceStub;
 
 public class MsgClient {
@@ -162,7 +160,7 @@ public class MsgClient {
             } catch (InvalidAlgorithmParameterException | InvalidKeyException
                     | NoSuchPaddingException | NoSuchAlgorithmException e) {
                 FLogger.e(TAG_BASE, "initOutStream(). Exception: " + e.getMessage());
-                FLogger.e(TAG_BASE, HelperMethods.formatStackTraceAsString(e));
+                FLogger.e(TAG_BASE, e);
                 return null;
             }
             return new DataOutputStream(new BufferedOutputStream(new CipherOutputStream(outStream, cipher)));
@@ -181,7 +179,7 @@ public class MsgClient {
             } catch (InvalidAlgorithmParameterException | InvalidKeyException
                     | NoSuchPaddingException | NoSuchAlgorithmException e) {
                 FLogger.e(TAG_BASE, "initInStream(). Exception: " + e.getMessage());
-                FLogger.e(TAG_BASE, HelperMethods.formatStackTraceAsString(e));
+                FLogger.e(TAG_BASE, e);
                 return null;
             }
             return new DataInputStream(new BufferedInputStream(new CipherInputStream(inStream, cipher)));
