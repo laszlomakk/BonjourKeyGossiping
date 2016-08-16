@@ -65,29 +65,29 @@ public class MsgJPAKERound3 extends Message {
     @Override
     public void onReceive(MsgClient msgClient) throws IOException {
         FLogger.i(msgClient.logTag, msgClient.strFromAddress + "received " +
-                getClass().getSimpleName() + "-" + handshakeId);
+                getClass().getSimpleName() + strHandshakeId);
         JPAKEClient jpakeClient = msgClient.jpakeManager.findJPAKEClient(handshakeId);
         if (null == jpakeClient) {
-            FLogger.e(TAG, strHandshakeId + "onReceive(). couldn't find jpakeClient for this handshake.");
+            FLogger.e(TAG, "onReceive(). couldn't find jpakeClient for this handshake." + strHandshakeId);
             return;
         }
         boolean round3Success = jpakeClient.round3Receive(msgClient, this);
         if (round3Success) {
             byte[] sessionKeyBytes = jpakeClient.getSessionKey();
-            FLogger.i(TAG, strHandshakeId + "round 3 succeeded! key: " + Hex.toHexString(sessionKeyBytes));
+            FLogger.i(TAG, "round 3 succeeded! key: " + Hex.toHexString(sessionKeyBytes) + strHandshakeId);
 
-            FLogger.d(TAG, strHandshakeId + "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator);
+            FLogger.d(TAG, "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator + strHandshakeId);
             if (msgClient.iAmTheInitiator) {
                 SessionKey sessionKey = null;
                 try {
                     sessionKey = new SessionKey(sessionKeyBytes);
                     startSettingUpAnEncryptedConnection(msgClient, portForEncryptedComms, sessionKey);
                 } catch (SessionKey.InvalidSessionKeySizeException e) {
-                    FLogger.e(TAG, strHandshakeId + "InvalidSessionKeySizeException: " + e.getMessage());
+                    FLogger.e(TAG, "InvalidSessionKeySizeException: " + e.getMessage() + strHandshakeId);
                 }
             }
         } else {
-            FLogger.i(TAG, strHandshakeId + "round 3 failed.");
+            FLogger.i(TAG, "round 3 failed." + strHandshakeId);
         }
     }
 

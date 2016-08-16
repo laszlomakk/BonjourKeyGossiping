@@ -82,24 +82,24 @@ public class MsgJPAKERound1 extends Message {
     @Override
     public void onReceive(MsgClient msgClient) throws IOException {
         FLogger.i(msgClient.logTag, msgClient.strFromAddress + "received " +
-                getClass().getSimpleName() + "-" + handshakeId);
+                getClass().getSimpleName() + strHandshakeId);
 
         JPAKEManager jpakeManager = msgClient.jpakeManager;
         JPAKEClient jpakeClient = jpakeManager.findJPAKEClient(handshakeId);
         if (null == jpakeClient) {
-            FLogger.d(TAG, strHandshakeId + "onReceive(). this is a new handshakeId, the other end initiated.");
+            FLogger.d(TAG, "onReceive(). this is a new handshakeId, the other end initiated." + strHandshakeId);
             jpakeClient = jpakeManager.createJPAKEClientDueToIncomingMessage(handshakeId);
         }
         if (null == jpakeClient) {
-            FLogger.e(TAG, strHandshakeId + "onReceive(). wtf. jpakeClient is null.");
+            FLogger.e(TAG, "onReceive(). wtf. jpakeClient is null." + strHandshakeId);
             return;
         }
         boolean round1Success = jpakeClient.round1Receive(msgClient, this);
         if (round1Success) {
-            FLogger.i(TAG, strHandshakeId + "round 1 succeeded.");
+            FLogger.i(TAG, "round 1 succeeded." + strHandshakeId);
             jpakeClient.round2Send(msgClient);
         } else {
-            FLogger.i(TAG, strHandshakeId + "round 1 failed.");
+            FLogger.i(TAG, "round 1 failed." + strHandshakeId);
         }
     }
 
