@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -26,6 +25,8 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class MsgSaltedPhoneNumber extends Message {
+
+    private static final String TAG = "MsgSaltedPhoneNumber";
 
     public final byte[] salt;
     public final int nRevealedBitsOfHash;
@@ -89,24 +90,30 @@ public class MsgSaltedPhoneNumber extends Message {
                 Hex.toHexString(hashOfSaltedPhoneNumber),
                 Hex.toHexString(salt),
                 nRevealedBitsOfHash));
+
+        List<String> hopefulPhoneNumbers = getHopefulPhoneNumbers();
+
+        if (hopefulPhoneNumbers.size() == 0) {
+            FLogger.i(TAG, "no match found for hash " + Hex.toHexString(hashOfSaltedPhoneNumber));
+        } else {
+            JPAKEManager.startJPAKEWave(msgClient, hopefulPhoneNumbers);
+        }
+    }
+
+    private List<String> getHopefulPhoneNumbers() {
         List<String> hopefulPhoneNumbers = new ArrayList<>();
         for (DbTablePhoneNumbers.Entry entry : DbTablePhoneNumbers.getAllEntries()) {
             byte[] partialHashCandidate = calcPartialHashOfPhoneNumberAndSalt(
                     entry.getPhoneNumber(), salt, nRevealedBitsOfHash);
             if (Arrays.equals(partialHashCandidate, hashOfSaltedPhoneNumber)) {
-                FLogger.i(msgClient.logTag, String.format(Locale.US,
+                FLogger.i(TAG, String.format(Locale.US,
                         "match found for hash %s, where phoneNumber is %s",
                         Hex.toHexString(hashOfSaltedPhoneNumber),
                         entry.getPhoneNumber()));
                 hopefulPhoneNumbers.add(entry.getPhoneNumber());
             }
         }
-        if (hopefulPhoneNumbers.size() == 0) {
-            FLogger.i(msgClient.logTag, "no match found for hash " + Hex.toHexString(hashOfSaltedPhoneNumber));
-        } else {
-            Collections.shuffle(hopefulPhoneNumbers); // TODO this is just for TESTING against concurrency bugs
-            JPAKEManager.startJPAKEWave(msgClient, hopefulPhoneNumbers);
-        }
+        return hopefulPhoneNumbers;
     }
 
     public static byte[] calcPartialHashOfPhoneNumberAndSalt(String phoneNumber, byte[] salt, int nBitsToReveal) {
