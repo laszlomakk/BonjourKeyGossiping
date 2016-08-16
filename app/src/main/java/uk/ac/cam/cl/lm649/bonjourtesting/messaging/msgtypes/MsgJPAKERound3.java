@@ -1,7 +1,5 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes;
 
-import android.content.Context;
-
 import org.bouncycastle.util.encoders.Hex;
 
 import java.io.DataInputStream;
@@ -17,7 +15,6 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.SessionKey;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 
 public class MsgJPAKERound3 extends Message {
 

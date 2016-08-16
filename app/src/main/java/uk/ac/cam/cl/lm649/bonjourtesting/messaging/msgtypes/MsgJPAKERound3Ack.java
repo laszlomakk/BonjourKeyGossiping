@@ -2,12 +2,9 @@ package uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes;
 
 import android.content.Context;
 
-import org.bouncycastle.util.encoders.Hex;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.UUID;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
