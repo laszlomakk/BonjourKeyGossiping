@@ -41,6 +41,8 @@ public class JPAKEClient {
     private boolean retrievedSessionKey = false;
 
     private final UUID handshakeId;
+    private final String strHandshakeId;
+
     private final long creationTime;
 
     public static final long TIMEOUT_IN_MSEC = 5 * 60 * 1000;
@@ -71,6 +73,7 @@ public class JPAKEClient {
         }
 
         this.handshakeId = handshakeId;
+        this.strHandshakeId = createHandshakeIdLogString(handshakeId);
 
         creationTime = android.os.SystemClock.elapsedRealtime();
 
@@ -87,10 +90,10 @@ public class JPAKEClient {
     }
 
     public synchronized boolean round1Send(@NonNull MsgClient msgClient) throws IOException {
-        FLogger.d(TAG, "round1Send() called while in state: " + state);
+        FLogger.d(TAG, strHandshakeId + "round1Send() called while in state: " + state);
         if (state == State.ROUND_1_SEND) return true;
         if (state != State.INITIALISED) {
-            FLogger.w(TAG, "round1Send() called in invalid state " + state.name());
+            FLogger.w(TAG, strHandshakeId + "round1Send() called in invalid state " + state.name());
             return false;
         }
 
@@ -110,20 +113,20 @@ public class JPAKEClient {
     }
 
     private synchronized boolean _round1Receive(@NonNull MsgClient msgClient, @NonNull MsgJPAKERound1 msg) throws CryptoException {
-        FLogger.d(TAG, "round1Receive() called while in state: " + state);
+        FLogger.d(TAG, strHandshakeId + "round1Receive() called while in state: " + state);
         switch (state) {
             case INITIALISED:
                 try {
                     round1Send(msgClient);
                 } catch (IOException e) {
-                    FLogger.e(TAG, "round1Receive() tried to call round1Send() but IOE - " + e.getMessage());
+                    FLogger.e(TAG, strHandshakeId + "round1Receive() tried to call round1Send() but IOE - " + e.getMessage());
                     return false;
                 }
                 break;
             case ROUND_1_SEND:
                 break;
             default:
-                FLogger.w(TAG, "round1Receive() called while in state " + state.name());
+                FLogger.w(TAG, strHandshakeId + "round1Receive() called while in state " + state.name());
                 return false;
         }
         if (state != State.ROUND_1_SEND) throw new IllegalStateException("state: " + state);
@@ -145,7 +148,7 @@ public class JPAKEClient {
         } catch (CryptoException e) {
             state = State.FAILED;
             FLogger.w(TAG, String.format(Locale.US,
-                    "round1Receive(). validation failed. IP: %s, oParticipantId: %s, Exception: %s",
+                    strHandshakeId + "round1Receive(). validation failed. IP: %s, oParticipantId: %s, Exception: %s",
                     msgClient.strSocketAddress,
                     otherParticipantId,
                     e.getMessage()));
@@ -154,10 +157,10 @@ public class JPAKEClient {
     }
 
     public synchronized boolean round2Send(@NonNull MsgClient msgClient) throws IOException {
-        FLogger.d(TAG, "round2Send() called while in state: " + state);
+        FLogger.d(TAG, strHandshakeId + "round2Send() called while in state: " + state);
         if (state == State.ROUND_2_SEND) return true;
         if (state != State.ROUND_1_RECEIVE) {
-            FLogger.w(TAG, "round2Send() called in invalid state " + state.name());
+            FLogger.w(TAG, strHandshakeId + "round2Send() called in invalid state " + state.name());
             return false;
         }
 
@@ -175,20 +178,20 @@ public class JPAKEClient {
     }
 
     private synchronized boolean _round2Receive(@NonNull MsgClient msgClient, @NonNull MsgJPAKERound2 msg) throws CryptoException {
-        FLogger.d(TAG, "round2Receive() called while in state: " + state);
+        FLogger.d(TAG, strHandshakeId + "round2Receive() called while in state: " + state);
         switch (state) {
             case ROUND_1_RECEIVE:
                 try {
                     round2Send(msgClient);
                 } catch (IOException e) {
-                    FLogger.e(TAG, "round2Receive() tried to call round2Send() but IOE - " + e.getMessage());
+                    FLogger.e(TAG, strHandshakeId + "round2Receive() tried to call round2Send() but IOE - " + e.getMessage());
                     return false;
                 }
                 break;
             case ROUND_2_SEND:
                 break;
             default:
-                FLogger.w(TAG, "round2Receive() called while in state " + state.name());
+                FLogger.w(TAG, strHandshakeId + "round2Receive() called while in state " + state.name());
                 return false;
         }
         if (state != State.ROUND_2_SEND) throw new IllegalStateException("state: " + state);
@@ -211,7 +214,7 @@ public class JPAKEClient {
         } catch (CryptoException e) {
             state = State.FAILED;
             FLogger.w(TAG, String.format(Locale.US,
-                    "round2Receive(). validation failed. IP: %s, oParticipantId: %s, Exception: %s",
+                    strHandshakeId + "round2Receive(). validation failed. IP: %s, oParticipantId: %s, Exception: %s",
                     msgClient.strSocketAddress,
                     otherParticipantId,
                     e.getMessage()));
@@ -225,10 +228,10 @@ public class JPAKEClient {
     }
 
     public synchronized boolean round3Send(@NonNull MsgClient msgClient) throws IOException {
-        FLogger.d(TAG, "round3Send() called while in state: " + state);
+        FLogger.d(TAG, strHandshakeId + "round3Send() called while in state: " + state);
         if (state == State.ROUND_3_SEND) return true;
         if (state != State.ROUND_2_RECEIVE) {
-            FLogger.w(TAG, "round3Send() called in invalid state " + state.name());
+            FLogger.w(TAG, strHandshakeId + "round3Send() called in invalid state " + state.name());
             return false;
         }
 
@@ -246,20 +249,20 @@ public class JPAKEClient {
     }
 
     private synchronized boolean _round3Receive(@NonNull MsgClient msgClient, @NonNull MsgJPAKERound3 msg) throws CryptoException {
-        FLogger.d(TAG, "round3Receive() called while in state: " + state);
+        FLogger.d(TAG, strHandshakeId + "round3Receive() called while in state: " + state);
         switch (state) {
             case ROUND_2_RECEIVE:
                 try {
                     round3Send(msgClient);
                 } catch (IOException e) {
-                    FLogger.e(TAG, "round3Receive() tried to call round3Send() but IOE - " + e.getMessage());
+                    FLogger.e(TAG, strHandshakeId + "round3Receive() tried to call round3Send() but IOE - " + e.getMessage());
                     return false;
                 }
                 break;
             case ROUND_3_SEND:
                 break;
             default:
-                FLogger.w(TAG, "round3Receive() called while in state " + state.name());
+                FLogger.w(TAG, strHandshakeId + "round3Receive() called while in state " + state.name());
                 return false;
         }
         if (state != State.ROUND_3_SEND) throw new IllegalStateException("state: " + state);
@@ -283,7 +286,7 @@ public class JPAKEClient {
         } catch (CryptoException e) {
             state = State.FAILED;
             FLogger.w(TAG, String.format(Locale.US,
-                    "round3Receive(). validation failed. IP: %s, oParticipantId: %s, Exception: %s",
+                    strHandshakeId + "round3Receive(). validation failed. IP: %s, oParticipantId: %s, Exception: %s",
                     msgClient.strSocketAddress,
                     otherParticipantId,
                     e.getMessage()));
@@ -333,6 +336,10 @@ public class JPAKEClient {
     private boolean hasTimedOut() {
         long curTime = android.os.SystemClock.elapsedRealtime();
         return creationTime + TIMEOUT_IN_MSEC < curTime;
+    }
+
+    public static String createHandshakeIdLogString(UUID handshakeId) {
+        return "(hs-" + handshakeId + ") ";
     }
 
 }
