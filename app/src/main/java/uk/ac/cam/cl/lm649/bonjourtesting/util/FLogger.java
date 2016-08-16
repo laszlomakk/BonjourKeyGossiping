@@ -115,9 +115,17 @@ public class FLogger {
         if (LOGGING_TO_FILE) printLine(LogLevel.VERBOSE, tag, msg);
     }
 
+    public static void v(String tag, Throwable e) {
+        v(tag, HelperMethods.formatStackTraceAsString(e));
+    }
+
     public static void d(String tag, String msg) {
         if (LOGGING_TO_LOGCAT) Log.d(tag, msg);
         if (LOGGING_TO_FILE) printLine(LogLevel.DEBUG, tag, msg);
+    }
+
+    public static void d(String tag, Throwable e) {
+        d(tag, HelperMethods.formatStackTraceAsString(e));
     }
 
     public static void i(String tag, String msg) {
@@ -125,14 +133,26 @@ public class FLogger {
         if (LOGGING_TO_FILE) printLine(LogLevel.INFO, tag, msg);
     }
 
+    public static void i(String tag, Throwable e) {
+        i(tag, HelperMethods.formatStackTraceAsString(e));
+    }
+
     public static void w(String tag, String msg) {
         if (LOGGING_TO_LOGCAT) Log.w(tag, msg);
         if (LOGGING_TO_FILE) printLine(LogLevel.WARN, tag, msg);
     }
 
+    public static void w(String tag, Throwable e) {
+        w(tag, HelperMethods.formatStackTraceAsString(e));
+    }
+
     public static void e(String tag, String msg) {
         if (LOGGING_TO_LOGCAT) Log.e(tag, msg);
         if (LOGGING_TO_FILE) printLine(LogLevel.ERROR, tag, msg);
+    }
+
+    public static void e(String tag, Throwable e) {
+        e(tag, HelperMethods.formatStackTraceAsString(e));
     }
 
 }

@@ -11,7 +11,7 @@ import android.util.Log;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class NetworkUtil {
+public final class NetworkUtil {
 
     private static final String TAG = "NetworkUtil";
 

@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.util.Base64;
 import android.widget.Toast;
 
 import java.io.PrintWriter;
@@ -26,9 +25,8 @@ import java.util.Random;
 import java.util.UUID;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
-import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Hash;
 
-public class HelperMethods {
+public final class HelperMethods {
 
     private static final String TAG = "HelperMethods";
 
