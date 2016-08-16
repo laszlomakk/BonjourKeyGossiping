@@ -9,6 +9,7 @@ import org.bouncycastle.util.encoders.Hex;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -115,7 +116,7 @@ public class MsgSaltedPhoneNumber extends Message {
 
     public static void main(String args[]) {
         // hash pre-image attack
-        String phoneNumber = bruteforceAPhoneNumber("2100", "a550c1730c9da0b74feec252750dbf9d", 9);
+        String phoneNumber = bruteforceAPhoneNumber("e801", "a550c1730c9da0b74feec252750dbf9d", 9);
         System.out.println("phone number found: " + phoneNumber);
     }
 
@@ -128,7 +129,7 @@ public class MsgSaltedPhoneNumber extends Message {
 
     private static String bruteforceAPhoneNumber(byte[] partialHashTarget, byte[] salt, int nRevealedBitsOfHash) {
         String phoneNumber;
-        for (int phoneNumberInt = 0; ; phoneNumberInt++) {
+        for (int phoneNumberInt = new SecureRandom().nextInt(); ; phoneNumberInt++) {
             phoneNumber = Integer.toString(phoneNumberInt);
             byte[] partialHash = calcPartialHashOfPhoneNumberAndSalt(phoneNumber, salt, nRevealedBitsOfHash);
             if (Arrays.equals(partialHashTarget, partialHash)) {
