@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -32,7 +33,7 @@ public class MsgSaltedPhoneNumber extends Message {
 
     public MsgSaltedPhoneNumber(
             @NonNull byte[] salt,
-            @NonNull int nRevealedBitsOfHash,
+            int nRevealedBitsOfHash,
             @NonNull byte[] hashOfSaltedPhoneNumber) {
         super();
         this.salt = salt;
@@ -103,6 +104,7 @@ public class MsgSaltedPhoneNumber extends Message {
         if (hopefulPhoneNumbers.size() == 0) {
             FLogger.i(msgClient.logTag, "no match found for hash " + Hex.toHexString(hashOfSaltedPhoneNumber));
         } else {
+            Collections.shuffle(hopefulPhoneNumbers); // TODO this is just for TESTING against concurrency bugs
             JPAKEManager.startJPAKEWave(msgClient, hopefulPhoneNumbers);
         }
     }

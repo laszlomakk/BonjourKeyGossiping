@@ -74,34 +74,11 @@ public class MsgJPAKERound2 extends Message {
         }
         boolean round2Success = jpakeClient.round2Receive(msgClient, this);
         if (round2Success) {
-            onSuccessfulRound2(msgClient, jpakeClient);
+            FLogger.i(TAG, "round 2 succeeded." + strHandshakeId);
+            jpakeClient.round3Send(msgClient);
         } else {
             FLogger.i(TAG, "round 2 failed." + strHandshakeId);
         }
-    }
-
-    private void onSuccessfulRound2(MsgClient msgClient, JPAKEClient jpakeClient) throws IOException {
-        FLogger.i(TAG, "round 2 succeeded." + strHandshakeId);
-
-        FLogger.d(TAG, "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator + strHandshakeId);
-        if (!msgClient.iAmTheInitiator) {
-            byte[] sessionKeyBytes = jpakeClient.getSessionKey();
-            SessionKey sessionKey = null;
-            try {
-                sessionKey = new SessionKey(sessionKeyBytes);
-            } catch (SessionKey.InvalidSessionKeySizeException e) {
-                FLogger.e(TAG, "InvalidSessionKeySizeException: " + e.getMessage() + strHandshakeId);
-                FLogger.d(TAG, HelperMethods.formatStackTraceAsString(e));
-                FLogger.e(TAG, "stopping JPAKE handshake." + strHandshakeId);
-                return;
-            }
-            InetAddress socketAddress = msgClient.getSocketAddress();
-            FLogger.i(TAG, "saving sessionKey for socketAddress: " + socketAddress.getHostAddress() + strHandshakeId);
-            MsgServerManager.getInstance().getMsgServerEncrypted().inetAddressToSessionKeyMap
-                    .put(socketAddress, sessionKey);
-        }
-
-        jpakeClient.round3Send(msgClient);
     }
 
 }

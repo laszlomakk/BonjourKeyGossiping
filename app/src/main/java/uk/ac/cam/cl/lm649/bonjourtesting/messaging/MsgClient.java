@@ -162,7 +162,7 @@ public class MsgClient {
             } catch (InvalidAlgorithmParameterException | InvalidKeyException
                     | NoSuchPaddingException | NoSuchAlgorithmException e) {
                 FLogger.e(TAG_BASE, "initOutStream(). Exception: " + e.getMessage());
-                FLogger.e(TAG_BASE, HelperMethods.formatStackTraceAsString(e));
+                FLogger.e(TAG_BASE, e);
                 return null;
             }
             return new DataOutputStream(new BufferedOutputStream(new CipherOutputStream(outStream, cipher)));
@@ -181,7 +181,7 @@ public class MsgClient {
             } catch (InvalidAlgorithmParameterException | InvalidKeyException
                     | NoSuchPaddingException | NoSuchAlgorithmException e) {
                 FLogger.e(TAG_BASE, "initInStream(). Exception: " + e.getMessage());
-                FLogger.e(TAG_BASE, HelperMethods.formatStackTraceAsString(e));
+                FLogger.e(TAG_BASE, e);
                 return null;
             }
             return new DataInputStream(new BufferedInputStream(new CipherInputStream(inStream, cipher)));
