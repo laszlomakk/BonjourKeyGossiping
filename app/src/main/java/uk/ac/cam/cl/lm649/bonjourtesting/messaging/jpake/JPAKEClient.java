@@ -37,7 +37,7 @@ public class JPAKEClient {
     public final boolean iAmTheInitiator;
 
     private BigInteger keyingMaterial;
-    private BigInteger sessionKey = null;
+    private byte[] sessionKey = null;
     private boolean retrievedSessionKey = false;
 
     private final UUID handshakeId;
@@ -292,16 +292,16 @@ public class JPAKEClient {
     }
 
     // TODO use a secure key derivation function
-    private static BigInteger deriveSessionKey(@NonNull BigInteger keyingMaterial) {
+    private static byte[] deriveSessionKey(@NonNull BigInteger keyingMaterial) {
         SHA256Digest digest = new SHA256Digest();
         byte[] keyByteArray = keyingMaterial.toByteArray();
         byte[] output = new byte[digest.getDigestSize()];
         digest.update(keyByteArray, 0, keyByteArray.length);
         digest.doFinal(output, 0);
-        return new BigInteger(output);
+        return output;
     }
 
-    public BigInteger getSessionKey() {
+    public byte[] getSessionKey() {
         retrievedSessionKey = true;
         switch (state) {
             case ROUND_3_RECEIVE:

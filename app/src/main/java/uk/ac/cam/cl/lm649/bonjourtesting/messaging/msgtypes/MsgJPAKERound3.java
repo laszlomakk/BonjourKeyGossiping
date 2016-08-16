@@ -2,6 +2,8 @@ package uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes;
 
 import android.content.Context;
 
+import org.bouncycastle.util.encoders.Hex;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -67,14 +69,14 @@ public class MsgJPAKERound3 extends Message {
         }
         boolean round3Success = jpakeClient.round3Receive(msgClient, this);
         if (round3Success) {
-            BigInteger sessionKeySecret = jpakeClient.getSessionKey();
-            FLogger.i(TAG, "round 3 succeeded! key: " + sessionKeySecret.toString(Character.MAX_RADIX));
+            byte[] sessionKeyBytes = jpakeClient.getSessionKey();
+            FLogger.i(TAG, "round 3 succeeded! key: " + Hex.toHexString(sessionKeyBytes));
 
             FLogger.d(TAG, "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator);
             if (msgClient.iAmTheInitiator) {
                 SessionKey sessionKey = null;
                 try {
-                    sessionKey = new SessionKey(sessionKeySecret.toByteArray());
+                    sessionKey = new SessionKey(sessionKeyBytes);
                     startSettingUpAnEncryptedConnection(msgClient, portForEncryptedComms, sessionKey);
                 } catch (SessionKey.InvalidSessionKeySizeException e) {
                     FLogger.e(TAG, "InvalidSessionKeySizeException: " + e.getMessage());

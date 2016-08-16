@@ -81,14 +81,15 @@ public class MsgJPAKERound2 extends Message {
 
         FLogger.d(TAG, "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator);
         if (!msgClient.iAmTheInitiator) {
-            byte[] sessionKeyBytes = jpakeClient.getSessionKey().toByteArray();
+            byte[] sessionKeyBytes = jpakeClient.getSessionKey();
             SessionKey sessionKey = null;
             try {
                 sessionKey = new SessionKey(sessionKeyBytes);
             } catch (SessionKey.InvalidSessionKeySizeException e) {
                 FLogger.e(TAG, "InvalidSessionKeySizeException: " + e.getMessage());
                 FLogger.d(TAG, HelperMethods.formatStackTraceAsString(e));
-                // we need to continue though, as otherwise JPAKE would hang.
+                FLogger.e(TAG, "stopping JPAKE handshake.");
+                return;
             }
             InetAddress socketAddress = msgClient.getSocketAddress();
             FLogger.i(TAG, "saving sessionKey for socketAddress: " + socketAddress.getHostAddress());
