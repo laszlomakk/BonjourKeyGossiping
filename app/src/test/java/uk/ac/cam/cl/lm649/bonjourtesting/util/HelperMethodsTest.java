@@ -3,7 +3,7 @@ package uk.ac.cam.cl.lm649.bonjourtesting.util;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.lang.reflect.Method;
 
 import static org.junit.Assert.*;
 
@@ -11,14 +11,14 @@ public class HelperMethodsTest {
 
     @Test
     public void testGetNLowBitsOfByteArray() throws Exception {
-        byte[][] input1 = new byte[][] {
+        byte[][] inputByteArr = new byte[][] {
                 new byte[] {(byte) 255, (byte) 255, (byte) 255, (byte) 255},
                 new byte[] {(byte) 255, (byte) 255, (byte) 255, (byte) 255},
                 new byte[] {(byte) 255, (byte) 255, (byte) 255, (byte) 255},
                 new byte[] {(byte) 37, (byte) 73, (byte) 168},
                 new byte[] {(byte) 37, (byte) 73, (byte) 168},
         };
-        int[] input2 = new int[] {
+        int[] inputNBits = new int[] {
                 -5,
                 99999,
                 10,
@@ -32,10 +32,11 @@ public class HelperMethodsTest {
                 new byte[] {(byte) 37, (byte) 73, (byte) 40},
                 new byte[] {(byte) 37, (byte) 73},
         };
-        for (int i = 0; i < input1.length; i++) {
+        for (int i = 0; i < inputByteArr.length; i++) {
             assertEquals(
                     Hex.toHexString(output[i]),
-                    Hex.toHexString(HelperMethods.getNLowBitsOfByteArray(input1[i], input2[i]))
+                    Hex.toHexString(
+                            HelperMethods.getNLowBitsOfByteArray(inputByteArr[i], inputNBits[i]))
             );
         }
     }

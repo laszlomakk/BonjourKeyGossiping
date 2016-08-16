@@ -22,12 +22,16 @@ public class MsgJPAKERound2 extends Message {
     public final BigInteger a;
     public final BigInteger[] knowledgeProofForX2s;
 
+    private final String strHandshakeId;
+
     public MsgJPAKERound2(UUID handshakeId, BigInteger a, BigInteger[] knowledgeProofForX2s) {
         super();
 
         this.handshakeId = handshakeId;
         this.a = a;
         this.knowledgeProofForX2s = knowledgeProofForX2s;
+
+        this.strHandshakeId = JPAKEClient.createHandshakeIdLogString(handshakeId);
     }
 
     public static MsgJPAKERound2 createFromStream(DataInputStream inStream) throws IOException {
@@ -62,36 +66,37 @@ public class MsgJPAKERound2 extends Message {
     @Override
     public void onReceive(MsgClient msgClient) throws IOException {
         FLogger.i(msgClient.logTag, msgClient.strFromAddress + "received " +
-                getClass().getSimpleName());
+                getClass().getSimpleName() + strHandshakeId);
         JPAKEClient jpakeClient = msgClient.jpakeManager.findJPAKEClient(handshakeId);
         if (null == jpakeClient) {
-            FLogger.e(TAG, "onReceive(). couldn't find jpakeClient for this handshake.");
+            FLogger.e(TAG, "onReceive(). couldn't find jpakeClient for this handshake." + strHandshakeId);
             return;
         }
         boolean round2Success = jpakeClient.round2Receive(msgClient, this);
         if (round2Success) {
             onSuccessfulRound2(msgClient, jpakeClient);
         } else {
-            FLogger.i(TAG, "round 2 failed.");
+            FLogger.i(TAG, "round 2 failed." + strHandshakeId);
         }
     }
 
     private void onSuccessfulRound2(MsgClient msgClient, JPAKEClient jpakeClient) throws IOException {
-        FLogger.i(TAG, "round 2 succeeded.");
+        FLogger.i(TAG, "round 2 succeeded." + strHandshakeId);
 
-        FLogger.d(TAG, "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator);
+        FLogger.d(TAG, "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator + strHandshakeId);
         if (!msgClient.iAmTheInitiator) {
-            byte[] sessionKeyBytes = jpakeClient.getSessionKey().toByteArray();
+            byte[] sessionKeyBytes = jpakeClient.getSessionKey();
             SessionKey sessionKey = null;
             try {
                 sessionKey = new SessionKey(sessionKeyBytes);
             } catch (SessionKey.InvalidSessionKeySizeException e) {
-                FLogger.e(TAG, "InvalidSessionKeySizeException: " + e.getMessage());
+                FLogger.e(TAG, "InvalidSessionKeySizeException: " + e.getMessage() + strHandshakeId);
                 FLogger.d(TAG, HelperMethods.formatStackTraceAsString(e));
-                // we need to continue though, as otherwise JPAKE would hang.
+                FLogger.e(TAG, "stopping JPAKE handshake." + strHandshakeId);
+                return;
             }
             InetAddress socketAddress = msgClient.getSocketAddress();
-            FLogger.i(TAG, "saving sessionKey for socketAddress: " + socketAddress.getHostAddress());
+            FLogger.i(TAG, "saving sessionKey for socketAddress: " + socketAddress.getHostAddress() + strHandshakeId);
             MsgServerManager.getInstance().getMsgServerEncrypted().inetAddressToSessionKeyMap
                     .put(socketAddress, sessionKey);
         }

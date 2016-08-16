@@ -2,20 +2,20 @@ package uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Base64;
 
+import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
-import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Hash;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
@@ -108,10 +108,35 @@ public class MsgSaltedPhoneNumber extends Message {
     }
 
     public static byte[] calcPartialHashOfPhoneNumberAndSalt(String phoneNumber, byte[] salt, int nBitsToReveal) {
-        String base64Salt = Base64.encodeToString(salt, Base64.DEFAULT);
+        String base64Salt = Base64.toBase64String(salt);
         byte[] hashOfSaltedPhoneNumber = Hash.hashString(phoneNumber + base64Salt);
 
         return HelperMethods.getNLowBitsOfByteArray(hashOfSaltedPhoneNumber, nBitsToReveal);
+    }
+
+    public static void main(String args[]) {
+        // hash pre-image attack
+        String phoneNumber = bruteforceAPhoneNumber("e801", "a550c1730c9da0b74feec252750dbf9d", 9);
+        System.out.println("phone number found: " + phoneNumber);
+    }
+
+    private static String bruteforceAPhoneNumber(String hexPartialHashTarget, String hexSalt, int nRevealedBitsOfHash) {
+        byte[] partialHashTarget = Hex.decode(hexPartialHashTarget);
+        byte[] salt = Hex.decode(hexSalt);
+
+        return bruteforceAPhoneNumber(partialHashTarget, salt, nRevealedBitsOfHash);
+    }
+
+    private static String bruteforceAPhoneNumber(byte[] partialHashTarget, byte[] salt, int nRevealedBitsOfHash) {
+        String phoneNumber;
+        for (int phoneNumberInt = new SecureRandom().nextInt(); ; phoneNumberInt++) {
+            phoneNumber = Integer.toString(phoneNumberInt);
+            byte[] partialHash = calcPartialHashOfPhoneNumberAndSalt(phoneNumber, salt, nRevealedBitsOfHash);
+            if (Arrays.equals(partialHashTarget, partialHash)) {
+                break;
+            }
+        }
+        return phoneNumber;
     }
 
 }

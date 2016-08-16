@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.telephony.PhoneNumberUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -18,12 +19,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
+import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.PhoneNumUtil;
 
 public class PhoneBookActivity extends CustomActivity {
 
@@ -36,6 +40,8 @@ public class PhoneBookActivity extends CustomActivity {
     private TextView textViewCustomName;
     private TextView textViewPhoneNumber;
     private TextView textViewNumEntriesInList;
+
+    private String phoneNumberOfLocalDevice;
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 10001;
 
@@ -143,14 +149,23 @@ public class PhoneBookActivity extends CustomActivity {
             @Override
             public void onClick(View v) {
                 FLogger.i(TAG, "onClick(). user clicked Add Contact button");
-                LayoutInflater li = LayoutInflater.from(PhoneBookActivity.this);
-                AlertDialog.Builder addContactDialogBuilder = createAddContactPromptBuilder(li);
+                AlertDialog.Builder addContactDialogBuilder = createAddContactPromptBuilder(true);
                 addContactDialogBuilder.create().show();
+            }
+        });
+        addContactButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                FLogger.i(TAG, "onLongClick(). user long-clicked Add Contact button");
+                AlertDialog.Builder addContactDialogBuilder = createAddContactPromptBuilder(false);
+                addContactDialogBuilder.create().show();
+                return true;
             }
         });
     }
 
-    private AlertDialog.Builder createAddContactPromptBuilder(LayoutInflater li) {
+    private AlertDialog.Builder createAddContactPromptBuilder(final boolean sanitizePhoneNumber) {
+        LayoutInflater li = LayoutInflater.from(PhoneBookActivity.this);
         View promptView = li.inflate(R.layout.phone_book_add_contact_prompt, null);
         final EditText editTextNameInput = (EditText) promptView.findViewById(R.id.editTextNameInput);
         final EditText editTextPhoneNumberInput = (EditText) promptView.findViewById(R.id.editTextPhoneNumberInput);
@@ -162,6 +177,9 @@ public class PhoneBookActivity extends CustomActivity {
                             public void onClick(DialogInterface dialog,int id) {
                                 String contactName = editTextNameInput.getText().toString();
                                 String contactPhoneNumber = editTextPhoneNumberInput.getText().toString();
+                                if (sanitizePhoneNumber) {
+                                    contactPhoneNumber = PhoneNumUtil.formatPhoneNumber(contactPhoneNumber, phoneNumberOfLocalDevice);
+                                }
                                 DbTablePhoneNumbers.smartUpdateEntry(contactPhoneNumber, contactName);
                                 forceRefreshUI();
                             }
@@ -183,8 +201,8 @@ public class PhoneBookActivity extends CustomActivity {
         String customName = saveIdentityData.getMyCustomName();
         textViewCustomName.setText(customName);
 
-        String phoneNumber = saveIdentityData.getPhoneNumber();
-        textViewPhoneNumber.setText(phoneNumber);
+        phoneNumberOfLocalDevice = saveIdentityData.getPhoneNumber();
+        textViewPhoneNumber.setText(phoneNumberOfLocalDevice);
 
         String numEntriesInList;
         synchronized (displayedEntriesLock) {
@@ -245,8 +263,11 @@ public class PhoneBookActivity extends CustomActivity {
                         do {
                             String name = cursor.getString(nameIdx);
                             String phoneNumber = cursor.getString(phoneNumberIdx);
-                            DbTablePhoneNumbers.smartUpdateEntry(phoneNumber, name);
-                            FLogger.i(TAG, "contact imported - name: " + name + ", phoneNum: " + phoneNumber);
+                            String normalisedPhoneNumber = PhoneNumUtil.formatPhoneNumber(phoneNumber, phoneNumberOfLocalDevice);
+                            DbTablePhoneNumbers.smartUpdateEntry(normalisedPhoneNumber, name);
+                            FLogger.i(TAG, String.format(Locale.US,
+                                    "contact imported - name: %s, phone number: %s -> %s",
+                                    name, phoneNumber, normalisedPhoneNumber));
                         } while (cursor.moveToNext());
                         cursor.close();
                     }

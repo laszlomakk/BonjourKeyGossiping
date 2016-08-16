@@ -10,6 +10,7 @@ import java.security.SecureRandom;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.PhoneNumUtil;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.SaveData;
 
 public class SaveIdentityData extends SaveData {
@@ -117,9 +118,11 @@ public class SaveIdentityData extends SaveData {
         return !"".equals(privateKey) && !"".equals(publicKey);
     }
 
-    public void savePhoneNumber(String str) {
+    public void savePhoneNumber(String phoneNumber) {
+        String sanitizedPhoneNumber = PhoneNumUtil.naiveSanitizePhoneNumber(phoneNumber);
+
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(SAVE_LOCATION_FOR_OWN_PHONE_NUMBER, str);
+        editor.putString(SAVE_LOCATION_FOR_OWN_PHONE_NUMBER, sanitizedPhoneNumber);
         editor.apply();
     }
 

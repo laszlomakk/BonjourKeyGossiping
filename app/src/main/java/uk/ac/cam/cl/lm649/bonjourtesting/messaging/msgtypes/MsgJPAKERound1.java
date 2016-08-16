@@ -22,6 +22,8 @@ public class MsgJPAKERound1 extends Message {
     public final BigInteger[] knowledgeProofForX1;
     public final BigInteger[] knowledgeProofForX2;
 
+    private final String strHandshakeId;
+
     public MsgJPAKERound1(
             UUID handshakeId,
             BigInteger gx1,
@@ -36,6 +38,8 @@ public class MsgJPAKERound1 extends Message {
         this.gx2 = gx2;
         this.knowledgeProofForX1 = knowledgeProofForX1;
         this.knowledgeProofForX2 = knowledgeProofForX2;
+
+        this.strHandshakeId = JPAKEClient.createHandshakeIdLogString(handshakeId);
     }
 
     public static MsgJPAKERound1 createFromStream(DataInputStream inStream) throws IOException {
@@ -78,24 +82,24 @@ public class MsgJPAKERound1 extends Message {
     @Override
     public void onReceive(MsgClient msgClient) throws IOException {
         FLogger.i(msgClient.logTag, msgClient.strFromAddress + "received " +
-                getClass().getSimpleName());
+                getClass().getSimpleName() + strHandshakeId);
 
         JPAKEManager jpakeManager = msgClient.jpakeManager;
         JPAKEClient jpakeClient = jpakeManager.findJPAKEClient(handshakeId);
         if (null == jpakeClient) {
-            FLogger.d(TAG, "onReceive(). this is a new handshakeId, the other end initiated.");
+            FLogger.d(TAG, "onReceive(). this is a new handshakeId, the other end initiated." + strHandshakeId);
             jpakeClient = jpakeManager.createJPAKEClientDueToIncomingMessage(handshakeId);
         }
         if (null == jpakeClient) {
-            FLogger.e(TAG, "onReceive(). wtf. jpakeClient is null.");
+            FLogger.e(TAG, "onReceive(). wtf. jpakeClient is null." + strHandshakeId);
             return;
         }
         boolean round1Success = jpakeClient.round1Receive(msgClient, this);
         if (round1Success) {
-            FLogger.i(TAG, "round 1 succeeded.");
+            FLogger.i(TAG, "round 1 succeeded." + strHandshakeId);
             jpakeClient.round2Send(msgClient);
         } else {
-            FLogger.i(TAG, "round 1 failed.");
+            FLogger.i(TAG, "round 1 failed." + strHandshakeId);
         }
     }
 

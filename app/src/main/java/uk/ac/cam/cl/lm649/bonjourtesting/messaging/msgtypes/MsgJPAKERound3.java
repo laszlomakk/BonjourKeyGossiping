@@ -2,6 +2,8 @@ package uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes;
 
 import android.content.Context;
 
+import org.bouncycastle.util.encoders.Hex;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -23,12 +25,16 @@ public class MsgJPAKERound3 extends Message {
     public final BigInteger macTag;
     public final int portForEncryptedComms;
 
+    private final String strHandshakeId;
+
     public MsgJPAKERound3(UUID handshakeId, BigInteger macTag, int portForEncryptedComms) {
         super();
 
         this.handshakeId = handshakeId;
         this.macTag = macTag;
         this.portForEncryptedComms = portForEncryptedComms;
+
+        this.strHandshakeId = JPAKEClient.createHandshakeIdLogString(handshakeId);
     }
 
     public static MsgJPAKERound3 createFromStream(DataInputStream inStream) throws IOException {
@@ -59,29 +65,29 @@ public class MsgJPAKERound3 extends Message {
     @Override
     public void onReceive(MsgClient msgClient) throws IOException {
         FLogger.i(msgClient.logTag, msgClient.strFromAddress + "received " +
-                getClass().getSimpleName());
+                getClass().getSimpleName() + strHandshakeId);
         JPAKEClient jpakeClient = msgClient.jpakeManager.findJPAKEClient(handshakeId);
         if (null == jpakeClient) {
-            FLogger.e(TAG, "onReceive(). couldn't find jpakeClient for this handshake.");
+            FLogger.e(TAG, "onReceive(). couldn't find jpakeClient for this handshake." + strHandshakeId);
             return;
         }
         boolean round3Success = jpakeClient.round3Receive(msgClient, this);
         if (round3Success) {
-            BigInteger sessionKeySecret = jpakeClient.getSessionKey();
-            FLogger.i(TAG, "round 3 succeeded! key: " + sessionKeySecret.toString(Character.MAX_RADIX));
+            byte[] sessionKeyBytes = jpakeClient.getSessionKey();
+            FLogger.i(TAG, "round 3 succeeded! key: " + Hex.toHexString(sessionKeyBytes) + strHandshakeId);
 
-            FLogger.d(TAG, "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator);
+            FLogger.d(TAG, "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator + strHandshakeId);
             if (msgClient.iAmTheInitiator) {
                 SessionKey sessionKey = null;
                 try {
-                    sessionKey = new SessionKey(sessionKeySecret.toByteArray());
+                    sessionKey = new SessionKey(sessionKeyBytes);
                     startSettingUpAnEncryptedConnection(msgClient, portForEncryptedComms, sessionKey);
                 } catch (SessionKey.InvalidSessionKeySizeException e) {
-                    FLogger.e(TAG, "InvalidSessionKeySizeException: " + e.getMessage());
+                    FLogger.e(TAG, "InvalidSessionKeySizeException: " + e.getMessage() + strHandshakeId);
                 }
             }
         } else {
-            FLogger.i(TAG, "round 3 failed.");
+            FLogger.i(TAG, "round 3 failed." + strHandshakeId);
         }
     }
 
