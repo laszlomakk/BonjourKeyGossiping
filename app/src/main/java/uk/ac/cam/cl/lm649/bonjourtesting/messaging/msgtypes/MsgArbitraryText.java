@@ -7,6 +7,7 @@ import java.io.IOException;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 
 public class MsgArbitraryText extends Message {
 
@@ -17,6 +18,7 @@ public class MsgArbitraryText extends Message {
         this.text = text;
     }
 
+    @UsedViaReflection
     public static MsgArbitraryText createFromStream(DataInputStream inStream) throws IOException {
         String text = inStream.readUTF();
         return new MsgArbitraryText(text);

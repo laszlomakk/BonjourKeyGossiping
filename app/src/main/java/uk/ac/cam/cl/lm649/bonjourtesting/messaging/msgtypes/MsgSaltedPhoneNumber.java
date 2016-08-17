@@ -23,6 +23,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 
 public class MsgSaltedPhoneNumber extends Message {
 
@@ -53,6 +54,7 @@ public class MsgSaltedPhoneNumber extends Message {
         return new MsgSaltedPhoneNumber(salt, nRevealedBitsOfHash, partialHash);
     }
 
+    @UsedViaReflection
     public static MsgSaltedPhoneNumber createFromStream(DataInputStream inStream) throws IOException {
         int saltLength = inStream.readInt();
         byte[] salt = new byte[saltLength];

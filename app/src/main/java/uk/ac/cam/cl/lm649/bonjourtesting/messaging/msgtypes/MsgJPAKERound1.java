@@ -11,6 +11,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 
 public class MsgJPAKERound1 extends Message {
 
@@ -42,6 +43,7 @@ public class MsgJPAKERound1 extends Message {
         this.strHandshakeId = JPAKEClient.createHandshakeIdLogString(handshakeId);
     }
 
+    @UsedViaReflection
     public static MsgJPAKERound1 createFromStream(DataInputStream inStream) throws IOException {
         String strHandshakeId = inStream.readUTF();
         UUID handshakeId = HelperMethods.uuidFromStringDefensively(strHandshakeId);

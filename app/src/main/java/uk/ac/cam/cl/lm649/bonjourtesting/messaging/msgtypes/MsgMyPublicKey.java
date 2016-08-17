@@ -14,6 +14,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePublicKeys;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 
 public class MsgMyPublicKey extends Message {
 
@@ -36,6 +37,7 @@ public class MsgMyPublicKey extends Message {
         return new MsgMyPublicKey(phoneNumber, publicKey, curTime);
     }
 
+    @UsedViaReflection
     public static MsgMyPublicKey createFromStream(DataInputStream inStream) throws IOException {
         String phoneNumber = inStream.readUTF();
         String publicKey = inStream.readUTF();
