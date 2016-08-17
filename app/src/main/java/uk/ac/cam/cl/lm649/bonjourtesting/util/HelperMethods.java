@@ -116,7 +116,7 @@ public final class HelperMethods {
             ret = UUID.fromString(str);
         } catch (Exception e) {
             FLogger.e(TAG, "uuidFromStringDefensively() encountered Exception: " + e.getMessage());
-            FLogger.d(TAG, formatStackTraceAsString(e));
+            FLogger.d(TAG, e);
             return null;
         }
         return ret;

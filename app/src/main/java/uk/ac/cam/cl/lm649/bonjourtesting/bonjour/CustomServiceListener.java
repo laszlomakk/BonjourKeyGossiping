@@ -40,11 +40,11 @@ public class CustomServiceListener implements ServiceListener {
     @Override
     public void serviceAdded(ServiceEvent event) {
         if (event.getName().equals(bonjourService.getNameOfOurService())){
-            FLogger.i(TAG, "Discovered our own service: " + event.getInfo());
+            FLogger.d(TAG, "Discovered our own service: " + event.getInfo());
             discoveredOurOwnService = true;
             return;
         }
-        FLogger.i(TAG, "Service added: " + event.getInfo());
+        FLogger.d(TAG, "Service added: " + event.getInfo());
         if (null == bonjourService.jmdns){
             FLogger.e(TAG, "jmDNS is null");
             return;
@@ -56,7 +56,7 @@ public class CustomServiceListener implements ServiceListener {
 
     @Override
     public void serviceRemoved(ServiceEvent event) {
-        FLogger.i(TAG, "Service removed: " + event.getInfo());
+        FLogger.d(TAG, "Service removed: " + event.getInfo());
 
         bonjourService.removeServiceFromRegistry(event);
         MsgServerManager.getInstance().serviceToMsgClientMap.remove(new ServiceStub(event));
@@ -65,7 +65,7 @@ public class CustomServiceListener implements ServiceListener {
     @Override
     public void serviceResolved(ServiceEvent event) {
         if (event.getName().equals(bonjourService.getNameOfOurService())){
-            FLogger.i(TAG, "Tried to resolve our own service: " + event.getInfo());
+            FLogger.d(TAG, "Tried to resolve our own service: " + event.getInfo());
             return;
         }
         FLogger.i(TAG, "Service resolved: " + event.getInfo());

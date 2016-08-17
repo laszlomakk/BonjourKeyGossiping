@@ -56,26 +56,18 @@ public class MsgSaltedPhoneNumber extends Message {
 
     @UsedViaReflection
     public static MsgSaltedPhoneNumber createFromStream(DataInputStream inStream) throws IOException {
-        int saltLength = inStream.readInt();
-        byte[] salt = new byte[saltLength];
-        inStream.readFully(salt);
-
+        byte[] salt = Util.createByteArrayFromStream(inStream);
         int nRevealedBitsOfHash = inStream.readInt();
-
-        int hashOfSaltedPhoneNumberLength = inStream.readInt();
-        byte[] hashOfSaltedPhoneNumber = new byte[hashOfSaltedPhoneNumberLength];
-        inStream.readFully(hashOfSaltedPhoneNumber);
+        byte[] hashOfSaltedPhoneNumber = Util.createByteArrayFromStream(inStream);
 
         return new MsgSaltedPhoneNumber(salt, nRevealedBitsOfHash, hashOfSaltedPhoneNumber);
     }
 
     @Override
     protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
-        outStream.writeInt(salt.length);
-        outStream.write(salt);
+        Util.serialiseToStream(outStream, salt);
         outStream.writeInt(nRevealedBitsOfHash);
-        outStream.writeInt(hashOfSaltedPhoneNumber.length);
-        outStream.write(hashOfSaltedPhoneNumber);
+        Util.serialiseToStream(outStream, hashOfSaltedPhoneNumber);
     }
 
     @Override

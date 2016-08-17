@@ -259,13 +259,14 @@ public class PhoneBookActivity extends CustomActivity {
                     if (null != cursor) {
                         int nameIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
                         int phoneNumberIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+                        FLogger.i(TAG, "importing contacts from system...");
                         cursor.moveToFirst();
                         do {
                             String name = cursor.getString(nameIdx);
                             String phoneNumber = cursor.getString(phoneNumberIdx);
                             String normalisedPhoneNumber = PhoneNumUtil.formatPhoneNumber(phoneNumber, phoneNumberOfLocalDevice);
                             DbTablePhoneNumbers.smartUpdateEntry(normalisedPhoneNumber, name);
-                            FLogger.i(TAG, String.format(Locale.US,
+                            FLogger.d(TAG, String.format(Locale.US,
                                     "contact imported - name: %s, phone number: %s -> %s",
                                     name, phoneNumber, normalisedPhoneNumber));
                         } while (cursor.moveToNext());

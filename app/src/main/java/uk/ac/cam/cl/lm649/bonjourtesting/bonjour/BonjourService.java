@@ -63,10 +63,6 @@ public class BonjourService extends Service {
     private String nameOfOurService = "";
     private ServiceInfo serviceInfoOfOurService;
 
-    public static final String DNS_TXT_RECORD_MAP_KEY_FOR_BADGE_ID = "badgeID";
-
-    private SaveSettingsData saveSettingsData;
-
     private Handler handler;
     private boolean started = false;
 
@@ -76,8 +72,6 @@ public class BonjourService extends Service {
         super.onCreate();
         app = (CustomApplication) getApplication();
         context = app;
-
-        saveSettingsData = SaveSettingsData.getInstance(context);
 
         HandlerThread thread = new HandlerThread("BonjServ-handler");
         thread.start();
@@ -103,7 +97,7 @@ public class BonjourService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        FLogger.i(TAG, "onStartCommand() called.");
+        FLogger.d(TAG, "onStartCommand() called.");
         if (!started){
             started = true;
             FLogger.i(TAG, "onStartCommand(). doing start-up.");
@@ -144,7 +138,7 @@ public class BonjourService extends Service {
     }
 
     private void registerOurService() throws IOException {
-        FLogger.i(TAG, "Registering our own service.");
+        FLogger.d(TAG, "Registering our own service.");
         changeServiceState("registering our service");
         if (SaveSettingsData.getInstance(this).isUsingRandomServiceName()) {
             nameOfOurService = Constants.RANDOM_SERVICE_NAMES_START_WITH + HelperMethods.getNRandomDigits(7);
@@ -178,7 +172,7 @@ public class BonjourService extends Service {
     }
 
     public void restartDiscovery() {
-        FLogger.i(TAG, "restartDiscovery() called.");
+        FLogger.d(TAG, "restartDiscovery() called.");
         if (null != serviceListener && serviceListener.getDiscoveredOurOwnService()) {
             FLogger.i(TAG, "restartDiscovery(). service seems to be working correctly, " +
                     "as we DISCOVERED ourselves last time. Proceeding with normal operation: discovery.");
@@ -207,7 +201,7 @@ public class BonjourService extends Service {
                     changeServiceState("READY");
                 } catch (IOException e) {
                     FLogger.e(TAG, "reregisterOurService() failed to register service. IOE - " + e.getMessage());
-                    FLogger.e(TAG, HelperMethods.formatStackTraceAsString(e));
+                    FLogger.e(TAG, e);
                     changeServiceState("ERROR - rereg failed");
                 }
             }
@@ -215,7 +209,7 @@ public class BonjourService extends Service {
     }
 
     private void startWork(final boolean iHaveRestartSemaphore) {
-        FLogger.i(TAG, "startWork() called. Caller has restartSemaphore: " + iHaveRestartSemaphore);
+        FLogger.d(TAG, "startWork() called. Caller has restartSemaphore: " + iHaveRestartSemaphore);
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -239,7 +233,7 @@ public class BonjourService extends Service {
                     FLogger.e(TAG, "startWork(). Error during start-up: IOE - " + e.getMessage());
                     //HelperMethods.displayMsgToUser(context, "Error during start-up: IOE");
                     changeServiceState("error during start-up: IOE");
-                    FLogger.d(TAG, HelperMethods.formatStackTraceAsString(e));
+                    FLogger.d(TAG, e);
                     FLogger.i(TAG, String.format(
                             Locale.US, "sleeping for %d seconds and then retrying start-up...",
                             TIME_TO_WAIT_BETWEEN_STARTUP_RETRIES/1000));
@@ -256,7 +250,7 @@ public class BonjourService extends Service {
     }
 
     public void stopAndCloseWork() {
-        FLogger.i(TAG, "stopAndCloseWork() called.");
+        FLogger.d(TAG, "stopAndCloseWork() called.");
         handler.post(new Runnable() {
              @Override
              public void run() {
@@ -268,7 +262,7 @@ public class BonjourService extends Service {
                          jmdns.close();
                      } catch (IOException e) {
                          FLogger.e(TAG, "error closing jmdns. IOE - " + e.getMessage());
-                         FLogger.e(TAG, HelperMethods.formatStackTraceAsString(e));
+                         FLogger.e(TAG, e);
                      } finally {
                          jmdns = null;
                      }
@@ -283,7 +277,7 @@ public class BonjourService extends Service {
     // we need to allow two though, as if an important event occurs while a restart is going on,
     // another restart might be needed
     public void restartWork(boolean iHaveRestartSemaphore) {
-        FLogger.i(TAG, "restartWork() called. Caller has restartSemaphore: " + iHaveRestartSemaphore);
+        FLogger.d(TAG, "restartWork() called. Caller has restartSemaphore: " + iHaveRestartSemaphore);
         if (!iHaveRestartSemaphore) {
             if (restartSemaphore.tryAcquire()) {
                 FLogger.i(TAG, "restartWork() acquired restartSemaphore. Going forward.");

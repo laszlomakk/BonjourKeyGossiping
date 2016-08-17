@@ -242,7 +242,7 @@ public class MsgClient {
         try {
             workerThreadOutgoing.execute(runnable);
         } catch (RejectedExecutionException e) {
-            FLogger.e(logTag, "sendMessage(). runnable was rejected by executor - " + e.getMessage());
+            FLogger.w(logTag, "sendMessage(). runnable was rejected by executor - " + e.getMessage());
         }
     }
 
