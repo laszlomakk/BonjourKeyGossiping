@@ -49,16 +49,15 @@ public class MsgJPAKERound1 extends Message {
         UUID handshakeId = HelperMethods.uuidFromStringDefensively(strHandshakeId);
         if (null == handshakeId) return null;
 
-        int radix = inStream.readInt();
-        BigInteger gx1 = new BigInteger(inStream.readUTF(), radix);
-        BigInteger gx2 = new BigInteger(inStream.readUTF(), radix);
+        BigInteger gx1 = Util.createBigIntFromStream(inStream);
+        BigInteger gx2 = Util.createBigIntFromStream(inStream);
         BigInteger[] knowledgeProofForX1 = new BigInteger[] {
-                new BigInteger(inStream.readUTF(), radix),
-                new BigInteger(inStream.readUTF(), radix)
+                Util.createBigIntFromStream(inStream),
+                Util.createBigIntFromStream(inStream)
         };
         BigInteger[] knowledgeProofForX2 = new BigInteger[] {
-                new BigInteger(inStream.readUTF(), radix),
-                new BigInteger(inStream.readUTF(), radix)
+                Util.createBigIntFromStream(inStream),
+                Util.createBigIntFromStream(inStream)
         };
         return new MsgJPAKERound1(handshakeId, gx1, gx2, knowledgeProofForX1, knowledgeProofForX2);
     }
@@ -68,14 +67,12 @@ public class MsgJPAKERound1 extends Message {
         outStream.writeInt(type);
 
         outStream.writeUTF(handshakeId.toString());
-        int radix = Character.MAX_RADIX;
-        outStream.writeInt(radix);
-        outStream.writeUTF(gx1.toString(radix));
-        outStream.writeUTF(gx2.toString(radix));
-        outStream.writeUTF(knowledgeProofForX1[0].toString(radix));
-        outStream.writeUTF(knowledgeProofForX1[1].toString(radix));
-        outStream.writeUTF(knowledgeProofForX2[0].toString(radix));
-        outStream.writeUTF(knowledgeProofForX2[1].toString(radix));
+        Util.serialiseToStream(outStream, gx1);
+        Util.serialiseToStream(outStream, gx2);
+        Util.serialiseToStream(outStream, knowledgeProofForX1[0]);
+        Util.serialiseToStream(outStream, knowledgeProofForX1[1]);
+        Util.serialiseToStream(outStream, knowledgeProofForX2[0]);
+        Util.serialiseToStream(outStream, knowledgeProofForX2[1]);
 
         Message.writeMessageEndMarker(outStream);
         outStream.flush();

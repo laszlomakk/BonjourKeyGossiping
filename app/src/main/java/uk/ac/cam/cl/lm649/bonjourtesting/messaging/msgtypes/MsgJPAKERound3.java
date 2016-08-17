@@ -41,8 +41,7 @@ public class MsgJPAKERound3 extends Message {
         UUID handshakeId = HelperMethods.uuidFromStringDefensively(strHandshakeId);
         if (null == handshakeId) return null;
 
-        int radix = inStream.readInt();
-        BigInteger macTag = new BigInteger(inStream.readUTF(), radix);
+        BigInteger macTag = Util.createBigIntFromStream(inStream);
         return new MsgJPAKERound3(handshakeId, macTag);
     }
 
@@ -51,9 +50,7 @@ public class MsgJPAKERound3 extends Message {
         outStream.writeInt(type);
 
         outStream.writeUTF(handshakeId.toString());
-        int radix = Character.MAX_RADIX;
-        outStream.writeInt(radix);
-        outStream.writeUTF(macTag.toString(radix));
+        Util.serialiseToStream(outStream, macTag);
 
         Message.writeMessageEndMarker(outStream);
         outStream.flush();

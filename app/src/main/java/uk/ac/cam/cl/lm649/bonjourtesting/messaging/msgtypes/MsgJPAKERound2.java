@@ -38,11 +38,10 @@ public class MsgJPAKERound2 extends Message {
         UUID handshakeId = HelperMethods.uuidFromStringDefensively(strHandshakeId);
         if (null == handshakeId) return null;
 
-        int radix = inStream.readInt();
-        BigInteger a = new BigInteger(inStream.readUTF(), radix);
+        BigInteger a = Util.createBigIntFromStream(inStream);
         BigInteger[] knowledgeProofForX2s = new BigInteger[] {
-                new BigInteger(inStream.readUTF(), radix),
-                new BigInteger(inStream.readUTF(), radix)
+                Util.createBigIntFromStream(inStream),
+                Util.createBigIntFromStream(inStream)
         };
         return new MsgJPAKERound2(handshakeId, a, knowledgeProofForX2s);
     }
@@ -52,11 +51,9 @@ public class MsgJPAKERound2 extends Message {
         outStream.writeInt(type);
 
         outStream.writeUTF(handshakeId.toString());
-        int radix = Character.MAX_RADIX;
-        outStream.writeInt(radix);
-        outStream.writeUTF(a.toString(radix));
-        outStream.writeUTF(knowledgeProofForX2s[0].toString(radix));
-        outStream.writeUTF(knowledgeProofForX2s[1].toString(radix));
+        Util.serialiseToStream(outStream, a);
+        Util.serialiseToStream(outStream, knowledgeProofForX2s[0]);
+        Util.serialiseToStream(outStream, knowledgeProofForX2s[1]);
 
         Message.writeMessageEndMarker(outStream);
         outStream.flush();
