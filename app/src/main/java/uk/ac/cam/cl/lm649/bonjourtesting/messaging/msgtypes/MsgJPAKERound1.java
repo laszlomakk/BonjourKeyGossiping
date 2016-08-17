@@ -63,9 +63,7 @@ public class MsgJPAKERound1 extends Message {
     }
 
     @Override
-    public void serialiseToStream(DataOutputStream outStream) throws IOException {
-        outStream.writeInt(type);
-
+    protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
         outStream.writeUTF(handshakeId.toString());
         Util.serialiseToStream(outStream, gx1);
         Util.serialiseToStream(outStream, gx2);
@@ -73,9 +71,6 @@ public class MsgJPAKERound1 extends Message {
         Util.serialiseToStream(outStream, knowledgeProofForX1[1]);
         Util.serialiseToStream(outStream, knowledgeProofForX2[0]);
         Util.serialiseToStream(outStream, knowledgeProofForX2[1]);
-
-        Message.writeMessageEndMarker(outStream);
-        outStream.flush();
     }
 
     @Override

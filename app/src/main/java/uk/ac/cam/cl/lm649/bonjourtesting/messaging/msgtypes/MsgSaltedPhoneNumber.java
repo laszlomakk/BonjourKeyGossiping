@@ -70,17 +70,12 @@ public class MsgSaltedPhoneNumber extends Message {
     }
 
     @Override
-    public void serialiseToStream(DataOutputStream outStream) throws IOException {
-        outStream.writeInt(type);
-
+    protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
         outStream.writeInt(salt.length);
         outStream.write(salt);
         outStream.writeInt(nRevealedBitsOfHash);
         outStream.writeInt(hashOfSaltedPhoneNumber.length);
         outStream.write(hashOfSaltedPhoneNumber);
-
-        Message.writeMessageEndMarker(outStream);
-        outStream.flush();
     }
 
     @Override

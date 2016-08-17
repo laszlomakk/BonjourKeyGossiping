@@ -27,7 +27,16 @@ public abstract class Message {
         return type;
     }
 
-    public abstract void serialiseToStream(DataOutputStream outStream) throws IOException;
+    protected abstract void serialiseBodyToStream(DataOutputStream outStream) throws IOException;
+
+    public final void serialiseToStream(DataOutputStream outStream) throws IOException {
+        outStream.writeInt(type);
+
+        serialiseBodyToStream(outStream);
+
+        Message.writeMessageEndMarker(outStream);
+        outStream.flush();
+    }
 
     public void send(MsgClient msgClient) throws IOException {
         DataOutputStream outStream = msgClient.getOutStream();

@@ -46,14 +46,9 @@ public class MsgJPAKERound3 extends Message {
     }
 
     @Override
-    public void serialiseToStream(DataOutputStream outStream) throws IOException {
-        outStream.writeInt(type);
-
+    protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
         outStream.writeUTF(handshakeId.toString());
         Util.serialiseToStream(outStream, macTag);
-
-        Message.writeMessageEndMarker(outStream);
-        outStream.flush();
     }
 
     @Override

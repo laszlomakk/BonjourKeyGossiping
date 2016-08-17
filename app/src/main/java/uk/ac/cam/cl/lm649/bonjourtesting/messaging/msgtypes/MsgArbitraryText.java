@@ -25,11 +25,8 @@ public class MsgArbitraryText extends Message {
     }
 
     @Override
-    public void serialiseToStream(DataOutputStream outStream) throws IOException {
-        outStream.writeInt(type);
+    protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
         outStream.writeUTF(text);
-        Message.writeMessageEndMarker(outStream);
-        outStream.flush();
     }
 
     @Override

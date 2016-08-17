@@ -32,14 +32,9 @@ public class MsgMyPhoneNumber extends Message {
     }
 
     @Override
-    public void serialiseToStream(DataOutputStream outStream) throws IOException {
-        outStream.writeInt(type);
-
+    protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
         outStream.writeUTF(customName);
         outStream.writeUTF(phoneNumber);
-
-        Message.writeMessageEndMarker(outStream);
-        outStream.flush();
     }
 
     @Override

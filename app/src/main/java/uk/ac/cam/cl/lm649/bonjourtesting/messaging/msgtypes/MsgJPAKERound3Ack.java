@@ -44,14 +44,9 @@ public class MsgJPAKERound3Ack extends Message {
     }
 
     @Override
-    public void serialiseToStream(DataOutputStream outStream) throws IOException {
-        outStream.writeInt(type);
-
+    protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
         outStream.writeUTF(handshakeId.toString());
         outStream.writeInt(portForEncryptedComms);
-
-        Message.writeMessageEndMarker(outStream);
-        outStream.flush();
     }
 
     @Override

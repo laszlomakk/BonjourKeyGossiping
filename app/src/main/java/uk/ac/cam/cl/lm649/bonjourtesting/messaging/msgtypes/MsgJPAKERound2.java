@@ -47,16 +47,11 @@ public class MsgJPAKERound2 extends Message {
     }
 
     @Override
-    public void serialiseToStream(DataOutputStream outStream) throws IOException {
-        outStream.writeInt(type);
-
+    protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
         outStream.writeUTF(handshakeId.toString());
         Util.serialiseToStream(outStream, a);
         Util.serialiseToStream(outStream, knowledgeProofForX2s[0]);
         Util.serialiseToStream(outStream, knowledgeProofForX2s[1]);
-
-        Message.writeMessageEndMarker(outStream);
-        outStream.flush();
     }
 
     @Override

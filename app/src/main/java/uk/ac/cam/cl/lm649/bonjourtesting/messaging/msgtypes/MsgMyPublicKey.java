@@ -46,15 +46,10 @@ public class MsgMyPublicKey extends Message {
     }
 
     @Override
-    public void serialiseToStream(DataOutputStream outStream) throws IOException {
-        outStream.writeInt(type);
-
+    protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
         outStream.writeUTF(phoneNumber);
         outStream.writeUTF(publicKey);
         outStream.writeLong(timestamp);
-
-        Message.writeMessageEndMarker(outStream);
-        outStream.flush();
     }
 
     @Override
