@@ -60,7 +60,7 @@ public class SaveIdentityData extends SaveData {
      * @param forceReGen if you want to generate a key pair even if we already have one
      */
     public synchronized void generateAndSaveMyKeypair(boolean forceReGen) {
-        FLogger.i(TAG, "generateAndSaveMyKeypair() called.");
+        FLogger.d(TAG, "generateAndSaveMyKeypair() called.");
         if (!doWeHaveAKeypair() || forceReGen) {
             FLogger.i(TAG, "generateAndSaveMyKeypair() decided to generate a new key pair.");
             AsymmetricCipherKeyPair keyPair = generateKeypairWithTiming();
@@ -76,7 +76,7 @@ public class SaveIdentityData extends SaveData {
         AsymmetricCipherKeyPair keyPair = Asymmetric.generateNewKeyPair();
         long time2 = android.os.SystemClock.elapsedRealtime();
         long timeTaken = time2 - time1;
-        FLogger.i(TAG, "generateAndSaveMyKeypair(). time taken: " + timeTaken + " ms");
+        FLogger.d(TAG, "generateAndSaveMyKeypair(). time taken: " + timeTaken + " ms");
         return keyPair;
     }
 
@@ -144,6 +144,7 @@ public class SaveIdentityData extends SaveData {
             return Base64.decode(base64StaticSalt, Base64.DEFAULT);
         } else {
             // generate it now
+            FLogger.i(TAG, "getStaticSalt(). generating new static salt on demand");
             byte[] staticSalt = new byte[Constants.STATIC_SALT_SIZE_IN_BYTES];
             new SecureRandom().nextBytes(staticSalt);
             saveStaticSalt(staticSalt);

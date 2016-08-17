@@ -31,7 +31,7 @@ public class PollingService extends IntentService {
 
     @Override
     public void onCreate() {
-        FLogger.i(TAG, "onCreate() called.");
+        FLogger.d(TAG, "onCreate() called.");
         super.onCreate();
 
         app = (CustomApplication) getApplication();
@@ -39,7 +39,7 @@ public class PollingService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        FLogger.i(TAG, "onHandleIntent() called.");
+        FLogger.d(TAG, "onHandleIntent() called.");
         PowerManager pm = (PowerManager) app.getSystemService(Context.POWER_SERVICE);
         final PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "badgePollerWakeLock");
         wakeLock.acquire();
@@ -54,7 +54,7 @@ public class PollingService extends IntentService {
             FLogger.e(TAG, e);
         } finally {
             if (automaticPollingEnabled) {
-                FLogger.i(TAG, "onHandleIntent() finishing. Scheduling next poll.");
+                FLogger.d(TAG, "onHandleIntent() finishing. Scheduling next poll.");
                 schedulePolling(app);
             }
             FLogger.i(TAG, "onHandleIntent() finishing. Releasing WakeLocks.");
@@ -73,7 +73,7 @@ public class PollingService extends IntentService {
     }
 
     public static void schedulePolling(Context context) {
-        FLogger.i(TAG, "schedulePolling() called.");
+        FLogger.d(TAG, "schedulePolling() called.");
         Context appContext = context.getApplicationContext();
         AlarmManager alarmManager = (AlarmManager) appContext.getSystemService(Context.ALARM_SERVICE);
         Intent alarmIntent = new Intent(appContext, TimeToPollReceiver.class);

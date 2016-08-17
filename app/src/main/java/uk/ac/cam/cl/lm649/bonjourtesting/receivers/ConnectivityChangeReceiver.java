@@ -30,7 +30,7 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
         // there was a change of connectivity
         String ipAddress = NetworkUtil.getWifiIpAddress(context).getHostAddress();
         String routerMac = NetworkUtil.getRouterMacAddress(context);
-        FLogger.i(TAG, String.format(Locale.US,
+        FLogger.d(TAG, String.format(Locale.US,
                 "onReceive(). our current IP address is: %s, the router MAC is: %s",
                 ipAddress, routerMac));
         if (isThisANewWifiConnectionThatWeJustEstablished(intent)
@@ -41,11 +41,11 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
             prevRouterMac = routerMac;
             restartBonjourService(context);
         } else if (isWifiDisconnected(intent)) {
-            FLogger.i(TAG, "onReceive(). wi-fi seems to be disconnected. resetting previous IP and router MAC");
+            FLogger.d(TAG, "onReceive(). wi-fi seems to be disconnected. resetting previous IP and router MAC");
             prevIpAddress = null;
             prevRouterMac = null;
         } else {
-            FLogger.i(TAG, "onReceive(). decided NOT to act on intent");
+            FLogger.d(TAG, "onReceive(). decided NOT to act on intent");
         }
     }
 
@@ -66,7 +66,7 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
             // ending up here IS what we expect
             return;
         }
-        FLogger.i(TAG, "restartBonjourService(). calling bonjourService.restartWork()");
+        FLogger.d(TAG, "restartBonjourService(). calling bonjourService.restartWork()");
         bonjourService.restartWork(false);
     }
 
