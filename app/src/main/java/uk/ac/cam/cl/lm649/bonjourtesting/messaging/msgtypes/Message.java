@@ -65,13 +65,13 @@ public abstract class Message {
             return (Message) obj;
         } catch (NoSuchMethodException e) {
             FLogger.e(TAG, "createFromStream(). caught NoSuchMethodException : " + e.getMessage());
-            FLogger.d(TAG, HelperMethods.formatStackTraceAsString(e));
+            FLogger.d(TAG, e);
         } catch (InvocationTargetException e) {
             FLogger.e(TAG, "createFromStream(). caught InvocationTargetException : " + e.getMessage());
-            FLogger.d(TAG, HelperMethods.formatStackTraceAsString(e));
+            FLogger.d(TAG, e);
         } catch (IllegalAccessException e) {
             FLogger.e(TAG, "createFromStream(). caught IllegalAccessException : " + e.getMessage());
-            FLogger.d(TAG, HelperMethods.formatStackTraceAsString(e));
+            FLogger.d(TAG, e);
         }
         return null;
     }

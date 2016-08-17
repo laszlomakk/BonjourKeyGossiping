@@ -75,7 +75,7 @@ public abstract class MsgServer {
             FLogger.i(TAG, "serverSocket successfully closed.");
         } catch (IOException e) {
             FLogger.e(TAG, "error while closing serverSocket. IOE - " + e.getMessage());
-            FLogger.e(TAG, HelperMethods.formatStackTraceAsString(e));
+            FLogger.e(TAG, e);
         }
 
         started = false;

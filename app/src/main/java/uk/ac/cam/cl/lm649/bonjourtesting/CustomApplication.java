@@ -133,7 +133,7 @@ public class CustomApplication extends Application {
             @Override
             public void uncaughtException (Thread thread, Throwable e) {
                 FLogger.e(TAG, "uncaughtException(). " + e.toString());
-                FLogger.e(TAG, "uncaughtException(). " + HelperMethods.formatStackTraceAsString(e));
+                FLogger.e(TAG, e);
 
                 // now rethrow the exception as if we didn't intercept it
                 defaultExceptionHandler.uncaughtException(thread, e);
@@ -147,7 +147,7 @@ public class CustomApplication extends Application {
         } catch (IOException e) {
             FLogger.e(TAG, "startMsgServerManager(). IOE - " + e.getMessage());
             HelperMethods.displayMsgToUser(this, "failed to start MsgServers");
-            FLogger.e(TAG, HelperMethods.formatStackTraceAsString(e));
+            FLogger.e(TAG, e);
         }
     }
 

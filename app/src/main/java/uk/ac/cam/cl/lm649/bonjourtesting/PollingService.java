@@ -51,7 +51,7 @@ public class PollingService extends IntentService {
             Thread.sleep(TIME_TO_KEEP_DEVICE_AWAKE);
         } catch (InterruptedException e) {
             FLogger.e(TAG, "onHandleIntent(). Sleep interrupted - " + e.getMessage());
-            FLogger.e(TAG, HelperMethods.formatStackTraceAsString(e));
+            FLogger.e(TAG, e);
         } finally {
             if (automaticPollingEnabled) {
                 FLogger.i(TAG, "onHandleIntent() finishing. Scheduling next poll.");
