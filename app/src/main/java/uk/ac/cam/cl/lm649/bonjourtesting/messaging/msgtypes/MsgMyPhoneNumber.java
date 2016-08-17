@@ -11,6 +11,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 
 public class MsgMyPhoneNumber extends Message {
 
@@ -23,6 +24,7 @@ public class MsgMyPhoneNumber extends Message {
         this.phoneNumber = phoneNumber;
     }
 
+    @UsedViaReflection
     public static MsgMyPhoneNumber createFromStream(DataInputStream inStream) throws IOException {
         String customName = inStream.readUTF();
         String phoneNumber = inStream.readUTF();
@@ -30,14 +32,9 @@ public class MsgMyPhoneNumber extends Message {
     }
 
     @Override
-    public void serialiseToStream(DataOutputStream outStream) throws IOException {
-        outStream.writeInt(type);
-
+    protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
         outStream.writeUTF(customName);
         outStream.writeUTF(phoneNumber);
-
-        Message.writeMessageEndMarker(outStream);
-        outStream.flush();
     }
 
     @Override

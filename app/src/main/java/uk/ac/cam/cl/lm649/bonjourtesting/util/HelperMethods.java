@@ -88,13 +88,7 @@ public final class HelperMethods {
     }
 
     public static String getVersionNameExtended(Context context) {
-        String historyTransfer = "";
-        if (Constants.HISTORY_TRANSFER_ENABLED) {
-            historyTransfer = "-histON";
-        } else {
-            historyTransfer = "-histOFF";
-        }
-        return getVersionName(context) + historyTransfer;
+        return getVersionName(context);
     }
 
     /**

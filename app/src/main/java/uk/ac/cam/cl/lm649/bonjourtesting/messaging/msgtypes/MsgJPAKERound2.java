@@ -10,6 +10,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 
 public class MsgJPAKERound2 extends Message {
 
@@ -31,33 +32,26 @@ public class MsgJPAKERound2 extends Message {
         this.strHandshakeId = JPAKEClient.createHandshakeIdLogString(handshakeId);
     }
 
+    @UsedViaReflection
     public static MsgJPAKERound2 createFromStream(DataInputStream inStream) throws IOException {
         String strHandshakeId = inStream.readUTF();
         UUID handshakeId = HelperMethods.uuidFromStringDefensively(strHandshakeId);
         if (null == handshakeId) return null;
 
-        int radix = inStream.readInt();
-        BigInteger a = new BigInteger(inStream.readUTF(), radix);
+        BigInteger a = Util.createBigIntFromStream(inStream);
         BigInteger[] knowledgeProofForX2s = new BigInteger[] {
-                new BigInteger(inStream.readUTF(), radix),
-                new BigInteger(inStream.readUTF(), radix)
+                Util.createBigIntFromStream(inStream),
+                Util.createBigIntFromStream(inStream)
         };
         return new MsgJPAKERound2(handshakeId, a, knowledgeProofForX2s);
     }
 
     @Override
-    public void serialiseToStream(DataOutputStream outStream) throws IOException {
-        outStream.writeInt(type);
-
+    protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
         outStream.writeUTF(handshakeId.toString());
-        int radix = Character.MAX_RADIX;
-        outStream.writeInt(radix);
-        outStream.writeUTF(a.toString(radix));
-        outStream.writeUTF(knowledgeProofForX2s[0].toString(radix));
-        outStream.writeUTF(knowledgeProofForX2s[1].toString(radix));
-
-        Message.writeMessageEndMarker(outStream);
-        outStream.flush();
+        Util.serialiseToStream(outStream, a);
+        Util.serialiseToStream(outStream, knowledgeProofForX2s[0]);
+        Util.serialiseToStream(outStream, knowledgeProofForX2s[1]);
     }
 
     @Override

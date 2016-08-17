@@ -15,6 +15,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.SessionKey;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 
 public class MsgJPAKERound3 extends Message {
 
@@ -34,27 +35,20 @@ public class MsgJPAKERound3 extends Message {
         this.strHandshakeId = JPAKEClient.createHandshakeIdLogString(handshakeId);
     }
 
+    @UsedViaReflection
     public static MsgJPAKERound3 createFromStream(DataInputStream inStream) throws IOException {
         String strHandshakeId = inStream.readUTF();
         UUID handshakeId = HelperMethods.uuidFromStringDefensively(strHandshakeId);
         if (null == handshakeId) return null;
 
-        int radix = inStream.readInt();
-        BigInteger macTag = new BigInteger(inStream.readUTF(), radix);
+        BigInteger macTag = Util.createBigIntFromStream(inStream);
         return new MsgJPAKERound3(handshakeId, macTag);
     }
 
     @Override
-    public void serialiseToStream(DataOutputStream outStream) throws IOException {
-        outStream.writeInt(type);
-
+    protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
         outStream.writeUTF(handshakeId.toString());
-        int radix = Character.MAX_RADIX;
-        outStream.writeInt(radix);
-        outStream.writeUTF(macTag.toString(radix));
-
-        Message.writeMessageEndMarker(outStream);
-        outStream.flush();
+        Util.serialiseToStream(outStream, macTag);
     }
 
     @Override
