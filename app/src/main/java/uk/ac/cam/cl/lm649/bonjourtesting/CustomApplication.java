@@ -9,6 +9,7 @@ import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.StrictMode;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -29,6 +30,17 @@ public class CustomApplication extends Application {
     private static final String TAG = "CustomApplication";
     private static CustomApplication INSTANCE = null;
     private Thread.UncaughtExceptionHandler defaultExceptionHandler;
+
+    static {
+        if (BuildConfig.DEBUG && Constants.TEST_FOR_MEMORY_LEAKS_AND_LOG_IF_FOUND) {
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog()
+                    // .penaltyDeath()
+                    .build());
+        }
+    }
 
     private ServiceConnection bonjourServiceConnection = new ServiceConnection() {
         private static final String TAG = "BonjourServiceConn";
