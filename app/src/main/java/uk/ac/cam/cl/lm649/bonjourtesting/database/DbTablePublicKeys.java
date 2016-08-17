@@ -3,6 +3,8 @@ package uk.ac.cam.cl.lm649.bonjourtesting.database;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -122,34 +124,37 @@ public final class DbTablePublicKeys {
         return values;
     }
 
+    @Nullable
     public static Entry getEntry(String publicKey) {
         SQLiteDatabase db = DbHelper.getInstance().getReadableDatabase();
 
-        Cursor cursor = db.query(PublicKeyEntry.TABLE_NAME,
-                new String[] {
-                        PublicKeyEntry.COLUMN_NAME_PUBLIC_KEY,
-                        PublicKeyEntry.COLUMN_NAME_PHONE_NUMBER,
-                        PublicKeyEntry.COLUMN_NAME_TIMESTAMP_FIRST_SEEN_PUBLIC_KEY,
-                        PublicKeyEntry.COLUMN_NAME_TIMESTAMP_LAST_SEEN_ALIVE_PUBLIC_KEY,
-                }, PublicKeyEntry.COLUMN_NAME_PUBLIC_KEY + "=?",
-                new String[] { publicKey }, null, null, null, null);
-        if (null == cursor) return null;
-        if (cursor.getCount() == 0) {
-            cursor.close();
-            return null;
+        Cursor cursor = null;
+        try {
+            cursor = db.query(PublicKeyEntry.TABLE_NAME,
+                    new String[] {
+                            PublicKeyEntry.COLUMN_NAME_PUBLIC_KEY,
+                            PublicKeyEntry.COLUMN_NAME_PHONE_NUMBER,
+                            PublicKeyEntry.COLUMN_NAME_TIMESTAMP_FIRST_SEEN_PUBLIC_KEY,
+                            PublicKeyEntry.COLUMN_NAME_TIMESTAMP_LAST_SEEN_ALIVE_PUBLIC_KEY,
+                    }, PublicKeyEntry.COLUMN_NAME_PUBLIC_KEY + "=?",
+                    new String[] { publicKey }, null, null, null, null);
+
+            if (cursor.moveToFirst()) {
+                Entry entry = new Entry();
+                entry.publicKey = cursor.getString(0);
+                entry.phoneNumber = cursor.getString(1);
+                entry.timestampFirstSeenPublicKey = cursor.getLong(2);
+                entry.timestampLastSeenAlivePublicKey = cursor.getLong(3);
+                return entry;
+            } else {
+                return null;
+            }
+        } finally {
+            if (null != cursor) cursor.close();
         }
-
-        cursor.moveToFirst();
-        Entry entry = new Entry();
-        entry.publicKey = cursor.getString(0);
-        entry.phoneNumber = cursor.getString(1);
-        entry.timestampFirstSeenPublicKey = cursor.getLong(2);
-        entry.timestampLastSeenAlivePublicKey = cursor.getLong(3);
-
-        cursor.close();
-        return entry;
     }
 
+    @NonNull
     public static List<EntryWithName> getAllEntries() {
         SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
 
@@ -165,23 +170,27 @@ public final class DbTablePublicKeys {
                 PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_PHONE_NUMBER,
                 PhoneNumberEntry.TABLE_NAME + "." + PhoneNumberEntry.COLUMN_NAME_PHONE_NUMBER,
                 PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_TIMESTAMP_LAST_SEEN_ALIVE_PUBLIC_KEY);
-        Cursor cursor = db.rawQuery(selectQuery, null);
 
-        List<EntryWithName> entries = new ArrayList<>();
-        if (cursor.moveToFirst()) {
-            do {
-                EntryWithName entry = new EntryWithName();
-                entry.customName = cursor.getString(0);
-                entry.phoneNumber = cursor.getString(1);
-                entry.publicKey = cursor.getString(2);
-                entry.timestampFirstSeenPublicKey = cursor.getLong(3);
-                entry.timestampLastSeenAlivePublicKey = cursor.getLong(4);
-                entries.add(entry);
-            } while (cursor.moveToNext());
+        Cursor cursor = null;
+        try {
+            cursor = db.rawQuery(selectQuery, null);
+
+            List<EntryWithName> entries = new ArrayList<>();
+            if (cursor.moveToFirst()) {
+                do {
+                    EntryWithName entry = new EntryWithName();
+                    entry.customName = cursor.getString(0);
+                    entry.phoneNumber = cursor.getString(1);
+                    entry.publicKey = cursor.getString(2);
+                    entry.timestampFirstSeenPublicKey = cursor.getLong(3);
+                    entry.timestampLastSeenAlivePublicKey = cursor.getLong(4);
+                    entries.add(entry);
+                } while (cursor.moveToNext());
+            }
+            return entries;
+        } finally {
+            if (null != cursor) cursor.close();
         }
-
-        cursor.close();
-        return entries;
     }
 
     public static void updateEntry(Entry entry) {
