@@ -90,12 +90,10 @@ public abstract class Message {
      *
      * @return the number of bytes discarded from the stream, including the end marker
      */
-    private static long discardBytesUntilNextMessage(DataInputStream inStream) throws IOException {
-        long nBytesDiscarded = 0;
-        byte[] bytes = new byte[endMarker.length];
-        int nBytesRead = inStream.read(bytes);
-        if (nBytesRead == -1) return 0;
-        nBytesDiscarded += nBytesRead;
+    private static int discardBytesUntilNextMessage(DataInputStream inStream) throws IOException {
+        int nBytesDiscarded = endMarker.length;
+        byte[] bytes = new byte[nBytesDiscarded];
+        inStream.readFully(bytes);
         while (!testForEndMarker(bytes)) {
             // shift all elements to the left by one
             System.arraycopy(bytes, 1, bytes, 0, bytes.length-1);
