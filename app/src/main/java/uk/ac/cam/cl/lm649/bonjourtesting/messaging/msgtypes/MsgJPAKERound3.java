@@ -10,6 +10,7 @@ import java.net.InetAddress;
 import java.util.UUID;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.SessionData;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.SessionKey;
@@ -89,8 +90,7 @@ public class MsgJPAKERound3 extends Message {
             FLogger.e(TAG, "sessionKey == null. stopping JPAKE handshake." + strHandshakeId);
             return;
         }
-        storeSessionKeyForIncomingConnection(msgClient, sessionKey);
-        msgClient.setPhoneNumberOfOtherParticipant(jpakeClient.sharedSecret);
+        storeSessionDataForIncomingConnection(msgClient, jpakeClient, sessionKey);
     }
 
     private SessionKey getSessionKey(JPAKEClient jpakeClient) {
@@ -105,11 +105,13 @@ public class MsgJPAKERound3 extends Message {
         return sessionKey;
     }
 
-    private void storeSessionKeyForIncomingConnection(MsgClient msgClient, SessionKey sessionKey) {
+    private void storeSessionDataForIncomingConnection(MsgClient msgClient, JPAKEClient jpakeClient, SessionKey sessionKey) {
         InetAddress socketAddress = msgClient.getSocketAddress();
         FLogger.i(TAG, "saving sessionKey for socketAddress: " + socketAddress.getHostAddress() + strHandshakeId);
-        MsgServerManager.getInstance().getMsgServerEncrypted().inetAddressToSessionKeyMap
-                .put(socketAddress, sessionKey);
+        SessionData sessionData = new SessionData(msgClient.sessionData, sessionKey);
+        sessionData.setPhoneNumberOfOtherParticipant(jpakeClient.sharedSecret);
+        MsgServerManager.getInstance().getMsgServerEncrypted().inetAddressToSessionDataMap
+                .put(socketAddress, sessionData);
     }
 
     private void sendRound3AckIfNeeded(MsgClient msgClient) {

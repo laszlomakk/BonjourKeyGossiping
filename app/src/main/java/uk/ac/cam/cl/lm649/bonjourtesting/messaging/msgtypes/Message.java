@@ -1,5 +1,7 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes;
 
+import android.support.annotation.Nullable;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -45,6 +47,7 @@ public abstract class Message {
 
     public abstract void onReceive(MsgClient msgClient) throws IOException;
 
+    @Nullable
     public static Message createFromStream(DataInputStream inStream) throws IOException, UnknownMessageTypeException {
         int typeNum = inStream.readInt();
         Class<? extends Message> msgClass = MessageTypes.msgNumToMsgClassMap.get(typeNum);

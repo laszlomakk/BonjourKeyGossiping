@@ -59,6 +59,8 @@ public class MsgClient {
     // then the corresponding key for it is:
     private ServiceStub serviceStubWeAreBoundTo;
 
+    public final SessionData sessionData;
+
     public final boolean encrypted;
 
     private boolean closed = false;
@@ -70,13 +72,13 @@ public class MsgClient {
 
     public final JPAKEManager jpakeManager = new JPAKEManager();
 
-    private String phoneNumberOfOtherParticipant = null;
-
-    private MsgClient(@Nullable SessionKey sessionKey, boolean iAmTheInitiator) {
+    private MsgClient(@Nullable SessionData _sessionData, boolean iAmTheInitiator) {
         app = CustomApplication.getInstance();
         context = app.getApplicationContext();
+
+        this.sessionData = null != _sessionData ? _sessionData : new SessionData();
         this.iAmTheInitiator = iAmTheInitiator;
-        encrypted = (null != sessionKey);
+        encrypted = (null != sessionData.sessionKey);
         if (encrypted) {
             logTag = TAG_BASE + "-Encrypted";
         } else {
@@ -84,14 +86,14 @@ public class MsgClient {
         }
     }
 
-    protected MsgClient(Socket socket, @Nullable final SessionKey sessionKey) {
-        this(sessionKey, false);
+    protected MsgClient(Socket socket, @Nullable final SessionData sessionData) {
+        this(sessionData, false);
         this.socket = socket;
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                init(sessionKey);
+                init();
             }
         };
         try {
@@ -101,15 +103,15 @@ public class MsgClient {
         }
     }
 
-    public MsgClient(@NonNull final InetAddress address, final int port, @Nullable final SessionKey sessionKey) {
-        this(sessionKey, true);
+    public MsgClient(@NonNull final InetAddress address, final int port, @Nullable final SessionData sessionData) {
+        this(sessionData, true);
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 try {
                     MsgClient.this.socket = new Socket(address, port);
-                    init(sessionKey);
+                    init();
                 } catch (IOException e) { // TODO think about this
                     FLogger.e(logTag, "MsgClient(). Failed to open socket. closing MsgClient. IOE - " + e.getMessage());
                     MsgClient.this.close();
@@ -124,21 +126,21 @@ public class MsgClient {
 
     }
 
-    private void init(@Nullable SessionKey sessionKey) {
+    private void init() {
         try {
             socketAddress = socket.getInetAddress();
             strSocketAddress = socketAddress.getHostAddress();
             strFromAddress = "from addr: " + strSocketAddress + ", ";
             strToAddress = "to addr: " + strSocketAddress + ", ";
 
-            outStream = initOutStream(socket, sessionKey);
+            outStream = initOutStream(socket, sessionData.sessionKey);
             if (null == outStream) {
                 FLogger.e(logTag, "outStream is null.");
                 this.close();
                 return;
             }
             outStreamReadyLatch.countDown();
-            inStream = initInStream(socket, sessionKey);
+            inStream = initInStream(socket, sessionData.sessionKey);
             if (null == inStream) {
                 FLogger.e(logTag, "inStream is null.");
                 this.close();
@@ -222,7 +224,11 @@ public class MsgClient {
         msg.onReceive(this);
     }
 
-    public void sendMessage(final Message msg){
+    public void sendMessage(@Nullable final Message msg){
+        if (null == msg) {
+            FLogger.e(logTag, "sendMessage(). msg == null");
+            return;
+        }
         final Runnable runnable = new Runnable() {
             @Override
             public void run(){
@@ -287,15 +293,6 @@ public class MsgClient {
         this.serviceStubWeAreBoundTo = serviceStubWeAreBoundTo;
     }
 
-    @Nullable
-    public String getPhoneNumberOfOtherParticipant() {
-        return phoneNumberOfOtherParticipant;
-    }
-
-    public void setPhoneNumberOfOtherParticipant(String phoneNumberOfOtherParticipant) {
-        this.phoneNumberOfOtherParticipant = phoneNumberOfOtherParticipant;
-    }
-
     /**
      * note: a msgClient can only be upgraded if (msgClient.iAmTheInitiator == true)
      */
@@ -307,9 +304,11 @@ public class MsgClient {
             throw new IllegalArgumentException("sessionKey == null");
         }
 
-        MsgClient msgClientEncrypted = new MsgClient(msgClient.socket.getInetAddress(), port, sessionKey);
+        SessionData sessionData = new SessionData(msgClient.sessionData, sessionKey);
+        MsgClient msgClientEncrypted = new MsgClient(msgClient.socket.getInetAddress(), port, sessionData);
+
         ServiceStub serviceStub = msgClient.serviceStubWeAreBoundTo;
-        msgClientEncrypted.setServiceStubWeAreBoundTo(serviceStub);
+        msgClientEncrypted.serviceStubWeAreBoundTo = serviceStub;
         MsgServerManager.getInstance().serviceToMsgClientMap.put(serviceStub, msgClientEncrypted);
 
         msgClient.close();
