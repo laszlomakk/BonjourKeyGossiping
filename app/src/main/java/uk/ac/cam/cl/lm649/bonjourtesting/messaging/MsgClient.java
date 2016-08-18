@@ -284,11 +284,7 @@ public class MsgClient {
     public InetAddress getSocketAddress() {
         return socketAddress;
     }
-
-    public ServiceStub getServiceStubWeAreBoundTo() {
-        return serviceStubWeAreBoundTo;
-    }
-
+    
     public void setServiceStubWeAreBoundTo(ServiceStub serviceStubWeAreBoundTo) {
         this.serviceStubWeAreBoundTo = serviceStubWeAreBoundTo;
     }
