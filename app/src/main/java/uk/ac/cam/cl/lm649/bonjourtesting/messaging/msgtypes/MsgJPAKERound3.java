@@ -42,14 +42,14 @@ public class MsgJPAKERound3 extends Message {
         UUID handshakeId = HelperMethods.uuidFromStringDefensively(strHandshakeId);
         if (null == handshakeId) return null;
 
-        BigInteger macTag = Util.createBigIntFromStream(inStream);
+        BigInteger macTag = SerialisationUtil.createBigIntFromStream(inStream);
         return new MsgJPAKERound3(handshakeId, macTag);
     }
 
     @Override
     protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
         outStream.writeUTF(handshakeId.toString());
-        Util.serialiseToStream(outStream, macTag);
+        SerialisationUtil.serialiseToStream(outStream, macTag);
     }
 
     @Override

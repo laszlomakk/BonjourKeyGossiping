@@ -64,11 +64,11 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
 
     @UsedViaReflection
     public static MsgMyPublicKey createFromStream(DataInputStream inStream) throws IOException {
-        byte[] signedHash = Util.createByteArrayFromStream(inStream);
+        byte[] signedHash = SerialisationUtil.createByteArrayFromStream(inStream);
 
         String publicKey;
         try {
-            publicKey = Asymmetric.byteKeyToStringKey(Util.createByteArrayFromStream(inStream));
+            publicKey = Asymmetric.byteKeyToStringKey(SerialisationUtil.createByteArrayFromStream(inStream));
         } catch (KeyDecodingException e) {
             FLogger.e(TAG, "createFromStream(). KeyDecodingException: " + e.getMessage());
             FLogger.d(TAG, e);
@@ -81,10 +81,10 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
 
     @Override
     protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
-        Util.serialiseToStream(outStream, signedHash);
+        SerialisationUtil.serialiseToStream(outStream, signedHash);
 
         try {
-            Util.serialiseToStream(outStream, Asymmetric.stringKeyToByteKey(publicKey));
+            SerialisationUtil.serialiseToStream(outStream, Asymmetric.stringKeyToByteKey(publicKey));
         } catch (KeyDecodingException e) {
             FLogger.e(TAG, "createFromStream(). KeyDecodingException: " + e.getMessage());
             FLogger.d(TAG, e);

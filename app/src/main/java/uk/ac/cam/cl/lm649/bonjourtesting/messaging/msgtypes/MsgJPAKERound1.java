@@ -49,15 +49,15 @@ public class MsgJPAKERound1 extends Message {
         UUID handshakeId = HelperMethods.uuidFromStringDefensively(strHandshakeId);
         if (null == handshakeId) return null;
 
-        BigInteger gx1 = Util.createBigIntFromStream(inStream);
-        BigInteger gx2 = Util.createBigIntFromStream(inStream);
+        BigInteger gx1 = SerialisationUtil.createBigIntFromStream(inStream);
+        BigInteger gx2 = SerialisationUtil.createBigIntFromStream(inStream);
         BigInteger[] knowledgeProofForX1 = new BigInteger[] {
-                Util.createBigIntFromStream(inStream),
-                Util.createBigIntFromStream(inStream)
+                SerialisationUtil.createBigIntFromStream(inStream),
+                SerialisationUtil.createBigIntFromStream(inStream)
         };
         BigInteger[] knowledgeProofForX2 = new BigInteger[] {
-                Util.createBigIntFromStream(inStream),
-                Util.createBigIntFromStream(inStream)
+                SerialisationUtil.createBigIntFromStream(inStream),
+                SerialisationUtil.createBigIntFromStream(inStream)
         };
         return new MsgJPAKERound1(handshakeId, gx1, gx2, knowledgeProofForX1, knowledgeProofForX2);
     }
@@ -65,12 +65,12 @@ public class MsgJPAKERound1 extends Message {
     @Override
     protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
         outStream.writeUTF(handshakeId.toString());
-        Util.serialiseToStream(outStream, gx1);
-        Util.serialiseToStream(outStream, gx2);
-        Util.serialiseToStream(outStream, knowledgeProofForX1[0]);
-        Util.serialiseToStream(outStream, knowledgeProofForX1[1]);
-        Util.serialiseToStream(outStream, knowledgeProofForX2[0]);
-        Util.serialiseToStream(outStream, knowledgeProofForX2[1]);
+        SerialisationUtil.serialiseToStream(outStream, gx1);
+        SerialisationUtil.serialiseToStream(outStream, gx2);
+        SerialisationUtil.serialiseToStream(outStream, knowledgeProofForX1[0]);
+        SerialisationUtil.serialiseToStream(outStream, knowledgeProofForX1[1]);
+        SerialisationUtil.serialiseToStream(outStream, knowledgeProofForX2[0]);
+        SerialisationUtil.serialiseToStream(outStream, knowledgeProofForX2[1]);
     }
 
     @Override
