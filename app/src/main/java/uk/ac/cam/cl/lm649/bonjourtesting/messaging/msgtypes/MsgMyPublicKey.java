@@ -25,7 +25,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 
-public class MsgMyPublicKey extends Message {
+public class MsgMyPublicKey extends Message implements MessageRequiringEncryption {
 
     private static final String TAG = "MsgMyPublicKey";
 

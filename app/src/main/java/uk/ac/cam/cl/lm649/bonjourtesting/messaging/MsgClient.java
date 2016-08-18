@@ -32,6 +32,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Symmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MessageRequiringEncryption;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.UnknownMessageTypeException;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.ServiceStub;
@@ -239,9 +240,14 @@ public class MsgClient {
                     return;
                 }
                 try {
-                    msg.send(MsgClient.this);
-                    FLogger.i(logTag, strToAddress + "sent msg with type " + msg.getType()
-                            + "/" + msg.getClass().getSimpleName());
+                    if (encrypted || !(msg instanceof MessageRequiringEncryption)) {
+                        msg.send(MsgClient.this);
+                        FLogger.i(logTag, strToAddress + "sent msg with type " + msg.getType()
+                                + "/" + msg.getClass().getSimpleName());
+                    } else {
+                        FLogger.e(logTag, strToAddress + "CAN'T send msg with type " + msg.getType()
+                                + "/" + msg.getClass().getSimpleName() + ", stream is not encrypted");
+                    }
                 } catch (IOException e) {
                     FLogger.e(logTag, "sendMessage(). IOE - " + e.getMessage());
                 }
