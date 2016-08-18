@@ -106,13 +106,16 @@ public class MsgMyPublicKey extends Message {
                 new Date(timestamp),
                 phoneNumber));
 
-        boolean verified = verifySignedHash(signedHash, publicKey, timestamp, phoneNumber);
+        boolean verifiedSignature = verifySignedHash(signedHash, publicKey, timestamp, phoneNumber);
         boolean plausibleTimestamp = isTimestampPlausible(timestamp);
-        FLogger.i(TAG, String.format(Locale.US,
-                "pubKey: %s - verified: %b, plausible timestamp: %b",
-                fingerprint, verified, plausibleTimestamp));
-        if (verified && plausibleTimestamp) {
+        String logTestResults = String.format(Locale.US,
+                "pubKey: %s - verified signature: %b, plausible timestamp: %b",
+                fingerprint, verifiedSignature, plausibleTimestamp);
+        if (verifiedSignature && plausibleTimestamp) {
+            FLogger.i(TAG, logTestResults);
             updatePublicKeyInDatabase(phoneNumber);
+        } else {
+            FLogger.w(TAG, logTestResults);
         }
     }
 
