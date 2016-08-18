@@ -10,6 +10,7 @@ import java.net.InetAddress;
 import java.util.UUID;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.SessionData;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.SessionKey;
@@ -41,14 +42,14 @@ public class MsgJPAKERound3 extends Message {
         UUID handshakeId = HelperMethods.uuidFromStringDefensively(strHandshakeId);
         if (null == handshakeId) return null;
 
-        BigInteger macTag = Util.createBigIntFromStream(inStream);
+        BigInteger macTag = SerialisationUtil.createBigIntFromStream(inStream);
         return new MsgJPAKERound3(handshakeId, macTag);
     }
 
     @Override
     protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
         outStream.writeUTF(handshakeId.toString());
-        Util.serialiseToStream(outStream, macTag);
+        SerialisationUtil.serialiseToStream(outStream, macTag);
     }
 
     @Override
@@ -84,6 +85,15 @@ public class MsgJPAKERound3 extends Message {
     }
 
     private void prepareForIncomingConnection(MsgClient msgClient, JPAKEClient jpakeClient) throws IOException {
+        SessionKey sessionKey = getSessionKey(jpakeClient);
+        if (null == sessionKey) {
+            FLogger.e(TAG, "sessionKey == null. stopping JPAKE handshake." + strHandshakeId);
+            return;
+        }
+        storeSessionDataForIncomingConnection(msgClient, jpakeClient, sessionKey);
+    }
+
+    private SessionKey getSessionKey(JPAKEClient jpakeClient) {
         byte[] sessionKeyBytes = jpakeClient.getSessionKey();
         SessionKey sessionKey = null;
         try {
@@ -91,13 +101,17 @@ public class MsgJPAKERound3 extends Message {
         } catch (SessionKey.InvalidSessionKeySizeException e) {
             FLogger.e(TAG, "InvalidSessionKeySizeException: " + e.getMessage() + strHandshakeId);
             FLogger.d(TAG, e);
-            FLogger.e(TAG, "stopping JPAKE handshake." + strHandshakeId);
-            return;
         }
+        return sessionKey;
+    }
+
+    private void storeSessionDataForIncomingConnection(MsgClient msgClient, JPAKEClient jpakeClient, SessionKey sessionKey) {
         InetAddress socketAddress = msgClient.getSocketAddress();
         FLogger.i(TAG, "saving sessionKey for socketAddress: " + socketAddress.getHostAddress() + strHandshakeId);
-        MsgServerManager.getInstance().getMsgServerEncrypted().inetAddressToSessionKeyMap
-                .put(socketAddress, sessionKey);
+        SessionData sessionData = new SessionData(msgClient.sessionData, sessionKey);
+        sessionData.setPhoneNumberOfOtherParticipant(jpakeClient.sharedSecret);
+        MsgServerManager.getInstance().getMsgServerEncrypted().inetAddressToSessionDataMap
+                .put(socketAddress, sessionData);
     }
 
     private void sendRound3AckIfNeeded(MsgClient msgClient) {

@@ -16,6 +16,7 @@ public class PhoneNumUtilTest {
             "01223 247209",
             "020 33266391",
             "0//-2-0 **3.3.266|   |3?91",
+            "202-555-0196",
     };
 
     @Test
@@ -28,6 +29,7 @@ public class PhoneNumUtilTest {
                 "+447555666777",
                 "+447555666777",
                 "+447555666777",
+                "+18776092233",
         };
         String[] output = new String[] {
                 "+36701234567",
@@ -37,6 +39,7 @@ public class PhoneNumUtilTest {
                 "+441223247209",
                 "+442033266391",
                 "+442033266391",
+                "+12025550196",
         };
 
         Method method = PhoneNumUtil.class.getDeclaredMethod("_formatPhoneNumber", String.class, String.class);
@@ -60,6 +63,7 @@ public class PhoneNumUtilTest {
                 "01223247209",
                 "02033266391",
                 "02033266391",
+                "2025550196",
         };
 
         for (int i = 0; i < dirtyPhoneNumbers.length; i++) {

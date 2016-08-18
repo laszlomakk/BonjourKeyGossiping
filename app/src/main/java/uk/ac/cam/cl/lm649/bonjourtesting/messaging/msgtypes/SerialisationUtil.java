@@ -5,9 +5,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 
-public final class Util {
+public final class SerialisationUtil {
 
-    private Util() {}
+    private SerialisationUtil() {}
 
     public static void serialiseToStream(DataOutputStream outStream, BigInteger bigInt) throws IOException {
         byte[] bytes = bigInt.toByteArray();

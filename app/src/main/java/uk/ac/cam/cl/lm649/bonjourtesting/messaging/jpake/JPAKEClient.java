@@ -34,6 +34,8 @@ public class JPAKEClient {
     private final String otherParticipantId;
     public final boolean iAmTheInitiator;
 
+    public final String sharedSecret;
+
     private BigInteger keyingMaterial;
     private byte[] sessionKey = null;
     private boolean retrievedSessionKey = false;
@@ -74,6 +76,8 @@ public class JPAKEClient {
         this.strHandshakeId = createHandshakeIdLogString(handshakeId);
 
         creationTime = android.os.SystemClock.elapsedRealtime();
+
+        this.sharedSecret = sharedSecret;
 
         initJPAKEParticipant(sharedSecret);
 

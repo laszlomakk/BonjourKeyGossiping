@@ -38,10 +38,10 @@ public class MsgJPAKERound2 extends Message {
         UUID handshakeId = HelperMethods.uuidFromStringDefensively(strHandshakeId);
         if (null == handshakeId) return null;
 
-        BigInteger a = Util.createBigIntFromStream(inStream);
+        BigInteger a = SerialisationUtil.createBigIntFromStream(inStream);
         BigInteger[] knowledgeProofForX2s = new BigInteger[] {
-                Util.createBigIntFromStream(inStream),
-                Util.createBigIntFromStream(inStream)
+                SerialisationUtil.createBigIntFromStream(inStream),
+                SerialisationUtil.createBigIntFromStream(inStream)
         };
         return new MsgJPAKERound2(handshakeId, a, knowledgeProofForX2s);
     }
@@ -49,9 +49,9 @@ public class MsgJPAKERound2 extends Message {
     @Override
     protected void serialiseBodyToStream(DataOutputStream outStream) throws IOException {
         outStream.writeUTF(handshakeId.toString());
-        Util.serialiseToStream(outStream, a);
-        Util.serialiseToStream(outStream, knowledgeProofForX2s[0]);
-        Util.serialiseToStream(outStream, knowledgeProofForX2s[1]);
+        SerialisationUtil.serialiseToStream(outStream, a);
+        SerialisationUtil.serialiseToStream(outStream, knowledgeProofForX2s[0]);
+        SerialisationUtil.serialiseToStream(outStream, knowledgeProofForX2s[1]);
     }
 
     @Override

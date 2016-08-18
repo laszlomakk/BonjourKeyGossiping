@@ -16,22 +16,22 @@ public class MsgServerEncrypted extends MsgServer {
 
     protected static final String TAG = "MsgServerEncrypted";
 
-    public final ConcurrentHashMap<InetAddress, SessionKey> inetAddressToSessionKeyMap = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<InetAddress, SessionData> inetAddressToSessionDataMap = new ConcurrentHashMap<>();
 
     @Override
     @Nullable
     protected MsgClient createMsgClientForIncomingConnection(Socket socket) {
         InetAddress socketAddress = socket.getInetAddress();
-        SessionKey sessionKey = inetAddressToSessionKeyMap.remove(socketAddress);
+        SessionData sessionData = inetAddressToSessionDataMap.remove(socketAddress);
 
-        boolean sessionKeyFound = (null != sessionKey);
+        boolean sessionDataFound = (null != sessionData);
 
         FLogger.i(TAG, String.format(Locale.US,
-                "incoming connection from %s, session key found: %b",
-                socketAddress.getHostAddress(), sessionKeyFound));
+                "incoming connection from %s, session data found: %b",
+                socketAddress.getHostAddress(), sessionDataFound));
 
-        if (sessionKeyFound) {
-            MsgClient msgClientEncrypted = new MsgClient(socket, sessionKey);
+        if (sessionDataFound) {
+            MsgClient msgClientEncrypted = new MsgClient(socket, sessionData);
 
             if (Constants.RESPONDER_ALSO_SENDS_PUBLIC_KEY) {
                 Message msg = MsgMyPublicKey.createNewMsgWithMyCurrentData(context);
