@@ -84,6 +84,16 @@ public class MsgJPAKERound3 extends Message {
     }
 
     private void prepareForIncomingConnection(MsgClient msgClient, JPAKEClient jpakeClient) throws IOException {
+        SessionKey sessionKey = getSessionKey(jpakeClient);
+        if (null == sessionKey) {
+            FLogger.e(TAG, "sessionKey == null. stopping JPAKE handshake." + strHandshakeId);
+            return;
+        }
+        storeSessionKeyForIncomingConnection(msgClient, sessionKey);
+        msgClient.setPhoneNumberOfOtherParticipant(jpakeClient.sharedSecret);
+    }
+
+    private SessionKey getSessionKey(JPAKEClient jpakeClient) {
         byte[] sessionKeyBytes = jpakeClient.getSessionKey();
         SessionKey sessionKey = null;
         try {
@@ -91,9 +101,11 @@ public class MsgJPAKERound3 extends Message {
         } catch (SessionKey.InvalidSessionKeySizeException e) {
             FLogger.e(TAG, "InvalidSessionKeySizeException: " + e.getMessage() + strHandshakeId);
             FLogger.d(TAG, e);
-            FLogger.e(TAG, "stopping JPAKE handshake." + strHandshakeId);
-            return;
         }
+        return sessionKey;
+    }
+
+    private void storeSessionKeyForIncomingConnection(MsgClient msgClient, SessionKey sessionKey) {
         InetAddress socketAddress = msgClient.getSocketAddress();
         FLogger.i(TAG, "saving sessionKey for socketAddress: " + socketAddress.getHostAddress() + strHandshakeId);
         MsgServerManager.getInstance().getMsgServerEncrypted().inetAddressToSessionKeyMap

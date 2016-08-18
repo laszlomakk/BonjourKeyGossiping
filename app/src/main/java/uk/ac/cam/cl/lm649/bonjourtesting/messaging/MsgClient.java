@@ -70,6 +70,8 @@ public class MsgClient {
 
     public final JPAKEManager jpakeManager = new JPAKEManager();
 
+    private String phoneNumberOfOtherParticipant = null;
+
     private MsgClient(@Nullable SessionKey sessionKey, boolean iAmTheInitiator) {
         app = CustomApplication.getInstance();
         context = app.getApplicationContext();
@@ -283,6 +285,15 @@ public class MsgClient {
 
     public void setServiceStubWeAreBoundTo(ServiceStub serviceStubWeAreBoundTo) {
         this.serviceStubWeAreBoundTo = serviceStubWeAreBoundTo;
+    }
+
+    @Nullable
+    public String getPhoneNumberOfOtherParticipant() {
+        return phoneNumberOfOtherParticipant;
+    }
+
+    public void setPhoneNumberOfOtherParticipant(String phoneNumberOfOtherParticipant) {
+        this.phoneNumberOfOtherParticipant = phoneNumberOfOtherParticipant;
     }
 
     /**
