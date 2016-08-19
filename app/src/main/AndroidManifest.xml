@@ -63,7 +63,7 @@
 
         <service android:name=".bonjour.BonjourService"
             android:exported="false"/>
-        <service android:name=".PollingService"
+        <service android:name=".bonjour.NetworkPollingService"
             android:exported="false"/>
 
         <receiver

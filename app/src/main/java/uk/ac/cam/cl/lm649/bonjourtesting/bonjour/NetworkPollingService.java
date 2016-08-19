@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting;
+package uk.ac.cam.cl.lm649.bonjourtesting.bonjour;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
@@ -10,12 +10,13 @@ import android.os.Build;
 import android.os.PowerManager;
 import android.os.SystemClock;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.TimeToPollReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
-public class PollingService extends IntentService {
+public class NetworkPollingService extends IntentService {
 
     private static final String TAG = "ActiveBadgePollerService";
 
@@ -25,7 +26,7 @@ public class PollingService extends IntentService {
 
     public static boolean automaticPollingEnabled = true;
 
-    public PollingService() {
+    public NetworkPollingService() {
         super("ActiveBadgePollerService");
     }
 

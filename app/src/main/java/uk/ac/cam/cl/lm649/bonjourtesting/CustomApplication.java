@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
+import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.NetworkPollingService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.DeviceIdleBroadcastReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.LoggingBroadcastReceiver;
@@ -88,8 +89,8 @@ public class CustomApplication extends Application {
         if (SaveSettingsData.getInstance(this).isAppOperationalCoreEnabled()) {
             Log.i(TAG, "onCreate(). AppOperationalCore setting is ON, so starting up.");
             startMsgServerManager();
-            PollingService.automaticPollingEnabled = true;
-            PollingService.schedulePolling(this);
+            NetworkPollingService.automaticPollingEnabled = true;
+            NetworkPollingService.schedulePolling(this);
             startBonjourService();
         } else {
             Log.i(TAG, "onCreate(). AppOperationalCore setting is OFF, won't start.");
@@ -99,8 +100,8 @@ public class CustomApplication extends Application {
     public void shutdownOperationalCore() {
         FLogger.i(TAG, "shutdownOperationalCore() called.");
         stopBonjourService();
-        PollingService.automaticPollingEnabled = false;
-        PollingService.cancelPolling(this);
+        NetworkPollingService.automaticPollingEnabled = false;
+        NetworkPollingService.cancelPolling(this);
         MsgServerManager.getInstance().stop();
     }
 
