@@ -18,7 +18,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class NetworkPollingService extends IntentService {
 
-    private static final String TAG = "ActiveBadgePollerService";
+    private static final String TAG = "NetworkPollingService";
 
     private CustomApplication app;
     private static final long TIME_TO_KEEP_DEVICE_AWAKE = 15_000;
@@ -27,7 +27,7 @@ public class NetworkPollingService extends IntentService {
     public static boolean automaticPollingEnabled = true;
 
     public NetworkPollingService() {
-        super("ActiveBadgePollerService");
+        super(TAG);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class NetworkPollingService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         FLogger.d(TAG, "onHandleIntent() called.");
         PowerManager pm = (PowerManager) app.getSystemService(Context.POWER_SERVICE);
-        final PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "badgePollerWakeLock");
+        final PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "-wakelock");
         wakeLock.acquire();
 
         try {
