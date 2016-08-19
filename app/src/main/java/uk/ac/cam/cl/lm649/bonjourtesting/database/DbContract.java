@@ -4,13 +4,14 @@ public final class DbContract {
 
     private DbContract() {}
 
-    protected static final int DATABASE_VERSION = 7;
+    protected static final int DATABASE_VERSION = 9;
     protected static final String DATABASE_NAME = "key_gossip_db";
 
     protected static class PhoneNumberEntry {
         protected static final String TABLE_NAME = "phone_numbers";
         protected static final String COLUMN_NAME_PHONE_NUMBER = "phoneNumber";
         protected static final String COLUMN_NAME_CUSTOM_NAME = "customName";
+        protected static final String COLUMN_NAME_GOSSIPING_STATUS = "gossiping_status";
     }
 
     protected static class PublicKeyEntry {
