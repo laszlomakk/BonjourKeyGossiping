@@ -63,7 +63,7 @@
 
         <service android:name=".bonjour.BonjourService"
             android:exported="false"/>
-        <service android:name=".bonjour.NetworkPollingService"
+        <service android:name=".bonjour.polling.NetworkPollingService"
             android:exported="false"/>
 
         <receiver
@@ -91,7 +91,7 @@
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".receivers.TimeToPollReceiver"
+        <receiver android:name=".bonjour.polling.NetworkPollingReceiver"
             android:enabled="true"
             android:exported="false">
         </receiver>

@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.bonjour;
+package uk.ac.cam.cl.lm649.bonjourtesting.bonjour.polling;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
@@ -12,9 +12,7 @@ import android.os.SystemClock;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
-import uk.ac.cam.cl.lm649.bonjourtesting.receivers.TimeToPollReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class NetworkPollingService extends IntentService {
 
@@ -60,7 +58,7 @@ public class NetworkPollingService extends IntentService {
             }
             FLogger.i(TAG, "onHandleIntent() finishing. Releasing WakeLocks.");
             wakeLock.release();
-            TimeToPollReceiver.completeWakefulIntent(intent);
+            NetworkPollingReceiver.completeWakefulIntent(intent);
         }
     }
 
@@ -77,7 +75,7 @@ public class NetworkPollingService extends IntentService {
         FLogger.d(TAG, "schedulePolling() called.");
         Context appContext = context.getApplicationContext();
         AlarmManager alarmManager = (AlarmManager) appContext.getSystemService(Context.ALARM_SERVICE);
-        Intent alarmIntent = new Intent(appContext, TimeToPollReceiver.class);
+        Intent alarmIntent = new Intent(appContext, NetworkPollingReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         long triggerAtMillis = SystemClock.elapsedRealtime() + POLL_PERIOD;
         setAlarm(alarmManager, pendingIntent, triggerAtMillis);
@@ -88,7 +86,7 @@ public class NetworkPollingService extends IntentService {
         FLogger.i(TAG, "cancelPolling() called.");
         Context appContext = context.getApplicationContext();
         AlarmManager alarmManager = (AlarmManager) appContext.getSystemService(Context.ALARM_SERVICE);
-        Intent alarmIntent = new Intent(appContext, TimeToPollReceiver.class);
+        Intent alarmIntent = new Intent(appContext, NetworkPollingReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
     }

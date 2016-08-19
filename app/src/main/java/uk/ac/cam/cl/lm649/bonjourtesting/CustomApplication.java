@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
-import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.NetworkPollingService;
+import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.polling.NetworkPollingService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.DeviceIdleBroadcastReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.LoggingBroadcastReceiver;
