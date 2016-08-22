@@ -20,7 +20,7 @@ public class ContactPollingService extends IntentService {
 
     private CustomApplication app;
     private static final long INITIAL_DELAY = 5 * Constants.MSECONDS_IN_MINUTE;
-    private static final long POLL_PERIOD = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
+    private static final long POLL_PERIOD = AlarmManager.INTERVAL_HALF_DAY;
 
     public ContactPollingService() {
         super(TAG);
