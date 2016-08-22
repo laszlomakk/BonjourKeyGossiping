@@ -247,17 +247,18 @@ public class PhoneBookActivity extends CustomActivity {
                         int phoneNumberIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
                         FLogger.i(TAG, "importing contacts from system...");
                         List<DbTablePhoneNumbers.Entry> systemPhoneBook = new ArrayList<>(100);
-                        cursor.moveToFirst();
-                        do {
-                            String name = cursor.getString(nameIdx);
-                            String phoneNumber = cursor.getString(phoneNumberIdx);
-                            String normalisedPhoneNumber = PhoneNumUtil.formatPhoneNumber(phoneNumber, phoneNumberOfLocalDevice);
-                            DbTablePhoneNumbers.Entry contact = new DbTablePhoneNumbers.Entry(normalisedPhoneNumber, name);
-                            systemPhoneBook.add(contact);
-                            FLogger.d(TAG, String.format(Locale.US,
-                                    "contact found - name: %s, phone number: %s -> %s",
-                                    name, phoneNumber, normalisedPhoneNumber));
-                        } while (cursor.moveToNext());
+                        if (cursor.moveToFirst()) {
+                            do {
+                                String name = cursor.getString(nameIdx);
+                                String phoneNumber = cursor.getString(phoneNumberIdx);
+                                String normalisedPhoneNumber = PhoneNumUtil.formatPhoneNumber(phoneNumber, phoneNumberOfLocalDevice);
+                                DbTablePhoneNumbers.Entry contact = new DbTablePhoneNumbers.Entry(normalisedPhoneNumber, name);
+                                systemPhoneBook.add(contact);
+                                FLogger.d(TAG, String.format(Locale.US,
+                                        "contact found - name: %s, phone number: %s -> %s",
+                                        name, phoneNumber, normalisedPhoneNumber));
+                            } while (cursor.moveToNext());
+                        }
                         mergeSystemPhoneBookIntoAppPhoneBook(systemPhoneBook);
                     } finally {
                         cursor.close();
