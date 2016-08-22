@@ -172,10 +172,25 @@ public final class DbTablePhoneNumbers {
                     entries.add(entry);
                 } while (cursor.moveToNext());
             }
-            return entries;
+            return reorderEntriesToHaveOnesWithUntouchedGossipingFirst(entries);
         } finally {
             if (null != cursor) cursor.close();
         }
+    }
+
+    private static List<Entry> reorderEntriesToHaveOnesWithUntouchedGossipingFirst(@NonNull List<Entry> entries) {
+        List<Entry> reorderedEntries = new ArrayList<>(entries.size());
+        for (Entry entry : entries) {
+            if (entry.getGossipingStatus() == Entry.GOSSIPING_STATUS_UNTOUCHED) {
+                reorderedEntries.add(entry);
+            }
+        }
+        for (Entry entry : entries) {
+            if (entry.getGossipingStatus() != Entry.GOSSIPING_STATUS_UNTOUCHED) {
+                reorderedEntries.add(entry);
+            }
+        }
+        return reorderedEntries;
     }
 
     public static void updateEntry(Entry entry) {
