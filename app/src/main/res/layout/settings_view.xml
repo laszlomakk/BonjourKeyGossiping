@@ -108,4 +108,14 @@
         android:maxLines="1"
         android:inputType="phone" />
 
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Automatically Import Contacts"
+        android:id="@+id/switchAutoContactPoll"
+        android:layout_marginTop="36dp"
+        android:layout_below="@+id/textViewPhoneNumberText"
+        android:checked="true"
+        android:layout_marginLeft="20dp" />
+
 </RelativeLayout>

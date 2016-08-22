@@ -1,6 +1,7 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.menu.settings;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.Switch;
 
 import java.util.Locale;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
@@ -27,6 +29,7 @@ public class SettingsActivity extends CustomActivity {
     private CheckBox checkBoxRandomServiceName;
     private Button buttonRestartBonjourService;
     private Switch switchMaster;
+    private Switch switchAutoContactPoll;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +49,12 @@ public class SettingsActivity extends CustomActivity {
         checkBoxRandomServiceName = (CheckBox)findViewById(R.id.checkBoxRandomServiceName);
         checkBoxRandomServiceName.setChecked(saveSettingsData.isUsingRandomServiceName());
 
+        setupButtonRestartBonjourService();
+        setupSwitchMaster();
+        setupSwitchAutoContactPoll();
+    }
+
+    private void setupButtonRestartBonjourService() {
         buttonRestartBonjourService = (Button) findViewById(R.id.buttonRestartBonjourService);
         buttonRestartBonjourService.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,7 +70,9 @@ public class SettingsActivity extends CustomActivity {
                 }
             }
         });
+    }
 
+    private void setupSwitchMaster() {
         switchMaster = (Switch)findViewById(R.id.masterSwitch);
         switchMaster.setChecked(saveSettingsData.isAppOperationalCoreEnabled());
         switchMaster.setOnClickListener(new View.OnClickListener() {
@@ -84,6 +95,29 @@ public class SettingsActivity extends CustomActivity {
                         switchMaster.setEnabled(true);
                     }
                 }, 10_000);
+            }
+        });
+    }
+
+    private void setupSwitchAutoContactPoll() {
+        switchAutoContactPoll = (Switch) findViewById(R.id.switchAutoContactPoll);
+        switchAutoContactPoll.setChecked(saveSettingsData.isAutomaticContactPollingEnabled());
+        switchAutoContactPoll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean oldState = saveSettingsData.isAutomaticContactPollingEnabled();
+                FLogger.i(TAG, "user clicked the AUTO CONTACT POLL SWITCH, old state: " + oldState);
+                if (oldState) {
+                    saveSettingsData.saveAutomaticContactPollingEnabled(false);
+                    return;
+                }
+                if (HelperMethods.doWeHavePermissionToReadContacts(SettingsActivity.this)) {
+                    FLogger.d(TAG, "onClick(). we have permissions to read contacts.");
+                    saveSettingsData.saveAutomaticContactPollingEnabled(true);
+                } else {
+                    FLogger.d(TAG, "onClick(). we don't have permissions to read contacts -> asking now.");
+                    HelperMethods.askForPermissionToReadContacts(SettingsActivity.this);
+                }
             }
         });
     }
@@ -122,6 +156,22 @@ public class SettingsActivity extends CustomActivity {
         FLogger.i(TAG, "quickChangePhoneNumber() called. phone number: " + phoneNumber);
         SaveIdentityData saveIdentityData = SaveIdentityData.getInstance(context);
         saveIdentityData.savePhoneNumber(phoneNumber);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case Constants.MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    FLogger.d(TAG, "onRequestPermissionsResult(). READ_CONTACTS permission was granted");
+                    saveSettingsData.saveAutomaticContactPollingEnabled(true);
+                } else {
+                    FLogger.d(TAG, "onRequestPermissionsResult(). READ_CONTACTS permission was denied");
+                    switchAutoContactPoll.setChecked(false);
+                }
+                break;
+            }
+        }
     }
 
 }

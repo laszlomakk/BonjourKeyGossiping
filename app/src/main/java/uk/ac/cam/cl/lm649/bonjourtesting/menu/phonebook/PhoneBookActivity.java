@@ -1,14 +1,12 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.menu.phonebook;
 
-import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,10 +15,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
+import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
@@ -38,8 +41,6 @@ public class PhoneBookActivity extends CustomActivity {
     private TextView textViewNumEntriesInList;
 
     private String phoneNumberOfLocalDevice;
-
-    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 10001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,12 +105,12 @@ public class PhoneBookActivity extends CustomActivity {
             @Override
             public void onClick(View v) {
                 FLogger.d(TAG, "onClick(). user clicked refresh button.");
-                if (doWeHavePermissionToReadContacts()) {
+                if (HelperMethods.doWeHavePermissionToReadContacts(PhoneBookActivity.this)) {
                     FLogger.d(TAG, "onClick(). we have permissions to read contacts.");
-                    asyncImportContactsFromSystemToInternalDb();
+                    asyncImportContactsFromSystemToInternalDb(context);
                 } else {
                     FLogger.d(TAG, "onClick(). we don't have permissions to read contacts -> asking now.");
-                    askForPermissionToReadContacts();
+                    HelperMethods.askForPermissionToReadContacts(PhoneBookActivity.this);
                 }
             }
         });
@@ -231,56 +232,67 @@ public class PhoneBookActivity extends CustomActivity {
         updateListView();
     }
 
-    private boolean doWeHavePermissionToReadContacts() {
-        return ContextCompat.checkSelfPermission(
-                PhoneBookActivity.this,
-                Manifest.permission.READ_CONTACTS)
-                == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void askForPermissionToReadContacts() {
-        ActivityCompat.requestPermissions(
-                PhoneBookActivity.this,
-                new String[]{Manifest.permission.READ_CONTACTS},
-                MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-    }
-
-    private void asyncImportContactsFromSystemToInternalDb() {
+    public static void asyncImportContactsFromSystemToInternalDb(final Context context) {
+        FLogger.d(TAG, "asyncImportContactsFromSystemToInternalDb() called.");
         new Thread() {
             @Override
             public void run() {
-                synchronized (displayedEntriesLock) {
-                    Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-                    if (null != cursor) {
+                FLogger.d(TAG, "asyncImportContactsFromSystemToInternalDb() started executing.");
+                SaveIdentityData saveIdentityData = SaveIdentityData.getInstance(context);
+                String phoneNumberOfLocalDevice = saveIdentityData.getPhoneNumber();
+                Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+                if (null != cursor) {
+                    try {
                         int nameIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
                         int phoneNumberIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
                         FLogger.i(TAG, "importing contacts from system...");
+                        List<DbTablePhoneNumbers.Entry> systemPhoneBook = new ArrayList<>(100);
                         cursor.moveToFirst();
                         do {
                             String name = cursor.getString(nameIdx);
                             String phoneNumber = cursor.getString(phoneNumberIdx);
                             String normalisedPhoneNumber = PhoneNumUtil.formatPhoneNumber(phoneNumber, phoneNumberOfLocalDevice);
                             DbTablePhoneNumbers.Entry contact = new DbTablePhoneNumbers.Entry(normalisedPhoneNumber, name);
-                            DbTablePhoneNumbers.smartUpdateEntry(contact);
+                            systemPhoneBook.add(contact);
                             FLogger.d(TAG, String.format(Locale.US,
-                                    "contact imported - name: %s, phone number: %s -> %s",
+                                    "contact found - name: %s, phone number: %s -> %s",
                                     name, phoneNumber, normalisedPhoneNumber));
                         } while (cursor.moveToNext());
+                        mergeSystemPhoneBookIntoAppPhoneBook(systemPhoneBook);
+                    } finally {
                         cursor.close();
                     }
-                    forceRefreshUI();
                 }
+                forceRefreshUIInTopActivity();
             }
         }.start();
+    }
+
+    private static void mergeSystemPhoneBookIntoAppPhoneBook(final List<DbTablePhoneNumbers.Entry> systemPhoneBook) {
+        List<DbTablePhoneNumbers.Entry> appPhoneBook = DbTablePhoneNumbers.getAllEntries();
+        TreeMap<String, DbTablePhoneNumbers.Entry> contactsNoLongerInSystemPhoneBook = new TreeMap<>();
+        for (DbTablePhoneNumbers.Entry entry : appPhoneBook) {
+            contactsNoLongerInSystemPhoneBook.put(entry.getPhoneNumber(), entry);
+        }
+        for (DbTablePhoneNumbers.Entry entry : systemPhoneBook) {
+            contactsNoLongerInSystemPhoneBook.remove(entry.getPhoneNumber());
+            DbTablePhoneNumbers.smartUpdateEntry(entry);
+        }
+        for (Map.Entry<String, DbTablePhoneNumbers.Entry> entry : contactsNoLongerInSystemPhoneBook.entrySet()) {
+            DbTablePhoneNumbers.deleteEntry(entry.getKey());
+            FLogger.d(TAG, String.format(Locale.US,
+                    "stale contact deleted - name: %s, phone number: %s",
+                    entry.getValue().getCustomName(), entry.getValue().getPhoneNumber()));
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
+            case Constants.MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     FLogger.d(TAG, "onRequestPermissionsResult(). READ_CONTACTS permission was granted");
-                    asyncImportContactsFromSystemToInternalDb();
+                    asyncImportContactsFromSystemToInternalDb(context);
                 } else {
                     FLogger.d(TAG, "onRequestPermissionsResult(). READ_CONTACTS permission was denied");
                 }

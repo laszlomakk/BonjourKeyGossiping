@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.polling.NetworkPollingService;
+import uk.ac.cam.cl.lm649.bonjourtesting.menu.phonebook.polling.ContactPollingService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.DeviceIdleBroadcastReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.receivers.LoggingBroadcastReceiver;
@@ -91,6 +92,7 @@ public class CustomApplication extends Application {
             startMsgServerManager();
             NetworkPollingService.automaticPollingEnabled = true;
             NetworkPollingService.schedulePolling(this);
+            ContactPollingService.schedulePolling(this);
             startBonjourService();
         } else {
             Log.i(TAG, "onCreate(). AppOperationalCore setting is OFF, won't start.");

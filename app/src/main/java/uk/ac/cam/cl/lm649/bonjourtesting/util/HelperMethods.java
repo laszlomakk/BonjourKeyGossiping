@@ -5,6 +5,8 @@
 
 package uk.ac.cam.cl.lm649.bonjourtesting.util;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,6 +14,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
 import java.io.PrintWriter;
@@ -138,6 +142,20 @@ public final class HelperMethods {
         }
 
         return revealedBitsOfHash;
+    }
+
+    public static void askForPermissionToReadContacts(Activity activity) {
+        ActivityCompat.requestPermissions(
+                activity,
+                new String[]{Manifest.permission.READ_CONTACTS},
+                Constants.MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+    }
+
+    public static boolean doWeHavePermissionToReadContacts(Context context) {
+        return ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_CONTACTS)
+                == PackageManager.PERMISSION_GRANTED;
     }
 
 }

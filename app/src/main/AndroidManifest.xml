@@ -65,6 +65,8 @@
             android:exported="false"/>
         <service android:name=".bonjour.polling.NetworkPollingService"
             android:exported="false"/>
+        <service android:name=".menu.phonebook.polling.ContactPollingService"
+            android:exported="false"/>
 
         <receiver
             android:name=".receivers.LoggingBroadcastReceiver"
@@ -92,6 +94,10 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".bonjour.polling.NetworkPollingReceiver"
+            android:enabled="true"
+            android:exported="false">
+        </receiver>
+        <receiver android:name=".menu.phonebook.polling.ContactPollingReceiver"
             android:enabled="true"
             android:exported="false">
         </receiver>

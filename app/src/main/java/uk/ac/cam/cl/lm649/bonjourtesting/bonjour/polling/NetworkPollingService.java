@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.PowerManager;
 import android.os.SystemClock;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
@@ -19,8 +20,8 @@ public class NetworkPollingService extends IntentService {
     private static final String TAG = "NetworkPollingService";
 
     private CustomApplication app;
-    private static final long TIME_TO_KEEP_DEVICE_AWAKE = 15_000;
-    public static final long POLL_PERIOD = 120_000;
+    private static final long TIME_TO_KEEP_DEVICE_AWAKE = 15 * Constants.MSECONDS_IN_SECOND;
+    private static final long POLL_PERIOD = 2 * Constants.MSECONDS_IN_MINUTE;
 
     public static boolean automaticPollingEnabled = true;
 
