@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting;
+package uk.ac.cam.cl.lm649.bonjourtesting.bonjour.polling;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
@@ -10,23 +10,23 @@ import android.os.Build;
 import android.os.PowerManager;
 import android.os.SystemClock;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
-import uk.ac.cam.cl.lm649.bonjourtesting.receivers.TimeToPollReceiver;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
-import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
-public class PollingService extends IntentService {
+public class NetworkPollingService extends IntentService {
 
-    private static final String TAG = "ActiveBadgePollerService";
+    private static final String TAG = "NetworkPollingService";
 
     private CustomApplication app;
-    private static final long TIME_TO_KEEP_DEVICE_AWAKE = 15_000;
-    public static final long POLL_PERIOD = 120_000;
+    private static final long TIME_TO_KEEP_DEVICE_AWAKE = 15 * Constants.MSECONDS_IN_SECOND;
+    private static final long POLL_PERIOD = 2 * Constants.MSECONDS_IN_MINUTE;
 
     public static boolean automaticPollingEnabled = true;
 
-    public PollingService() {
-        super("ActiveBadgePollerService");
+    public NetworkPollingService() {
+        super(TAG);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class PollingService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         FLogger.d(TAG, "onHandleIntent() called.");
         PowerManager pm = (PowerManager) app.getSystemService(Context.POWER_SERVICE);
-        final PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "badgePollerWakeLock");
+        final PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "-wakelock");
         wakeLock.acquire();
 
         try {
@@ -59,7 +59,7 @@ public class PollingService extends IntentService {
             }
             FLogger.i(TAG, "onHandleIntent() finishing. Releasing WakeLocks.");
             wakeLock.release();
-            TimeToPollReceiver.completeWakefulIntent(intent);
+            NetworkPollingReceiver.completeWakefulIntent(intent);
         }
     }
 
@@ -76,7 +76,7 @@ public class PollingService extends IntentService {
         FLogger.d(TAG, "schedulePolling() called.");
         Context appContext = context.getApplicationContext();
         AlarmManager alarmManager = (AlarmManager) appContext.getSystemService(Context.ALARM_SERVICE);
-        Intent alarmIntent = new Intent(appContext, TimeToPollReceiver.class);
+        Intent alarmIntent = new Intent(appContext, NetworkPollingReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         long triggerAtMillis = SystemClock.elapsedRealtime() + POLL_PERIOD;
         setAlarm(alarmManager, pendingIntent, triggerAtMillis);
@@ -87,7 +87,7 @@ public class PollingService extends IntentService {
         FLogger.i(TAG, "cancelPolling() called.");
         Context appContext = context.getApplicationContext();
         AlarmManager alarmManager = (AlarmManager) appContext.getSystemService(Context.ALARM_SERVICE);
-        Intent alarmIntent = new Intent(appContext, TimeToPollReceiver.class);
+        Intent alarmIntent = new Intent(appContext, NetworkPollingReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
     }

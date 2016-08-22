@@ -42,7 +42,8 @@ public class MsgMyPhoneNumber extends Message {
         FLogger.i(msgClient.logTag, String.format(Locale.US,
                 "%sreceived %s:\nnick: %s, phoneNum: %s",
                 msgClient.strFromAddress, getClass().getSimpleName(), customName, phoneNumber));
-        DbTablePhoneNumbers.smartUpdateEntry(phoneNumber, customName);
+        DbTablePhoneNumbers.Entry contact = new DbTablePhoneNumbers.Entry(phoneNumber, customName);
+        DbTablePhoneNumbers.smartUpdateEntry(contact);
         CustomActivity.forceRefreshUIInTopActivity();
     }
 

@@ -42,7 +42,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".menu.PhoneBookActivity">
+        <activity android:name=".menu.phonebook.PhoneBookActivity">
             <intent-filter>
                 <action android:name="uk.ac.cam.cl.lm649.bonjourtesting.PHONEBOOK" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -63,7 +63,9 @@
 
         <service android:name=".bonjour.BonjourService"
             android:exported="false"/>
-        <service android:name=".PollingService"
+        <service android:name=".bonjour.polling.NetworkPollingService"
+            android:exported="false"/>
+        <service android:name=".menu.phonebook.polling.ContactPollingService"
             android:exported="false"/>
 
         <receiver
@@ -91,7 +93,11 @@
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".receivers.TimeToPollReceiver"
+        <receiver android:name=".bonjour.polling.NetworkPollingReceiver"
+            android:enabled="true"
+            android:exported="false">
+        </receiver>
+        <receiver android:name=".menu.phonebook.polling.ContactPollingReceiver"
             android:enabled="true"
             android:exported="false">
         </receiver>

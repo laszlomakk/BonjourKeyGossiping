@@ -83,7 +83,7 @@ public class MsgSaltedPhoneNumber extends Message {
         List<String> hopefulPhoneNumbers = getHopefulPhoneNumbers();
 
         if (hopefulPhoneNumbers.size() == 0) {
-            FLogger.i(TAG, "no match found for hash " + Hex.toHexString(hashOfSaltedPhoneNumber));
+            FLogger.i(TAG, "no hopeful phone number found for hash " + Hex.toHexString(hashOfSaltedPhoneNumber));
         } else {
             JPAKEManager.startJPAKEWave(msgClient, hopefulPhoneNumbers);
         }
@@ -96,10 +96,13 @@ public class MsgSaltedPhoneNumber extends Message {
                     entry.getPhoneNumber(), salt, nRevealedBitsOfHash);
             if (Arrays.equals(partialHashCandidate, hashOfSaltedPhoneNumber)) {
                 FLogger.i(TAG, String.format(Locale.US,
-                        "match found for hash %s, where phoneNumber is %s",
+                        "match found for hash %s, where phoneNumber is %s, gossipStatus: %s",
                         Hex.toHexString(hashOfSaltedPhoneNumber),
-                        entry.getPhoneNumber()));
-                hopefulPhoneNumbers.add(entry.getPhoneNumber());
+                        entry.getPhoneNumber(),
+                        entry.getGossipingStatusText()));
+                if (entry.getGossipingStatus() != DbTablePhoneNumbers.Entry.GOSSIPING_STATUS_USER_DISABLED) {
+                    hopefulPhoneNumbers.add(entry.getPhoneNumber());
+                }
             }
         }
         return hopefulPhoneNumbers;

@@ -22,6 +22,11 @@ public class Constants {
 
 
     // --------------------> CONSTANTS start
+    public static final long MSECONDS_IN_SECOND = 1000;
+    public static final long MSECONDS_IN_MINUTE = 60 * MSECONDS_IN_SECOND;
+    public static final long MSECONDS_IN_HOUR = 60 * MSECONDS_IN_MINUTE;
+
+    public static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 10001;
     // --------------------> CONSTANTS end
 
 

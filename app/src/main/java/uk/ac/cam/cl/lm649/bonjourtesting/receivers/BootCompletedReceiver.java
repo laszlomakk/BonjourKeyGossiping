@@ -18,5 +18,6 @@ public class BootCompletedReceiver extends BroadcastReceiver {
         // note: we are not doing anything startup specific
         // the fact that this method gets called ensures that CustomApplication
         // gets instantiated which means the singletons get instantiated and BonjourService starts
+        // tl,dr: this method getting called guarantees CustomApplication.onCreate() ran
     }
 }

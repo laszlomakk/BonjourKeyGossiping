@@ -14,10 +14,8 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgSaltedPhoneNumber;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
