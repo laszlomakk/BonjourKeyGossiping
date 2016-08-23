@@ -97,6 +97,9 @@ public class MsgJPAKERound3Ack extends Message {
         Context context = msgClientEncrypted.context;
         Message msg = MsgMyPublicKey.createNewMsgWithMyCurrentData(context);
         msgClientEncrypted.sendMessage(msg);
+
+        Message msgContainingContacts = MsgBloomFilterOfContacts.createNewMsgWithMyCurrentData();
+        msgClientEncrypted.sendMessage(msgContainingContacts);
     }
 
 }
