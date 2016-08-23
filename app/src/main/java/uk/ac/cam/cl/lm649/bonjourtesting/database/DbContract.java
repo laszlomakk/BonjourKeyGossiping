@@ -4,7 +4,7 @@ public final class DbContract {
 
     private DbContract() {}
 
-    protected static final int DATABASE_VERSION = 9;
+    protected static final int DATABASE_VERSION = 10;
     protected static final String DATABASE_NAME = "key_gossip_db";
 
     protected static class PhoneNumberEntry {
@@ -20,6 +20,7 @@ public final class DbContract {
         protected static final String COLUMN_NAME_PHONE_NUMBER = "phoneNumber";
         protected static final String COLUMN_NAME_TIMESTAMP_FIRST_SEEN_PUBLIC_KEY = "timestamp_first_seen_pubKey";
         protected static final String COLUMN_NAME_TIMESTAMP_LAST_SEEN_ALIVE_PUBLIC_KEY = "timestamp_alive_pubKey";
+        protected static final String COLUMN_NAME_SIGNED_HASH = "owner_signed_hash";
     }
 
 }

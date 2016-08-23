@@ -27,6 +27,7 @@ public final class DbTablePublicKeys {
         protected String phoneNumber;
         protected Long timestampFirstSeenPublicKey = null;
         protected Long timestampLastSeenAlivePublicKey = null;
+        protected byte[] signedHash;
 
         public Entry() {}
 
@@ -35,6 +36,7 @@ public final class DbTablePublicKeys {
             this.phoneNumber = entry.phoneNumber;
             this.timestampFirstSeenPublicKey = entry.timestampFirstSeenPublicKey;
             this.timestampLastSeenAlivePublicKey = entry.timestampLastSeenAlivePublicKey;
+            this.signedHash = entry.signedHash;
         }
 
         public String getPublicKey() {
@@ -69,6 +71,14 @@ public final class DbTablePublicKeys {
             this.timestampLastSeenAlivePublicKey = timestampLastSeenAlivePublicKey;
         }
 
+        public byte[] getSignedHash() {
+            return signedHash;
+        }
+
+        public void setSignedHash(byte[] signedHash) {
+            this.signedHash = signedHash;
+        }
+
         @Override
         public String toString() {
             return String.format(Locale.US,
@@ -98,12 +108,13 @@ public final class DbTablePublicKeys {
 
     protected static String constructQueryToCreateTable() {
         return String.format(Locale.US,
-                "CREATE TABLE %s(%s TEXT PRIMARY KEY, %s TEXT, %s INTEGER, %s INTEGER)",
+                "CREATE TABLE %s(%s TEXT PRIMARY KEY, %s TEXT, %s INTEGER, %s INTEGER, %s BLOB)",
                 PublicKeyEntry.TABLE_NAME,
                 PublicKeyEntry.COLUMN_NAME_PUBLIC_KEY,
                 PublicKeyEntry.COLUMN_NAME_PHONE_NUMBER,
                 PublicKeyEntry.COLUMN_NAME_TIMESTAMP_FIRST_SEEN_PUBLIC_KEY,
-                PublicKeyEntry.COLUMN_NAME_TIMESTAMP_LAST_SEEN_ALIVE_PUBLIC_KEY);
+                PublicKeyEntry.COLUMN_NAME_TIMESTAMP_LAST_SEEN_ALIVE_PUBLIC_KEY,
+                PublicKeyEntry.COLUMN_NAME_SIGNED_HASH);
     }
 
     public static void addEntry(Entry entry) {
@@ -120,6 +131,7 @@ public final class DbTablePublicKeys {
         values.put(PublicKeyEntry.COLUMN_NAME_PHONE_NUMBER, entry.phoneNumber);
         values.put(PublicKeyEntry.COLUMN_NAME_TIMESTAMP_FIRST_SEEN_PUBLIC_KEY, entry.timestampFirstSeenPublicKey);
         values.put(PublicKeyEntry.COLUMN_NAME_TIMESTAMP_LAST_SEEN_ALIVE_PUBLIC_KEY, entry.timestampLastSeenAlivePublicKey);
+        values.put(PublicKeyEntry.COLUMN_NAME_SIGNED_HASH, entry.signedHash);
         return values;
     }
 
@@ -135,6 +147,7 @@ public final class DbTablePublicKeys {
                             PublicKeyEntry.COLUMN_NAME_PHONE_NUMBER,
                             PublicKeyEntry.COLUMN_NAME_TIMESTAMP_FIRST_SEEN_PUBLIC_KEY,
                             PublicKeyEntry.COLUMN_NAME_TIMESTAMP_LAST_SEEN_ALIVE_PUBLIC_KEY,
+                            PublicKeyEntry.COLUMN_NAME_SIGNED_HASH,
                     }, PublicKeyEntry.COLUMN_NAME_PUBLIC_KEY + "=?",
                     new String[] { publicKey }, null, null, null, null);
 
@@ -144,6 +157,7 @@ public final class DbTablePublicKeys {
                 entry.phoneNumber = cursor.getString(1);
                 entry.timestampFirstSeenPublicKey = cursor.getLong(2);
                 entry.timestampLastSeenAlivePublicKey = cursor.getLong(3);
+                entry.signedHash = cursor.getBlob(4);
                 return entry;
             } else {
                 return null;
@@ -158,12 +172,13 @@ public final class DbTablePublicKeys {
         SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
 
         String selectQuery = String.format(Locale.US,
-                "SELECT %s, %s, %s, %s, %s FROM %s LEFT JOIN %s ON %s=%s ORDER BY %s DESC",
+                "SELECT %s, %s, %s, %s, %s, %s FROM %s LEFT JOIN %s ON %s=%s ORDER BY %s DESC",
                 PhoneNumberEntry.TABLE_NAME + "." + PhoneNumberEntry.COLUMN_NAME_CUSTOM_NAME,
                 PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_PHONE_NUMBER,
                 PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_PUBLIC_KEY,
                 PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_TIMESTAMP_FIRST_SEEN_PUBLIC_KEY,
                 PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_TIMESTAMP_LAST_SEEN_ALIVE_PUBLIC_KEY,
+                PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_SIGNED_HASH,
                 PublicKeyEntry.TABLE_NAME,
                 PhoneNumberEntry.TABLE_NAME,
                 PublicKeyEntry.TABLE_NAME   + "." + PublicKeyEntry.COLUMN_NAME_PHONE_NUMBER,
@@ -183,6 +198,7 @@ public final class DbTablePublicKeys {
                     entry.publicKey = cursor.getString(2);
                     entry.timestampFirstSeenPublicKey = cursor.getLong(3);
                     entry.timestampLastSeenAlivePublicKey = cursor.getLong(4);
+                    entry.signedHash = cursor.getBlob(5);
                     entries.add(entry);
                 } while (cursor.moveToNext());
             }

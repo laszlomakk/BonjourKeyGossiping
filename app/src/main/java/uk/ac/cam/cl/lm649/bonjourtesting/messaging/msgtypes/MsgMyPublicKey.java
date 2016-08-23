@@ -124,6 +124,7 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
         entry.setPublicKey(publicKey);
         entry.setPhoneNumber(phoneNumber);
         entry.setTimestampLastSeenAlivePublicKey(timestamp);
+        entry.setSignedHash(signedHash);
         DbTablePublicKeys.smartUpdateEntry(entry);
         CustomActivity.forceRefreshUIInTopActivity();
     }
