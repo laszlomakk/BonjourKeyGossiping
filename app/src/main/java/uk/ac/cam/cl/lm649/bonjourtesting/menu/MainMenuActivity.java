@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
@@ -32,6 +34,20 @@ public class MainMenuActivity extends CustomActivity {
         setContentView(R.layout.main_menu_view);
 
         setupUI();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        boolean autoPollingContactsSettingEnabled = SaveSettingsData.getInstance(app).isAutomaticContactPollingEnabled();
+        boolean weHaveContactsPermission = HelperMethods.doWeHavePermissionToReadContacts(app);
+        if (autoPollingContactsSettingEnabled && !weHaveContactsPermission) {
+            // ask for permission -- if denied, disable autoPollingContacts
+            FLogger.d(TAG, "onStart(). contact polling is enabled, but we don't have permissions" +
+                    "to read contacts -> asking now.");
+            HelperMethods.askForPermissionToReadContacts(this);
+        }
     }
 
     private void setupUI() {
@@ -151,6 +167,21 @@ public class MainMenuActivity extends CustomActivity {
                         })
                 .setNegativeButton(android.R.string.no, null);
         return phoneNumberDialogBuilder;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case Constants.MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    FLogger.d(TAG, "onRequestPermissionsResult(). READ_CONTACTS permission was granted");
+                } else {
+                    FLogger.d(TAG, "onRequestPermissionsResult(). READ_CONTACTS permission was denied");
+                    saveSettingsData.saveAutomaticContactPollingEnabled(false);
+                }
+                break;
+            }
+        }
     }
 
 

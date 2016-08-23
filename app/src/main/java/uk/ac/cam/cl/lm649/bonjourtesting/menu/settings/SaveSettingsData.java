@@ -42,7 +42,7 @@ public class SaveSettingsData extends SaveData {
     }
 
     public boolean isAutomaticContactPollingEnabled() {
-        return sharedPreferences.getBoolean(SAVE_LOCATION_FOR_AUTOMATIC_CONTACT_POLLING, false);
+        return sharedPreferences.getBoolean(SAVE_LOCATION_FOR_AUTOMATIC_CONTACT_POLLING, true);
     }
 
     public void saveUsingRandomServiceName(boolean bool){
