@@ -20,7 +20,8 @@ import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.DataSizeException;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Hash;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.KeyDecodingException;
-import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePublicKeys;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.DbTablePublicKeys;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.PublicKeyEntry;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
@@ -120,7 +121,7 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
     }
 
     private void updatePublicKeyInDatabase(String phoneNumber) {
-        DbTablePublicKeys.Entry entry = new DbTablePublicKeys.Entry();
+        PublicKeyEntry entry = new PublicKeyEntry();
         entry.setPublicKey(publicKey);
         entry.setPhoneNumber(phoneNumber);
         entry.setTimestampLastSeenAlivePublicKey(timestamp);

@@ -18,7 +18,8 @@ import java.util.Locale;
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Hash;
-import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.phonenumbers.Contact;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.phonenumbers.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
@@ -91,7 +92,7 @@ public class MsgSaltedPhoneNumber extends Message {
 
     private List<String> getHopefulPhoneNumbers() {
         List<String> hopefulPhoneNumbers = new ArrayList<>();
-        for (DbTablePhoneNumbers.Entry entry : DbTablePhoneNumbers.getAllEntries()) {
+        for (Contact entry : DbTablePhoneNumbers.getAllEntries()) {
             byte[] partialHashCandidate = calcPartialHashOfPhoneNumberAndSalt(
                     entry.getPhoneNumber(), salt, nRevealedBitsOfHash);
             if (Arrays.equals(partialHashCandidate, hashOfSaltedPhoneNumber)) {
@@ -99,8 +100,8 @@ public class MsgSaltedPhoneNumber extends Message {
                         "match found for hash %s, where phoneNumber is %s, gossipStatus: %s",
                         Hex.toHexString(hashOfSaltedPhoneNumber),
                         entry.getPhoneNumber(),
-                        entry.getGossipingStatusText()));
-                if (entry.getGossipingStatus() != DbTablePhoneNumbers.Entry.GOSSIPING_STATUS_USER_DISABLED) {
+                        entry.getGossipingStatus().getText()));
+                if (entry.getGossipingStatus().isEnabled()) {
                     hopefulPhoneNumbers.add(entry.getPhoneNumber());
                 }
             }
