@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import java.util.HashMap;
 import java.util.Locale;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+
 public class Contact {
 
     private static final String TAG = "Contact";
@@ -48,7 +50,10 @@ public class Contact {
     }
 
     public void setGossipingStatus(GossipingStatus gossipingStatus) {
-        if (null == gossipingStatus) return;
+        if (null == gossipingStatus) {
+            FLogger.e(TAG, "tried to set gossipingStatus to null");
+            return;
+        }
         this.gossipingStatus = gossipingStatus;
     }
 
@@ -84,8 +89,14 @@ public class Contact {
             return text;
         }
 
+        @NonNull
         public static GossipingStatus fromIntVal(int value) {
-            return gossipingStatusIntValToEnumMap.get(value);
+            GossipingStatus gossipingStatus = gossipingStatusIntValToEnumMap.get(value);
+            if (null == gossipingStatus) {
+                FLogger.e(TAG, "GossipingStatus.fromIntVal(), invalid value: " + value);
+                return UNTOUCHED;
+            }
+            return gossipingStatus;
         }
 
         public boolean isEnabled() {
