@@ -83,6 +83,41 @@ public final class DbTablePublicKeys {
     }
 
     @NonNull
+    public static List<PublicKeyEntry> getEntriesForPhoneNumber(String phoneNumber) {
+        SQLiteDatabase db = DbHelper.getInstance().getReadableDatabase();
+
+        Cursor cursor = null;
+        try {
+            cursor = db.query(TablePublicKeys.TABLE_NAME,
+                    new String[] {
+                            TablePublicKeys.COLUMN_NAME_PUBLIC_KEY,
+                            TablePublicKeys.COLUMN_NAME_PHONE_NUMBER,
+                            TablePublicKeys.COLUMN_NAME_TIMESTAMP_FIRST_SEEN_PUBLIC_KEY,
+                            TablePublicKeys.COLUMN_NAME_TIMESTAMP_LAST_SEEN_ALIVE_PUBLIC_KEY,
+                            TablePublicKeys.COLUMN_NAME_SIGNED_HASH,
+                    }, TablePublicKeys.COLUMN_NAME_PHONE_NUMBER + "=?",
+                    new String[] { phoneNumber }, null, null, null, null);
+
+            List<PublicKeyEntry> entries = new ArrayList<>();
+            if (cursor.moveToFirst()) {
+                do {
+                    PublicKeyEntry entry = new PublicKeyEntry();
+                    entry.publicKey = cursor.getString(0);
+                    entry.phoneNumber = cursor.getString(1);
+                    entry.timestampFirstSeenPublicKey = cursor.getLong(2);
+                    entry.timestampLastSeenAlivePublicKey = cursor.getLong(3);
+                    entry.signedHash = cursor.getBlob(4);
+                    entries.add(entry);
+                } while (cursor.moveToNext());
+            }
+            return entries;
+
+        } finally {
+            if (null != cursor) cursor.close();
+        }
+    }
+
+    @NonNull
     public static List<PublicKeyEntryWithName> getAllEntries() {
         SQLiteDatabase db = DbHelper.getInstance().getWritableDatabase();
 

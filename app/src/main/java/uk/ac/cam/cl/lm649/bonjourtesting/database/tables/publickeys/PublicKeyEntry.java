@@ -15,7 +15,7 @@ public class PublicKeyEntry {
 
     public PublicKeyEntry() {}
 
-    protected PublicKeyEntry(PublicKeyEntry entry) {
+    public PublicKeyEntry(PublicKeyEntry entry) {
         this.publicKey = entry.publicKey;
         this.phoneNumber = entry.phoneNumber;
         this.timestampFirstSeenPublicKey = entry.timestampFirstSeenPublicKey;

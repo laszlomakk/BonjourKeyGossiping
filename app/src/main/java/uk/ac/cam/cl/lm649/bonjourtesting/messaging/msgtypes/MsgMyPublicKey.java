@@ -135,7 +135,7 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
         return Hash.hashString(contents);
     }
 
-    private static boolean verifySignedHash(
+    public static boolean verifySignedHash(
             @Nullable byte[] signedHash,
             @Nullable String strPublicKey,
             long timestamp,

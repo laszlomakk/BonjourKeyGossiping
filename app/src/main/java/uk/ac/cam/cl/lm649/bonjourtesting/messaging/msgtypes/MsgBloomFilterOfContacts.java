@@ -40,6 +40,7 @@ public class MsgBloomFilterOfContacts extends Message implements MessageRequirin
                 DESIRED_FALSE_POSITIVE_PROBABILITY);
         for (Contact entry : DbTablePhoneNumbers.getAllEntries()) {
             if (entry.getGossipingStatus().isEnabled()) {
+                FLogger.d(TAG, "putting contact in bloom filter: " + entry.getPhoneNumber());
                 bloomFilterOfContacts.put(entry.getPhoneNumber());
             }
         }
@@ -63,16 +64,18 @@ public class MsgBloomFilterOfContacts extends Message implements MessageRequirin
                 "%sreceived %s",
                 msgClient.strFromAddress, getClass().getSimpleName()));
 
-        List<Contact> possiblyCommonContacts = new ArrayList<>();
+        List<String> possiblyCommonContacts = new ArrayList<>();
         for (Contact entry : DbTablePhoneNumbers.getAllEntries()) {
+            String phoneNum = entry.getPhoneNumber();
             if (entry.getGossipingStatus().isEnabled()
-                    && bloomFilterOfContacts.mightContain(entry.getPhoneNumber())) {
-                FLogger.d(TAG, "possibly common contact: " + entry.getPhoneNumber());
-                possiblyCommonContacts.add(entry);
+                    && bloomFilterOfContacts.mightContain(phoneNum)) {
+                FLogger.d(TAG, "possibly common contact: " + phoneNum);
+                possiblyCommonContacts.add(phoneNum);
             }
         }
-        // TODO reply with message containing possiblyCommonContacts
 
+        Message msg = new MsgCommonContactsPhoneNumbers(possiblyCommonContacts);
+        msgClient.sendMessage(msg);
     }
 
 }
