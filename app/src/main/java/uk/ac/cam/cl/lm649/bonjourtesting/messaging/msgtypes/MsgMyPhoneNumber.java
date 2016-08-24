@@ -8,7 +8,8 @@ import java.io.IOException;
 import java.util.Locale;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
-import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.phonenumbers.Contact;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.phonenumbers.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
@@ -42,7 +43,7 @@ public class MsgMyPhoneNumber extends Message {
         FLogger.i(msgClient.logTag, String.format(Locale.US,
                 "%sreceived %s:\nnick: %s, phoneNum: %s",
                 msgClient.strFromAddress, getClass().getSimpleName(), customName, phoneNumber));
-        DbTablePhoneNumbers.Entry contact = new DbTablePhoneNumbers.Entry(phoneNumber, customName);
+        Contact contact = new Contact(phoneNumber, customName);
         DbTablePhoneNumbers.smartUpdateEntry(contact);
         CustomActivity.forceRefreshUIInTopActivity();
     }

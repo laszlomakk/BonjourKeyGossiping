@@ -5,11 +5,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.phonenumbers.DbTablePhoneNumbers;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.DbTablePublicKeys;
 
-import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.PhoneNumberEntry;
-import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.PublicKeyEntry;
+import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.TablePhoneNumbers;
+import static uk.ac.cam.cl.lm649.bonjourtesting.database.DbContract.TablePublicKeys;
 
-public class DbHelper extends SQLiteOpenHelper {
+public final class DbHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "DatabaseHelper";
     private static DbHelper INSTANCE = null;
@@ -18,14 +20,14 @@ public class DbHelper extends SQLiteOpenHelper {
         super(context, DbContract.DATABASE_NAME, null, DbContract.DATABASE_VERSION);
     }
 
-    protected static synchronized DbHelper getInstance(Context context) {
+    public static synchronized DbHelper getInstance(Context context) {
         if (null == INSTANCE) {
             INSTANCE = new DbHelper(context);
         }
         return INSTANCE;
     }
 
-    protected static DbHelper getInstance() {
+    public static DbHelper getInstance() {
         return getInstance(CustomApplication.getInstance());
     }
 
@@ -37,8 +39,8 @@ public class DbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + PhoneNumberEntry.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + PublicKeyEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TablePhoneNumbers.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TablePublicKeys.TABLE_NAME);
         onCreate(db);
     }
 

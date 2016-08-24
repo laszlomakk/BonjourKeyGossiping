@@ -12,15 +12,16 @@ import android.widget.TextView;
 import java.util.List;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
-import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.phonenumbers.Contact;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.phonenumbers.DbTablePhoneNumbers;
 
-public class CustomAdapter extends ArrayAdapter<DbTablePhoneNumbers.Entry> {
+public class CustomAdapter extends ArrayAdapter<Contact> {
 
     private final Context context;
-    private final List<DbTablePhoneNumbers.Entry> objects;
+    private final List<Contact> objects;
     private final LayoutInflater inflater;
 
-    public CustomAdapter(Context context, @NonNull List<DbTablePhoneNumbers.Entry> objects) {
+    public CustomAdapter(Context context, @NonNull List<Contact> objects) {
         super(context, -1, objects);
         this.context = context;
         this.objects = objects;
@@ -36,24 +37,24 @@ public class CustomAdapter extends ArrayAdapter<DbTablePhoneNumbers.Entry> {
             rowView = convertView;
         }
 
-        final DbTablePhoneNumbers.Entry contactEntry = objects.get(position);
+        final Contact contactEntry = objects.get(position);
 
         TextView textViewMain = (TextView) rowView.findViewById(R.id.textViewMain);
         textViewMain.setText(contactEntry.toString());
 
         SeekBar seekBar = (SeekBar) rowView.findViewById(R.id.seekBar);
-        seekBar.setMax(DbTablePhoneNumbers.Entry.META_GOSSIPING_STATUS_NUM_STATES - 1);
-        seekBar.setProgress(contactEntry.getGossipingStatus());
+        seekBar.setMax(Contact.GossipingStatus.values().length - 1);
+        seekBar.setProgress(contactEntry.getGossipingStatus().getValue());
 
         final TextView textViewSeekBarStatus = (TextView) rowView.findViewById(R.id.textViewSeekbarState);
-        textViewSeekBarStatus.setText(contactEntry.getGossipingStatusText());
+        textViewSeekBarStatus.setText(contactEntry.getGossipingStatus().getText());
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    contactEntry.setGossipingStatus(seekBar.getProgress());
-                    textViewSeekBarStatus.setText(contactEntry.getGossipingStatusText());
+                    contactEntry.setGossipingStatus(Contact.GossipingStatus.fromIntVal(seekBar.getProgress()));
+                    textViewSeekBarStatus.setText(contactEntry.getGossipingStatus().getText());
                 }
             }
             @Override

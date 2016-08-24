@@ -24,7 +24,8 @@ import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
-import uk.ac.cam.cl.lm649.bonjourtesting.database.DbTablePhoneNumbers;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.phonenumbers.Contact;
+import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.phonenumbers.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.PhoneNumUtil;
@@ -54,14 +55,14 @@ public class PhoneBookActivity extends CustomActivity {
 
         // listView for displaying the entries
         ListView listView = (ListView) findViewById(R.id.mainListView);
-        listAdapterForDisplayedListOfEntries = new CustomAdapter(this, new ArrayList<DbTablePhoneNumbers.Entry>());
+        listAdapterForDisplayedListOfEntries = new CustomAdapter(this, new ArrayList<Contact>());
         listView.setAdapter(listAdapterForDisplayedListOfEntries);
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 synchronized (displayedEntriesLock) {
                     FLogger.i(TAG, "onItemLongClick() - user clicked on an item in the list");
-                    final DbTablePhoneNumbers.Entry entry = listAdapterForDisplayedListOfEntries.getItem(position);
+                    final Contact entry = listAdapterForDisplayedListOfEntries.getItem(position);
                     if (null == entry){
                         FLogger.e(TAG, "onItemLongClick(). clicked entry is null ??");
                         HelperMethods.displayMsgToUser(context, "error: clicked entry is null");
@@ -177,7 +178,7 @@ public class PhoneBookActivity extends CustomActivity {
                                 if (sanitizePhoneNumber) {
                                     contactPhoneNumber = PhoneNumUtil.formatPhoneNumber(contactPhoneNumber, phoneNumberOfLocalDevice);
                                 }
-                                DbTablePhoneNumbers.Entry contact = new DbTablePhoneNumbers.Entry(contactPhoneNumber, contactName);
+                                Contact contact = new Contact(contactPhoneNumber, contactName);
                                 DbTablePhoneNumbers.smartUpdateEntry(contact);
                                 forceRefreshUI();
                             }
@@ -217,7 +218,7 @@ public class PhoneBookActivity extends CustomActivity {
                 synchronized (displayedEntriesLock) {
                     FLogger.v(TAG, "updateListView() doing actual update.");
                     listAdapterForDisplayedListOfEntries.clear();
-                    for (DbTablePhoneNumbers.Entry entry : DbTablePhoneNumbers.getAllEntries()) {
+                    for (Contact entry : DbTablePhoneNumbers.getAllEntries()) {
                         listAdapterForDisplayedListOfEntries.add(entry);
                     }
                     listAdapterForDisplayedListOfEntries.notifyDataSetChanged();
@@ -246,13 +247,13 @@ public class PhoneBookActivity extends CustomActivity {
                         int nameIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
                         int phoneNumberIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
                         FLogger.i(TAG, "importing contacts from system...");
-                        List<DbTablePhoneNumbers.Entry> systemPhoneBook = new ArrayList<>(100);
+                        List<Contact> systemPhoneBook = new ArrayList<>(100);
                         if (cursor.moveToFirst()) {
                             do {
                                 String name = cursor.getString(nameIdx);
                                 String phoneNumber = cursor.getString(phoneNumberIdx);
                                 String normalisedPhoneNumber = PhoneNumUtil.formatPhoneNumber(phoneNumber, phoneNumberOfLocalDevice);
-                                DbTablePhoneNumbers.Entry contact = new DbTablePhoneNumbers.Entry(normalisedPhoneNumber, name);
+                                Contact contact = new Contact(normalisedPhoneNumber, name);
                                 systemPhoneBook.add(contact);
                                 FLogger.d(TAG, String.format(Locale.US,
                                         "contact found - name: %s, phone number: %s -> %s",
@@ -269,17 +270,17 @@ public class PhoneBookActivity extends CustomActivity {
         }.start();
     }
 
-    private static void mergeSystemPhoneBookIntoAppPhoneBook(final List<DbTablePhoneNumbers.Entry> systemPhoneBook) {
-        List<DbTablePhoneNumbers.Entry> appPhoneBook = DbTablePhoneNumbers.getAllEntries();
-        TreeMap<String, DbTablePhoneNumbers.Entry> contactsNoLongerInSystemPhoneBook = new TreeMap<>();
-        for (DbTablePhoneNumbers.Entry entry : appPhoneBook) {
+    private static void mergeSystemPhoneBookIntoAppPhoneBook(final List<Contact> systemPhoneBook) {
+        List<Contact> appPhoneBook = DbTablePhoneNumbers.getAllEntries();
+        TreeMap<String, Contact> contactsNoLongerInSystemPhoneBook = new TreeMap<>();
+        for (Contact entry : appPhoneBook) {
             contactsNoLongerInSystemPhoneBook.put(entry.getPhoneNumber(), entry);
         }
-        for (DbTablePhoneNumbers.Entry entry : systemPhoneBook) {
+        for (Contact entry : systemPhoneBook) {
             contactsNoLongerInSystemPhoneBook.remove(entry.getPhoneNumber());
             DbTablePhoneNumbers.smartUpdateEntry(entry);
         }
-        for (Map.Entry<String, DbTablePhoneNumbers.Entry> entry : contactsNoLongerInSystemPhoneBook.entrySet()) {
+        for (Map.Entry<String, Contact> entry : contactsNoLongerInSystemPhoneBook.entrySet()) {
             DbTablePhoneNumbers.deleteEntry(entry.getKey());
             FLogger.d(TAG, String.format(Locale.US,
                     "stale contact deleted - name: %s, phone number: %s",
