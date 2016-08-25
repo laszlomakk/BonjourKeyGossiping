@@ -18,6 +18,7 @@ import java.security.SecureRandom;
 import java.util.Locale;
 import java.util.UUID;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound1;
@@ -45,7 +46,7 @@ public class JPAKEClient {
 
     private final long creationTime;
 
-    public static final long TIMEOUT_IN_MSEC = 5 * 60 * 1000;
+    public static final long TIMEOUT_IN_MSEC = 5 * Constants.MSECONDS_IN_MINUTE;
 
     public enum State {
         INITIALISED,

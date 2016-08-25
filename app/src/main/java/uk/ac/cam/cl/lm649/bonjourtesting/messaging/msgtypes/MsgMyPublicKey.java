@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
@@ -169,7 +170,7 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
 
     private static boolean isTimestampPlausible(long timestamp) {
         long localTime = System.currentTimeMillis();
-        long threshold = 10 * 60 * 1000;
+        long threshold = 10 * Constants.MSECONDS_IN_MINUTE;
         return Math.abs(timestamp - localTime) < threshold;
     }
 
