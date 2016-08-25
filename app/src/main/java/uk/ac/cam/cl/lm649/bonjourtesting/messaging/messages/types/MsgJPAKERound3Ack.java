@@ -79,7 +79,7 @@ public class MsgJPAKERound3Ack extends Message {
             sessionKey = new SessionKey(sessionKeyBytes);
             startSettingUpAnEncryptedConnection(msgClient, portForEncryptedComms, sessionKey);
         } catch (SessionKey.InvalidSessionKeySizeException e) {
-            FLogger.e(TAG, "InvalidSessionKeySizeException: " + e.getMessage() + strHandshakeId);
+            FLogger.e(TAG, "InvalidSessionKeySizeException: " + e + strHandshakeId);
         }
     }
 

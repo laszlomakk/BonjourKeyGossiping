@@ -101,7 +101,7 @@ public class MsgJPAKERound3 extends Message {
         try {
             sessionKey = new SessionKey(sessionKeyBytes);
         } catch (SessionKey.InvalidSessionKeySizeException e) {
-            FLogger.e(TAG, "InvalidSessionKeySizeException: " + e.getMessage() + strHandshakeId);
+            FLogger.e(TAG, "InvalidSessionKeySizeException: " + e + strHandshakeId);
             FLogger.d(TAG, e);
         }
         return sessionKey;

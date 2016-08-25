@@ -75,7 +75,7 @@ public class JPAKEManager {
             jpakeManager.handshakeIdToClientMap.put(handshakeId, jpakeClient);
             return jpakeClient.round1Send(msgClient);
         } catch (IOException e) {
-            FLogger.e(TAG, "startJPAKEHandshake(). IOE - " + e.getMessage());
+            FLogger.e(TAG, "startJPAKEHandshake(). IOE - " + e);
         }
         return false;
     }

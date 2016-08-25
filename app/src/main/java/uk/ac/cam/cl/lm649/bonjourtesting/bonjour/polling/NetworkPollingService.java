@@ -50,7 +50,7 @@ public class NetworkPollingService extends IntentService {
                     "Hoping for other threads to progress.");
             Thread.sleep(TIME_TO_KEEP_DEVICE_AWAKE);
         } catch (InterruptedException e) {
-            FLogger.e(TAG, "onHandleIntent(). Sleep interrupted - " + e.getMessage());
+            FLogger.e(TAG, "onHandleIntent(). Sleep interrupted - " + e);
             FLogger.e(TAG, e);
         } finally {
             if (automaticPollingEnabled) {

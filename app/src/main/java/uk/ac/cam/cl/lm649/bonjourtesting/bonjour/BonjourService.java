@@ -200,7 +200,7 @@ public class BonjourService extends Service {
                     registerOurService();
                     changeServiceState("READY");
                 } catch (IOException e) {
-                    FLogger.e(TAG, "reregisterOurService() failed to register service. IOE - " + e.getMessage());
+                    FLogger.e(TAG, "reregisterOurService() failed to register service. IOE - " + e);
                     FLogger.e(TAG, e);
                     changeServiceState("ERROR - rereg failed");
                 }
@@ -230,7 +230,7 @@ public class BonjourService extends Service {
                         FLogger.i(TAG, "startWork() finished without error. Don't have restartSemaphore to release.");
                     }
                 } catch (IOException e) {
-                    FLogger.e(TAG, "startWork(). Error during start-up: IOE - " + e.getMessage());
+                    FLogger.e(TAG, "startWork(). Error during start-up: IOE - " + e);
                     //HelperMethods.displayMsgToUser(context, "Error during start-up: IOE");
                     changeServiceState("error during start-up: IOE");
                     FLogger.d(TAG, e);
@@ -261,7 +261,7 @@ public class BonjourService extends Service {
                      try {
                          jmdns.close();
                      } catch (IOException e) {
-                         FLogger.e(TAG, "error closing jmdns. IOE - " + e.getMessage());
+                         FLogger.e(TAG, "error closing jmdns. IOE - " + e);
                          FLogger.e(TAG, e);
                      } finally {
                          jmdns = null;

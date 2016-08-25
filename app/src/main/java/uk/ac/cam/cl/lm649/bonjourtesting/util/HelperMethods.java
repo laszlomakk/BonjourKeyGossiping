@@ -90,7 +90,7 @@ public final class HelperMethods {
             versionName = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
         } catch (PackageManager.NameNotFoundException e) {
             FLogger.e(TAG,
-                    "getVersionName(). PackageManager.NameNotFoundException: " + e.getMessage());
+                    "getVersionName(). PackageManager.NameNotFoundException: " + e);
         }
         return versionName;
     }
@@ -123,7 +123,7 @@ public final class HelperMethods {
         try {
             ret = UUID.fromString(str);
         } catch (Exception e) {
-            FLogger.e(TAG, "uuidFromStringDefensively() encountered Exception: " + e.getMessage());
+            FLogger.e(TAG, "uuidFromStringDefensively() encountered Exception: " + e);
             FLogger.d(TAG, e);
             return null;
         }

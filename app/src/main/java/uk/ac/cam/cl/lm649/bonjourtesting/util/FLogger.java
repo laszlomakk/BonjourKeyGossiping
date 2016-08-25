@@ -86,7 +86,7 @@ public class FLogger {
 
                     writer.flush(); // TODO perhaps inefficient
                 } catch (IOException e) {
-                    Log.e(TAG, "log(). failed to write to file. IOE - " + e.getMessage());
+                    Log.e(TAG, "log(). failed to write to file. IOE - " + e);
                     e.printStackTrace();
                 }
             }
