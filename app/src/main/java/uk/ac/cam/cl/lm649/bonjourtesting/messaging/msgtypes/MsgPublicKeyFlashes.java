@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.DbTablePublicKeys;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.PublicKeyEntry;
@@ -55,6 +56,7 @@ public class MsgPublicKeyFlashes extends Message implements MessageRequiringEncr
         for (PublicKeyFlash publicKeyFlash : publicKeyFlashList) {
             processReceivedPublicKeyFlash(publicKeyFlash);
         }
+        CustomActivity.forceRefreshUIInTopActivity();
     }
 
     private static void processReceivedPublicKeyFlash(PublicKeyFlash publicKeyFlash) {
