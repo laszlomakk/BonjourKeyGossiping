@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <include domain="sharedpref" path="uk.ac.cam.cl.lm649.bonjourtesting.SETTINGS_SAVE.xml"/>
+    <!-- note that we are deliberately NOT backing up "uk.ac.cam.cl.lm649.bonjourtesting.IDENTITY_SAVE.xml" -->
+
+    <include domain="database" path="key_gossip_db"/>
+</full-backup-content>
