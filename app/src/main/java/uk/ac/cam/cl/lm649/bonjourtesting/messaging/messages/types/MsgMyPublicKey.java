@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
+import org.bouncycastle.util.encoders.Hex;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -164,9 +165,12 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
             AsymmetricKeyParameter publicKey = Asymmetric.stringKeyToKey(strPublicKey);
             byte[] untrustedHash = Asymmetric.decryptBytes(signedHash, publicKey);
             return Arrays.equals(trustedHash, untrustedHash);
-        } catch (KeyDecodingException | InvalidCipherTextException | DataSizeException e) {
+        } catch (KeyDecodingException | InvalidCipherTextException e) {
             FLogger.d(TAG, "verifySignedHash(). Exception: " + e);
-            //FLogger.d(TAG, e);
+            return false;
+        } catch (DataSizeException e) {
+            FLogger.e(TAG, "verifySignedHash(). Exception: " + e);
+            FLogger.e(TAG, "verifySignedHash(). signed hash: " + Hex.toHexString(signedHash));
             return false;
         }
     }
