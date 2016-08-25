@@ -60,7 +60,7 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
             AsymmetricKeyParameter myPrivateKey = Asymmetric.stringKeyToKey(myStrPrivateKey);
             signedHash = Asymmetric.encryptBytes(hash, myPrivateKey);
         } catch (KeyDecodingException | InvalidCipherTextException | DataSizeException e) {
-            FLogger.e(TAG, "createNewMsgWithMyCurrentData(). Exception: " + e.getMessage());
+            FLogger.e(TAG, "createNewMsgWithMyCurrentData(). Exception: " + e);
             FLogger.d(TAG, e);
             return null;
         }
@@ -75,7 +75,7 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
         try {
             publicKey = Asymmetric.byteKeyToStringKey(SerialisationUtil.createByteArrayFromStream(inStream));
         } catch (KeyDecodingException e) {
-            FLogger.e(TAG, "createFromStream(). KeyDecodingException: " + e.getMessage());
+            FLogger.e(TAG, "createFromStream(). Exception: " + e);
             FLogger.d(TAG, e);
             return null;
         }
@@ -91,7 +91,7 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
         try {
             SerialisationUtil.serialiseToStream(outStream, Asymmetric.stringKeyToByteKey(publicKey));
         } catch (KeyDecodingException e) {
-            FLogger.e(TAG, "createFromStream(). KeyDecodingException: " + e.getMessage());
+            FLogger.e(TAG, "createFromStream(). Exception: " + e);
             FLogger.d(TAG, e);
             throw new IOException(e);
         }
@@ -165,8 +165,8 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
             byte[] untrustedHash = Asymmetric.decryptBytes(signedHash, publicKey);
             return Arrays.equals(trustedHash, untrustedHash);
         } catch (KeyDecodingException | InvalidCipherTextException e) {
-            FLogger.e(TAG, "createNewMsgWithMyCurrentData(). Exception: " + e.getMessage());
-            FLogger.d(TAG, e);
+            FLogger.d(TAG, "verifySignedHash(). Exception: " + e);
+            //FLogger.d(TAG, e);
             return false;
         }
     }
