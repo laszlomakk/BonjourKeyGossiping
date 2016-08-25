@@ -8,8 +8,8 @@ import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgMyPublicKey;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgMyPublicKey;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
 public class MsgServerEncrypted extends MsgServer {

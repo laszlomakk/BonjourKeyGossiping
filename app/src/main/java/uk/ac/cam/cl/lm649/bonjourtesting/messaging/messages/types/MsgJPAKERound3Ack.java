@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes;
+package uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types;
 
 import android.content.Context;
 
@@ -10,6 +10,7 @@ import java.util.UUID;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.SessionKey;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;

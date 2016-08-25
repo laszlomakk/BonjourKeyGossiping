@@ -20,10 +20,10 @@ import java.util.UUID;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound1;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound2;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound3;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgJPAKERound1;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgJPAKERound2;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgJPAKERound3;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
 public class JPAKEClient {
