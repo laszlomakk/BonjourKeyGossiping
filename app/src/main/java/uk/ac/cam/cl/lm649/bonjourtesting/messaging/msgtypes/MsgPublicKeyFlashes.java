@@ -16,6 +16,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.DbTablePubli
 import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.PublicKeyEntry;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 
 public class MsgPublicKeyFlashes extends Message implements MessageRequiringEncryption {
@@ -96,8 +97,8 @@ public class MsgPublicKeyFlashes extends Message implements MessageRequiringEncr
                 "Matching public key (%s) found for flash (phoneNum: %s).\nDB_timestamp: %s, flash_timestamp: %s\n",
                 Asymmetric.getFingerprint(publicKeyEntry.getPublicKey()),
                 publicKeyFlash.phoneNumber,
-                new Date(publicKeyEntry.getTimestampLastSeenAlivePublicKey()),
-                new Date(publicKeyFlash.timestamp));
+                HelperMethods.getTimeStamp(publicKeyEntry.getTimestampLastSeenAlivePublicKey()),
+                HelperMethods.getTimeStamp(publicKeyFlash.timestamp));
 
         if (flashIsNewer) {
             logMessage += "Yay, flash timestamp is NEWER than what we have! -> refreshing";
@@ -142,7 +143,7 @@ public class MsgPublicKeyFlashes extends Message implements MessageRequiringEncr
         public String toString() {
             return String.format(Locale.US,
                     "phoneNum: %s, timestamp: %s",
-                    phoneNumber, new Date(timestamp));
+                    phoneNumber, HelperMethods.getTimeStamp(timestamp));
         }
     }
 

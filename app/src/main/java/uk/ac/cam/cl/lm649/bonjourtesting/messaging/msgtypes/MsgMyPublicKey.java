@@ -25,6 +25,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.DbTablePubli
 import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.PublicKeyEntry;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 
 public class MsgMyPublicKey extends Message implements MessageRequiringEncryption {
@@ -105,7 +106,7 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
                 msgClient.strFromAddress,
                 getClass().getSimpleName(),
                 fingerprint,
-                new Date(timestamp),
+                HelperMethods.getTimeStamp(timestamp),
                 phoneNumber));
 
         boolean verifiedSignature = verifySignedHash(signedHash, publicKey, timestamp, phoneNumber);

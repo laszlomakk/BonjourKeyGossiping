@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 
 public class PublicKeyEntry {
 
@@ -69,8 +70,8 @@ public class PublicKeyEntry {
                 "phoneNum: %s\npubKey: %s\nFS_time: %s\nLSA_time: %s",
                 phoneNumber,
                 Asymmetric.getFingerprint(publicKey),
-                new Date(timestampFirstSeenPublicKey),
-                new Date(timestampLastSeenAlivePublicKey));
+                HelperMethods.getTimeStamp(timestampFirstSeenPublicKey),
+                HelperMethods.getTimeStamp(timestampLastSeenAlivePublicKey));
     }
 
 }

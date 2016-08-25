@@ -75,8 +75,12 @@ public final class HelperMethods {
         }
     }
 
+    /**
+     * @param time java-style timestamp (milliseconds elapsed since 1970 UTC)
+     * @return nice and concise human-readable string with the time
+     */
     public static String getTimeStamp(long time) {
-        return new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss.SSS", Locale.US)
+        return new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss.SSSZ", Locale.US)
                 .format(new Timestamp(time));
     }
 
