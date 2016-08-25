@@ -14,6 +14,8 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
+
 public class FLogger {
 
     private static final String TAG = "FLogger";
@@ -72,7 +74,7 @@ public class FLogger {
             public void run() {
                 try {
                     long curTime = System.currentTimeMillis();
-                    if (curTime - logLineTime > 60_000) {
+                    if (curTime - logLineTime > Constants.MSECONDS_IN_MINUTE) {
                         // write time of printing
                         writer.append("// current time reported by device: ");
                         writer.append(HelperMethods.getTimeStamp(curTime));

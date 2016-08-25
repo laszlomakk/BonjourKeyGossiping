@@ -45,7 +45,7 @@ public class BonjourService extends Service {
     private Context context;
     private String strServiceState = "-";
 
-    private static final long TIME_TO_WAIT_BETWEEN_STARTUP_RETRIES = 15_000;
+    private static final long TIME_TO_WAIT_BETWEEN_STARTUP_RETRIES = 15 * Constants.MSECONDS_IN_SECOND;
 
     private final IBinder binder = new BonjourServiceBinder();
 
