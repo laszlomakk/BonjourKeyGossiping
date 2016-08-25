@@ -164,7 +164,7 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
             AsymmetricKeyParameter publicKey = Asymmetric.stringKeyToKey(strPublicKey);
             byte[] untrustedHash = Asymmetric.decryptBytes(signedHash, publicKey);
             return Arrays.equals(trustedHash, untrustedHash);
-        } catch (KeyDecodingException | InvalidCipherTextException e) {
+        } catch (KeyDecodingException | InvalidCipherTextException | DataSizeException e) {
             FLogger.d(TAG, "verifySignedHash(). Exception: " + e);
             //FLogger.d(TAG, e);
             return false;
