@@ -6,6 +6,14 @@ public class KeyDecodingException extends Exception {
         super(message);
     }
 
+    public KeyDecodingException(Throwable cause) {
+        super(cause);
+    }
+
+    public KeyDecodingException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
     public KeyDecodingException() {
         super();
     }

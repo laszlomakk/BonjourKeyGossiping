@@ -159,12 +159,8 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
             return false;
         }
 
-        byte[] trustedHash = calcHashOfContents(strPublicKey, timestamp, phoneNumber);
-
         try {
-            AsymmetricKeyParameter publicKey = Asymmetric.stringKeyToKey(strPublicKey);
-            byte[] untrustedHash = Asymmetric.decryptBytes(signedHash, publicKey);
-            return Arrays.equals(trustedHash, untrustedHash);
+            return _verifySignedHash(signedHash, strPublicKey, timestamp, phoneNumber);
         } catch (KeyDecodingException | InvalidCipherTextException e) {
             FLogger.d(TAG, "verifySignedHash(). Exception: " + e);
             return false;
@@ -173,6 +169,20 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
             FLogger.e(TAG, "verifySignedHash(). signed hash: " + Hex.toHexString(signedHash));
             return false;
         }
+    }
+
+    private static boolean _verifySignedHash(
+            @NonNull byte[] signedHash,
+            @NonNull String strPublicKey,
+            long timestamp,
+            @NonNull String phoneNumber) throws KeyDecodingException, InvalidCipherTextException, DataSizeException
+    {
+        byte[] trustedHash = calcHashOfContents(strPublicKey, timestamp, phoneNumber);
+
+        AsymmetricKeyParameter publicKey = Asymmetric.stringKeyToKey(strPublicKey);
+        byte[] untrustedHash = Asymmetric.decryptBytes(signedHash, publicKey);
+
+        return Arrays.equals(trustedHash, untrustedHash);
     }
 
     private static boolean isTimestampPlausible(long timestamp) {

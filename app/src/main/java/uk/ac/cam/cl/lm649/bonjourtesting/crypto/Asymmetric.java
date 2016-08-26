@@ -179,8 +179,8 @@ public class Asymmetric {
             } else {
                 throw new KeyDecodingException("invalid key headers: " + key.substring(0,10) + "...");
             }
-        } catch (IOException e) {
-            throw new KeyDecodingException("IOE: " + e);
+        } catch (Exception e) {
+            throw new KeyDecodingException(e);
         }
     }
 
@@ -226,8 +226,8 @@ public class Asymmetric {
             } else {
                 throw new KeyDecodingException("Invalid byteKey. First byte is corrupted.");
             }
-        } catch (IOException e) {
-            throw new KeyDecodingException("IOE: " + e);
+        } catch (Exception e) {
+            throw new KeyDecodingException(e);
         }
     }
 
