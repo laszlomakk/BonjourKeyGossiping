@@ -160,7 +160,7 @@ public class BonjourDebugActivity extends CustomActivity {
         textViewAppState.setText(appStateText);
 
         String deviceIP = "999.999.999.999";
-        if (null != bonjourService) deviceIP = bonjourService.getIPAddress();
+        if (null != bonjourService) deviceIP = bonjourService.getIPAddressString();
         textViewDeviceIp.setText(deviceIP);
 
         String port = "" + MsgServerManager.getInstance().getMsgServerPlaintext().getPort();

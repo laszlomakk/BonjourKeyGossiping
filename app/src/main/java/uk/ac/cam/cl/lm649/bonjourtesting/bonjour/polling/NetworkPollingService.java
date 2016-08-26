@@ -9,11 +9,16 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
+
+import java.net.InetAddress;
+import java.util.Locale;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 
 public class NetworkPollingService extends IntentService {
 
@@ -45,7 +50,17 @@ public class NetworkPollingService extends IntentService {
         wakeLock.acquire();
 
         try {
-            doPolling();
+            BonjourService bonjourService = app.getBonjourService();
+            if (null == bonjourService) {
+                FLogger.e(TAG, "bonjourService is null.");
+                return;
+            }
+
+            boolean inWorkingOrder = runSelfDiagnostics(bonjourService);
+            if (inWorkingOrder) {
+                doPolling(bonjourService);
+            }
+
             FLogger.i(TAG, "onHandleIntent(). Sleeping for a bit while keeping WakeLocks. " +
                     "Hoping for other threads to progress.");
             Thread.sleep(TIME_TO_KEEP_DEVICE_AWAKE);
@@ -63,12 +78,28 @@ public class NetworkPollingService extends IntentService {
         }
     }
 
-    private void doPolling() {
-        BonjourService bonjourService = app.getBonjourService();
-        if (null == bonjourService) {
-            FLogger.e(TAG, "bonjourService is null.");
-            return;
+    /**
+     * @return whether everything was found in working order
+     */
+    private boolean runSelfDiagnostics(@NonNull BonjourService bonjourService) {
+        FLogger.d(TAG, "runSelfDiagnostics() called.");
+
+        InetAddress curIPaddressClaimedBySystem = NetworkUtil.getWifiIpAddress(app);
+        InetAddress curIPaddressBonjourServiceThinksWeHave = bonjourService.getInetAddressOfThisDevice();
+
+        if (!curIPaddressClaimedBySystem.equals(curIPaddressBonjourServiceThinksWeHave)) {
+            FLogger.e(TAG, String.format(Locale.US,
+                    "runSelfDiagnostics() detected possible IP address inconsistency - system claims: %s, bonjourService claims: %s",
+                    curIPaddressClaimedBySystem, curIPaddressBonjourServiceThinksWeHave));
+            FLogger.i(TAG, "runSelfDiagnostics(). calling bonjourService.restartWork()");
+            bonjourService.restartWork(false);
+            return false;
         }
+        return true;
+    }
+
+    private void doPolling(@NonNull BonjourService bonjourService) {
+        FLogger.d(TAG, "doPolling() called.");
         bonjourService.restartDiscovery();
     }
 

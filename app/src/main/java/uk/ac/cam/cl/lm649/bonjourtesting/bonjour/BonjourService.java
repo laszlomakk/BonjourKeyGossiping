@@ -312,7 +312,11 @@ public class BonjourService extends Service {
         CustomActivity.forceRefreshUIInTopActivity();
     }
 
-    public String getIPAddress() {
+    public InetAddress getInetAddressOfThisDevice() {
+        return inetAddressOfThisDevice;
+    }
+
+    public String getIPAddressString() {
         String ret = "999.999.999.999";
         if (null != inetAddressOfThisDevice) ret = inetAddressOfThisDevice.getHostAddress();
         return ret;
