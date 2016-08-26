@@ -26,9 +26,9 @@ import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgServerManager;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgArbitraryText;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgMyPhoneNumber;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgArbitraryText;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgMyPhoneNumber;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.JmdnsUtil;
@@ -160,7 +160,7 @@ public class BonjourDebugActivity extends CustomActivity {
         textViewAppState.setText(appStateText);
 
         String deviceIP = "999.999.999.999";
-        if (null != bonjourService) deviceIP = bonjourService.getIPAddress();
+        if (null != bonjourService) deviceIP = bonjourService.getIPAddressString();
         textViewDeviceIp.setText(deviceIP);
 
         String port = "" + MsgServerManager.getInstance().getMsgServerPlaintext().getPort();

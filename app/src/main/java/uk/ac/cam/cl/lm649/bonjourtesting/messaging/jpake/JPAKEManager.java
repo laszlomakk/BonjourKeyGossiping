@@ -21,12 +21,15 @@ public class JPAKEManager {
     private final ConcurrentSkipListMap<UUID, JPAKEClient> handshakeIdToClientMap = new ConcurrentSkipListMap<>();
 
     public synchronized boolean canNewJPAKEWaveBeStarted() {
+        FLogger.d(TAG, "canNewJPAKEWaveBeStarted() called.");
         boolean allHandshakesFinished = true;
         for (Map.Entry<UUID, JPAKEClient> entry : handshakeIdToClientMap.entrySet()) {
             UUID handshakeId = entry.getKey();
             JPAKEClient jpakeClient = entry.getValue();
+            boolean inProgress = jpakeClient.isInProgress();
+            FLogger.d(TAG, "canNewJPAKEWaveBeStarted(). found handshake: " + handshakeId + " - in progress: " + inProgress);
 
-            if (jpakeClient.isInProgress()) {
+            if (inProgress) {
                 allHandshakesFinished = false;
             } else {
                 handshakeIdToClientMap.remove(handshakeId);
@@ -72,7 +75,7 @@ public class JPAKEManager {
             jpakeManager.handshakeIdToClientMap.put(handshakeId, jpakeClient);
             return jpakeClient.round1Send(msgClient);
         } catch (IOException e) {
-            FLogger.e(TAG, "startJPAKEHandshake(). IOE - " + e.getMessage());
+            FLogger.e(TAG, "startJPAKEHandshake(). IOE - " + e);
         }
         return false;
     }

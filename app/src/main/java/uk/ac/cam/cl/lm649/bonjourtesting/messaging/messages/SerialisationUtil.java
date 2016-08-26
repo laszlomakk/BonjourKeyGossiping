@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes;
+package uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

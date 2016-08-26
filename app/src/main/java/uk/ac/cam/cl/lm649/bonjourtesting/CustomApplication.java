@@ -121,7 +121,7 @@ public class CustomApplication extends Application {
         try {
             FLogger.init(this);
         } catch (IOException e) {
-            Log.e(TAG, "onCreate(). Failed to init Logger. IOE - " + e.getMessage());
+            Log.e(TAG, "onCreate(). Failed to init Logger. IOE - " + e);
             HelperMethods.displayMsgToUser(this, "failed to init Logger");
             e.printStackTrace();
         }
@@ -148,7 +148,7 @@ public class CustomApplication extends Application {
         try {
             MsgServerManager.getInstance().start();
         } catch (IOException e) {
-            FLogger.e(TAG, "startMsgServerManager(). IOE - " + e.getMessage());
+            FLogger.e(TAG, "startMsgServerManager(). IOE - " + e);
             HelperMethods.displayMsgToUser(this, "failed to start MsgServers");
             FLogger.e(TAG, e);
         }

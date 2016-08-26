@@ -36,7 +36,7 @@ public class Symmetric {
             len += cipher.doFinal(out, len);
         } catch (IllegalStateException e){
             // this should never happen
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
         if (isEncrypting) {
             return out;

@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes;
+package uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types;
 
 import android.support.annotation.NonNull;
 
@@ -14,6 +14,8 @@ import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.phonenumbers.DbTablePho
 import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.DbTablePublicKeys;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.PublicKeyEntry;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.MessageRequiringEncryption;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 

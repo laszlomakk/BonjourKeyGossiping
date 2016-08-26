@@ -55,7 +55,7 @@ public final class NetworkUtil {
             byte[] byteaddr = new byte[] { (byte) (ip & 0xff), (byte) (ip >> 8 & 0xff), (byte) (ip >> 16 & 0xff), (byte) (ip >> 24 & 0xff) };
             ret = InetAddress.getByAddress(byteaddr);
         } catch (UnknownHostException e) {
-            FLogger.e(TAG, String.format("getWifiIpAddress() Error: %s", e.getMessage()));
+            FLogger.e(TAG, "getWifiIpAddress(). UnknownHostException: " + e);
         }
         return ret;
     }

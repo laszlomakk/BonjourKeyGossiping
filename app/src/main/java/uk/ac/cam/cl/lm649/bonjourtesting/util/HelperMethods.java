@@ -75,8 +75,12 @@ public final class HelperMethods {
         }
     }
 
+    /**
+     * @param time java-style timestamp (milliseconds elapsed since 1970 UTC)
+     * @return nice and concise human-readable string with the time
+     */
     public static String getTimeStamp(long time) {
-        return new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss.SSS", Locale.US)
+        return new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss.SSSZ", Locale.US)
                 .format(new Timestamp(time));
     }
 
@@ -86,7 +90,7 @@ public final class HelperMethods {
             versionName = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
         } catch (PackageManager.NameNotFoundException e) {
             FLogger.e(TAG,
-                    "getVersionName(). PackageManager.NameNotFoundException: " + e.getMessage());
+                    "getVersionName(). PackageManager.NameNotFoundException: " + e);
         }
         return versionName;
     }
@@ -119,7 +123,7 @@ public final class HelperMethods {
         try {
             ret = UUID.fromString(str);
         } catch (Exception e) {
-            FLogger.e(TAG, "uuidFromStringDefensively() encountered Exception: " + e.getMessage());
+            FLogger.e(TAG, "uuidFromStringDefensively() encountered Exception: " + e);
             FLogger.d(TAG, e);
             return null;
         }

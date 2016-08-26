@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes;
+package uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types;
 
 import android.support.annotation.NonNull;
 
@@ -6,7 +6,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -15,7 +14,11 @@ import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.DbTablePublicKeys;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.PublicKeyEntry;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.MessageRequiringEncryption;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.SerialisationUtil;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 
 public class MsgPublicKeyFlashes extends Message implements MessageRequiringEncryption {
@@ -96,8 +99,8 @@ public class MsgPublicKeyFlashes extends Message implements MessageRequiringEncr
                 "Matching public key (%s) found for flash (phoneNum: %s).\nDB_timestamp: %s, flash_timestamp: %s\n",
                 Asymmetric.getFingerprint(publicKeyEntry.getPublicKey()),
                 publicKeyFlash.phoneNumber,
-                new Date(publicKeyEntry.getTimestampLastSeenAlivePublicKey()),
-                new Date(publicKeyFlash.timestamp));
+                HelperMethods.getTimeStamp(publicKeyEntry.getTimestampLastSeenAlivePublicKey()),
+                HelperMethods.getTimeStamp(publicKeyFlash.timestamp));
 
         if (flashIsNewer) {
             logMessage += "Yay, flash timestamp is NEWER than what we have! -> refreshing";
@@ -142,7 +145,7 @@ public class MsgPublicKeyFlashes extends Message implements MessageRequiringEncr
         public String toString() {
             return String.format(Locale.US,
                     "phoneNum: %s, timestamp: %s",
-                    phoneNumber, new Date(timestamp));
+                    phoneNumber, HelperMethods.getTimeStamp(timestamp));
         }
     }
 

@@ -45,7 +45,7 @@ public class BonjourService extends Service {
     private Context context;
     private String strServiceState = "-";
 
-    private static final long TIME_TO_WAIT_BETWEEN_STARTUP_RETRIES = 15_000;
+    private static final long TIME_TO_WAIT_BETWEEN_STARTUP_RETRIES = 15 * Constants.MSECONDS_IN_SECOND;
 
     private final IBinder binder = new BonjourServiceBinder();
 
@@ -200,7 +200,7 @@ public class BonjourService extends Service {
                     registerOurService();
                     changeServiceState("READY");
                 } catch (IOException e) {
-                    FLogger.e(TAG, "reregisterOurService() failed to register service. IOE - " + e.getMessage());
+                    FLogger.e(TAG, "reregisterOurService() failed to register service. IOE - " + e);
                     FLogger.e(TAG, e);
                     changeServiceState("ERROR - rereg failed");
                 }
@@ -230,7 +230,7 @@ public class BonjourService extends Service {
                         FLogger.i(TAG, "startWork() finished without error. Don't have restartSemaphore to release.");
                     }
                 } catch (IOException e) {
-                    FLogger.e(TAG, "startWork(). Error during start-up: IOE - " + e.getMessage());
+                    FLogger.e(TAG, "startWork(). Error during start-up: IOE - " + e);
                     //HelperMethods.displayMsgToUser(context, "Error during start-up: IOE");
                     changeServiceState("error during start-up: IOE");
                     FLogger.d(TAG, e);
@@ -261,7 +261,7 @@ public class BonjourService extends Service {
                      try {
                          jmdns.close();
                      } catch (IOException e) {
-                         FLogger.e(TAG, "error closing jmdns. IOE - " + e.getMessage());
+                         FLogger.e(TAG, "error closing jmdns. IOE - " + e);
                          FLogger.e(TAG, e);
                      } finally {
                          jmdns = null;
@@ -312,7 +312,11 @@ public class BonjourService extends Service {
         CustomActivity.forceRefreshUIInTopActivity();
     }
 
-    public String getIPAddress() {
+    public InetAddress getInetAddressOfThisDevice() {
+        return inetAddressOfThisDevice;
+    }
+
+    public String getIPAddressString() {
         String ret = "999.999.999.999";
         if (null != inetAddressOfThisDevice) ret = inetAddressOfThisDevice.getHostAddress();
         return ret;

@@ -1,6 +1,18 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes;
+package uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages;
 
 import java.util.HashMap;
+
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgArbitraryText;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgBloomFilterOfContacts;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgCommonContactsPhoneNumbers;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgJPAKERound1;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgJPAKERound2;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgJPAKERound3;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgJPAKERound3Ack;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgMyPhoneNumber;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgMyPublicKey;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgPublicKeyFlashes;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgSaltedPhoneNumber;
 
 public class MessageTypes {
 

@@ -6,6 +6,14 @@ public class DataSizeException extends Exception {
         super(message);
     }
 
+    public DataSizeException(Throwable e) {
+        super(e);
+    }
+
+    public DataSizeException(String message, Throwable e) {
+        super(message, e);
+    }
+
     public DataSizeException() {
         super();
     }

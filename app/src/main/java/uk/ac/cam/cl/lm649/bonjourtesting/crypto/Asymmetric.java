@@ -3,6 +3,7 @@ package uk.ac.cam.cl.lm649.bonjourtesting.crypto;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.encodings.OAEPEncoding;
 import org.bouncycastle.crypto.engines.RSAEngine;
@@ -38,13 +39,17 @@ public class Asymmetric {
 
     public static byte[] encryptBytes(byte[] data, AsymmetricKeyParameter key) throws InvalidCipherTextException, DataSizeException {
         if (data.length >= (RSAKeySize - 384 ) / 8 + 7) {
-            throw new DataSizeException("data too long to encrypt with RSA, use symmetric encryption instead");
+            throw new DataSizeException("data too long to encrypt with RSA. size: " + data.length + " bytes");
         }
         return _encryptBytes(true, data, key);
     }
 
-    public static byte[] decryptBytes(byte[] data, AsymmetricKeyParameter key) throws InvalidCipherTextException {
-        return _encryptBytes(false, data, key);
+    public static byte[] decryptBytes(byte[] data, AsymmetricKeyParameter key) throws InvalidCipherTextException, DataSizeException {
+        try {
+            return _encryptBytes(false, data, key);
+        } catch (DataLengthException e) {
+            throw new DataSizeException("data too long for RSA. size: " + data.length + " bytes", e);
+        }
     }
 
     public static String encryptHexString(String hexString, AsymmetricKeyParameter key) throws InvalidCipherTextException, DataSizeException {
@@ -53,7 +58,7 @@ public class Asymmetric {
         return Hex.toHexString(data);
     }
 
-    public static String decryptHexString(String hexString, AsymmetricKeyParameter key) throws InvalidCipherTextException {
+    public static String decryptHexString(String hexString, AsymmetricKeyParameter key) throws InvalidCipherTextException, DataSizeException {
         byte[] data = Hex.decode(hexString);
         data = decryptBytes(data,key);
         return Hex.toHexString(data);
@@ -65,7 +70,7 @@ public class Asymmetric {
         return Base64.toBase64String(data);
     }
 
-    public static String decryptBase64String(String base64String, AsymmetricKeyParameter key) throws InvalidCipherTextException {
+    public static String decryptBase64String(String base64String, AsymmetricKeyParameter key) throws InvalidCipherTextException, DataSizeException {
         byte[] data = Base64.decode(base64String);
         data = decryptBytes(data,key);
         return Base64.toBase64String(data);
@@ -131,7 +136,7 @@ public class Asymmetric {
             }
         } catch (IOException e) {
             // should never happen
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
         return (codePrefix + keyMultiLine + codePostfix);
     }
@@ -174,8 +179,8 @@ public class Asymmetric {
             } else {
                 throw new KeyDecodingException("invalid key headers: " + key.substring(0,10) + "...");
             }
-        } catch (IOException e) {
-            throw new KeyDecodingException("IOE: " + e.getMessage());
+        } catch (Exception e) {
+            throw new KeyDecodingException(e);
         }
     }
 
@@ -207,7 +212,7 @@ public class Asymmetric {
             }
         } catch (IOException e) {
             // should never happen
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
         return ret;
     }
@@ -221,8 +226,8 @@ public class Asymmetric {
             } else {
                 throw new KeyDecodingException("Invalid byteKey. First byte is corrupted.");
             }
-        } catch (IOException e) {
-            throw new KeyDecodingException("IOE: " + e.getMessage());
+        } catch (Exception e) {
+            throw new KeyDecodingException(e);
         }
     }
 

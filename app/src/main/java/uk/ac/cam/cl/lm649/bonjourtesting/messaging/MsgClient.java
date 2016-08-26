@@ -31,9 +31,9 @@ import javax.crypto.NoSuchPaddingException;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Symmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEManager;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MessageRequiringEncryption;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.UnknownMessageTypeException;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.MessageRequiringEncryption;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.UnknownMessageTypeException;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.ServiceStub;
 
@@ -100,7 +100,7 @@ public class MsgClient {
         try {
             workerThreadIncoming.execute(runnable);
         } catch (RejectedExecutionException e) {
-            FLogger.e(logTag, "MsgClient() 1. runnable was rejected by executor - " + e.getMessage());
+            FLogger.e(logTag, "MsgClient() 1. runnable was rejected by executor - " + e);
         }
     }
 
@@ -114,7 +114,7 @@ public class MsgClient {
                     MsgClient.this.socket = new Socket(address, port);
                     init();
                 } catch (IOException e) { // TODO think about this
-                    FLogger.e(logTag, "MsgClient(). Failed to open socket. closing MsgClient. IOE - " + e.getMessage());
+                    FLogger.e(logTag, "MsgClient(). Failed to open socket. closing MsgClient. IOE - " + e);
                     MsgClient.this.close();
                 }
             }
@@ -122,7 +122,7 @@ public class MsgClient {
         try {
             workerThreadIncoming.execute(runnable);
         } catch (RejectedExecutionException e) {
-            FLogger.e(logTag, "MsgClient() 2. runnable was rejected by executor - " + e.getMessage());
+            FLogger.e(logTag, "MsgClient() 2. runnable was rejected by executor - " + e);
         }
 
     }
@@ -149,7 +149,7 @@ public class MsgClient {
             }
             startWaitingForMessages();
         } catch (IOException e) {
-            FLogger.e(logTag, "init() failed. IOE - " + e.getMessage());
+            FLogger.e(logTag, "init() failed. IOE - " + e);
         }
     }
 
@@ -164,7 +164,7 @@ public class MsgClient {
                 cipher = Symmetric.getInitialisedCipher(Cipher.ENCRYPT_MODE, sessionKey.secretKeyBytes, sessionKey.ivBytes);
             } catch (InvalidAlgorithmParameterException | InvalidKeyException
                     | NoSuchPaddingException | NoSuchAlgorithmException e) {
-                FLogger.e(TAG_BASE, "initOutStream(). Exception: " + e.getMessage());
+                FLogger.e(TAG_BASE, "initOutStream(). Exception: " + e);
                 FLogger.e(TAG_BASE, e);
                 return null;
             }
@@ -183,7 +183,7 @@ public class MsgClient {
                 cipher = Symmetric.getInitialisedCipher(Cipher.DECRYPT_MODE, sessionKey.secretKeyBytes, sessionKey.ivBytes);
             } catch (InvalidAlgorithmParameterException | InvalidKeyException
                     | NoSuchPaddingException | NoSuchAlgorithmException e) {
-                FLogger.e(TAG_BASE, "initInStream(). Exception: " + e.getMessage());
+                FLogger.e(TAG_BASE, "initInStream(). Exception: " + e);
                 FLogger.e(TAG_BASE, e);
                 return null;
             }
@@ -201,11 +201,11 @@ public class MsgClient {
                 receiveMsg();
             }
         } catch (EOFException e) {
-            FLogger.i(logTag, "startWaitingForMessages(). EOF - " + e.getMessage());
+            FLogger.i(logTag, "startWaitingForMessages(). EOF - " + e);
         } catch (SocketException e) {
-            FLogger.w(logTag, "startWaitingForMessages(). SockExc - " + e.getMessage());
+            FLogger.w(logTag, "startWaitingForMessages(). SockExc - " + e);
         } catch (IOException e) {
-            FLogger.e(logTag, "startWaitingForMessages(). IOE - " + e.getMessage());
+            FLogger.e(logTag, "startWaitingForMessages(). IOE - " + e);
         }
         close();
     }
@@ -215,7 +215,7 @@ public class MsgClient {
         try {
             msg = Message.createFromStream(inStream);
         } catch (UnknownMessageTypeException e) {
-            FLogger.e(logTag, strFromAddress + "received msg. UnknownMessageTypeException: " + e.getMessage());
+            FLogger.e(logTag, strFromAddress + "received msg. UnknownMessageTypeException: " + e);
             return;
         }
         if (null == msg) {
@@ -236,7 +236,7 @@ public class MsgClient {
                 try {
                     outStreamReadyLatch.await();
                 } catch (InterruptedException e) {
-                    FLogger.e(logTag, "sendMessage(). latch await interrupted - " + e.getMessage());
+                    FLogger.e(logTag, "sendMessage(). latch await interrupted - " + e);
                     return;
                 }
                 try {
@@ -249,14 +249,14 @@ public class MsgClient {
                                 + "/" + msg.getClass().getSimpleName() + ", stream is not encrypted");
                     }
                 } catch (IOException e) {
-                    FLogger.e(logTag, "sendMessage(). IOE - " + e.getMessage());
+                    FLogger.e(logTag, "sendMessage(). IOE - " + e);
                 }
             }
         };
         try {
             workerThreadOutgoing.execute(runnable);
         } catch (RejectedExecutionException e) {
-            FLogger.w(logTag, "sendMessage(). runnable was rejected by executor - " + e.getMessage());
+            FLogger.w(logTag, "sendMessage(). runnable was rejected by executor - " + e);
         }
     }
 
@@ -274,7 +274,7 @@ public class MsgClient {
             if (null != inStream) inStream.close();
             if (null != socket) socket.close();
         } catch (IOException e) {
-            FLogger.e(logTag, "close(). trying to close streams and socket, IOE - " + e.getMessage());
+            FLogger.e(logTag, "close(). trying to close streams and socket, IOE - " + e);
         }
         closed = true;
     }

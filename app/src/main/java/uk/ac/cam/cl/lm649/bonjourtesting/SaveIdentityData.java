@@ -15,7 +15,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.SaveData;
 
 public class SaveIdentityData extends SaveData {
 
-    private static final String TAG = "SaveBadgeData";
+    private static final String TAG = "SaveIdentityData";
 
     private static SaveIdentityData INSTANCE = null;
 

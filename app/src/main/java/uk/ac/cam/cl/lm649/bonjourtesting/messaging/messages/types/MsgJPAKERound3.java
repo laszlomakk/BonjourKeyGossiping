@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes;
+package uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types;
 
 import org.bouncycastle.util.encoders.Hex;
 
@@ -14,6 +14,8 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.SessionData;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.SessionKey;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.SerialisationUtil;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
@@ -99,7 +101,7 @@ public class MsgJPAKERound3 extends Message {
         try {
             sessionKey = new SessionKey(sessionKeyBytes);
         } catch (SessionKey.InvalidSessionKeySizeException e) {
-            FLogger.e(TAG, "InvalidSessionKeySizeException: " + e.getMessage() + strHandshakeId);
+            FLogger.e(TAG, "InvalidSessionKeySizeException: " + e + strHandshakeId);
             FLogger.d(TAG, e);
         }
         return sessionKey;

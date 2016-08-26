@@ -55,7 +55,7 @@ public abstract class MsgServer {
                 createMsgClientForIncomingConnection(clientSocket);
             }
         } catch (IOException e) {
-            FLogger.e(TAG, "startWaitingForConnections(). error -- closing main thread. IOE - " + e.getMessage());
+            FLogger.e(TAG, "startWaitingForConnections(). error -- closing main thread. IOE - " + e);
         }
     }
 
@@ -74,7 +74,7 @@ public abstract class MsgServer {
             serverSocket.close();
             FLogger.d(TAG, "serverSocket successfully closed.");
         } catch (IOException e) {
-            FLogger.e(TAG, "error while closing serverSocket. IOE - " + e.getMessage());
+            FLogger.e(TAG, "error while closing serverSocket. IOE - " + e);
             FLogger.e(TAG, e);
         }
 

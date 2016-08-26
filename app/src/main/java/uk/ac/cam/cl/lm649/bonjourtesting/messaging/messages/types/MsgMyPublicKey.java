@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes;
+package uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -6,14 +6,15 @@ import android.support.annotation.Nullable;
 
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
+import org.bouncycastle.util.encoders.Hex;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Locale;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
@@ -23,7 +24,11 @@ import uk.ac.cam.cl.lm649.bonjourtesting.crypto.KeyDecodingException;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.DbTablePublicKeys;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.PublicKeyEntry;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.MessageRequiringEncryption;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.SerialisationUtil;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 
 public class MsgMyPublicKey extends Message implements MessageRequiringEncryption {
@@ -56,7 +61,7 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
             AsymmetricKeyParameter myPrivateKey = Asymmetric.stringKeyToKey(myStrPrivateKey);
             signedHash = Asymmetric.encryptBytes(hash, myPrivateKey);
         } catch (KeyDecodingException | InvalidCipherTextException | DataSizeException e) {
-            FLogger.e(TAG, "createNewMsgWithMyCurrentData(). Exception: " + e.getMessage());
+            FLogger.e(TAG, "createNewMsgWithMyCurrentData(). Exception: " + e);
             FLogger.d(TAG, e);
             return null;
         }
@@ -71,7 +76,7 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
         try {
             publicKey = Asymmetric.byteKeyToStringKey(SerialisationUtil.createByteArrayFromStream(inStream));
         } catch (KeyDecodingException e) {
-            FLogger.e(TAG, "createFromStream(). KeyDecodingException: " + e.getMessage());
+            FLogger.e(TAG, "createFromStream(). Exception: " + e);
             FLogger.d(TAG, e);
             return null;
         }
@@ -87,7 +92,7 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
         try {
             SerialisationUtil.serialiseToStream(outStream, Asymmetric.stringKeyToByteKey(publicKey));
         } catch (KeyDecodingException e) {
-            FLogger.e(TAG, "createFromStream(). KeyDecodingException: " + e.getMessage());
+            FLogger.e(TAG, "createFromStream(). Exception: " + e);
             FLogger.d(TAG, e);
             throw new IOException(e);
         }
@@ -104,7 +109,7 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
                 msgClient.strFromAddress,
                 getClass().getSimpleName(),
                 fingerprint,
-                new Date(timestamp),
+                HelperMethods.getTimeStamp(timestamp),
                 phoneNumber));
 
         boolean verifiedSignature = verifySignedHash(signedHash, publicKey, timestamp, phoneNumber);
@@ -154,22 +159,35 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
             return false;
         }
 
-        byte[] trustedHash = calcHashOfContents(strPublicKey, timestamp, phoneNumber);
-
         try {
-            AsymmetricKeyParameter publicKey = Asymmetric.stringKeyToKey(strPublicKey);
-            byte[] untrustedHash = Asymmetric.decryptBytes(signedHash, publicKey);
-            return Arrays.equals(trustedHash, untrustedHash);
+            return _verifySignedHash(signedHash, strPublicKey, timestamp, phoneNumber);
         } catch (KeyDecodingException | InvalidCipherTextException e) {
-            FLogger.e(TAG, "createNewMsgWithMyCurrentData(). Exception: " + e.getMessage());
-            FLogger.d(TAG, e);
+            FLogger.d(TAG, "verifySignedHash(). Exception: " + e);
+            return false;
+        } catch (DataSizeException e) {
+            FLogger.e(TAG, "verifySignedHash(). Exception: " + e);
+            FLogger.e(TAG, "verifySignedHash(). signed hash: " + Hex.toHexString(signedHash));
             return false;
         }
     }
 
+    private static boolean _verifySignedHash(
+            @NonNull byte[] signedHash,
+            @NonNull String strPublicKey,
+            long timestamp,
+            @NonNull String phoneNumber) throws KeyDecodingException, InvalidCipherTextException, DataSizeException
+    {
+        byte[] trustedHash = calcHashOfContents(strPublicKey, timestamp, phoneNumber);
+
+        AsymmetricKeyParameter publicKey = Asymmetric.stringKeyToKey(strPublicKey);
+        byte[] untrustedHash = Asymmetric.decryptBytes(signedHash, publicKey);
+
+        return Arrays.equals(trustedHash, untrustedHash);
+    }
+
     private static boolean isTimestampPlausible(long timestamp) {
         long localTime = System.currentTimeMillis();
-        long threshold = 10 * 60 * 1000;
+        long threshold = 10 * Constants.MSECONDS_IN_MINUTE;
         return Math.abs(timestamp - localTime) < threshold;
     }
 

@@ -18,11 +18,12 @@ import java.security.SecureRandom;
 import java.util.Locale;
 import java.util.UUID;
 
+import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.Message;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound1;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound2;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.msgtypes.MsgJPAKERound3;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgJPAKERound1;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgJPAKERound2;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types.MsgJPAKERound3;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
 public class JPAKEClient {
@@ -45,7 +46,7 @@ public class JPAKEClient {
 
     private final long creationTime;
 
-    public static final long TIMEOUT_IN_MSEC = 5 * 60 * 1000;
+    public static final long TIMEOUT_IN_MSEC = 5 * Constants.MSECONDS_IN_MINUTE;
 
     public enum State {
         INITIALISED,
@@ -123,7 +124,7 @@ public class JPAKEClient {
                 try {
                     round1Send(msgClient);
                 } catch (IOException e) {
-                    FLogger.e(TAG, "round1Receive() tried to call round1Send() but IOE - " + e.getMessage() + strHandshakeId);
+                    FLogger.e(TAG, "round1Receive() tried to call round1Send() but IOE - " + e + strHandshakeId);
                     return false;
                 }
                 break;
@@ -155,7 +156,7 @@ public class JPAKEClient {
                     "round1Receive(). validation failed. IP: %s, oParticipantId: %s, Exception: %s" + strHandshakeId,
                     msgClient.strSocketAddress,
                     otherParticipantId,
-                    e.getMessage()));
+                    e));
             return false;
         }
     }
@@ -188,7 +189,7 @@ public class JPAKEClient {
                 try {
                     round2Send(msgClient);
                 } catch (IOException e) {
-                    FLogger.e(TAG, "round2Receive() tried to call round2Send() but IOE - " + e.getMessage() + strHandshakeId);
+                    FLogger.e(TAG, "round2Receive() tried to call round2Send() but IOE - " + e + strHandshakeId);
                     return false;
                 }
                 break;
@@ -221,7 +222,7 @@ public class JPAKEClient {
                     "round2Receive(). validation failed. IP: %s, oParticipantId: %s, Exception: %s" + strHandshakeId,
                     msgClient.strSocketAddress,
                     otherParticipantId,
-                    e.getMessage()));
+                    e));
             return false;
         }
     }
@@ -257,7 +258,7 @@ public class JPAKEClient {
                 try {
                     round3Send(msgClient);
                 } catch (IOException e) {
-                    FLogger.e(TAG, "round3Receive() tried to call round3Send() but IOE - " + e.getMessage() + strHandshakeId);
+                    FLogger.e(TAG, "round3Receive() tried to call round3Send() but IOE - " + e + strHandshakeId);
                     return false;
                 }
                 break;
@@ -291,7 +292,7 @@ public class JPAKEClient {
                     "round3Receive(). validation failed. IP: %s, oParticipantId: %s, Exception: %s" + strHandshakeId,
                     msgClient.strSocketAddress,
                     otherParticipantId,
-                    e.getMessage()));
+                    e));
             return false;
         }
     }
