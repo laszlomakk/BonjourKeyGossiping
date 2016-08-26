@@ -3,6 +3,7 @@ package uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.types;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.util.encoders.Hex;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -54,6 +55,15 @@ public class MsgMyPublicKeyTest {
             "23194307aad5bdabec09359e1ab074e4e296bd379cf10a1c2bf5fc0226354182f13584e0f9ec2a3904723d2f4b392d3eef6961aa00bd4d8aa345b0346661e88ef3ef6bd03d9d5dc3db5df580a2c7dcb067b74d594031985f9d0fcbd3df7aa9de82e10eb6f8150efdd2dac43b42355aad2e9eb591c62c7dc32ac526ced16f197ab9c5b87b522bc228a3bab482468c451c17b18630b0919af8e10a543a738e3b98c62a8e5e078f055472feab286ec87455f0072e6205bcf3797b6a54f0875dcc279ea55cea83145a66b77ad17012837fad45ce5fce9df6711954521ab539ca908402cb163187cbbd11d73765f05bad6e6d4967c08e8c6c593c40fb96cab6aa19f71fdfdfb635ce2798defc89379bc2462acc8d447f3126c6e894bfef960d72b760ab81f521b5180e37b325dfa108bf8d50887bd546e8b79818bbd890b4a7214f6af2cdffbf9539e28b3259f8fe779cd983b3147fad2753e20b102e9317783de26949f7d4f883acec497263e4a19d8c985f829fb66f3cd096a0974f7a894157e2f20f9f9f64870a771ca6d90c1ee38768f3c612af062334b2993a03e9249a1478debec4c7cc71fb8464a801d47df8ee117b5b01d03493b286fc7fb61fb598861b79b2c47c4954f21735cf610656e7970b83ba01ae7f05ef521e533b587617ba2bc4082519068885743de54d2b4b1308cffd2bec830a3309b607b6d3546de6ab1376",
     };
 
+    private static Method method_verifySignedHash;
+
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        method_verifySignedHash = MsgMyPublicKey.class.getDeclaredMethod("_verifySignedHash",
+                byte[].class, String.class, long.class, String.class);
+        method_verifySignedHash.setAccessible(true);
+    }
+
     @Test
     public void testCalcHashOfContents() throws Exception {
         Method method = MsgMyPublicKey.class.getDeclaredMethod("calcHashOfContents", String.class, long.class, String.class);
@@ -90,23 +100,10 @@ public class MsgMyPublicKeyTest {
     }
 
     @Test
-    public void testVerifySignedHash() throws Exception {
-        Method method = MsgMyPublicKey.class.getDeclaredMethod("_verifySignedHash",
-                byte[].class, String.class, long.class, String.class);
-        method.setAccessible(true);
-
-        testVerifySignedHash_happyPaths(method);
-        testVerifySignedHash_error1(method);
-        testVerifySignedHash_error2(method);
-        testVerifySignedHash_error3(method);
-        testVerifySignedHash_error4(method);
-        testVerifySignedHash_error5(method);
-    }
-
-    public void testVerifySignedHash_happyPaths(Method verifySignedHashMethod) throws Exception {
+    public void testVerifySignedHash_happyPaths() throws Exception {
         for (int i = 0; i < HEX_OF_HASH.length; i++) {
             assertTrue(
-                    (boolean) verifySignedHashMethod.invoke(null,
+                    (boolean) method_verifySignedHash.invoke(null,
                             Hex.decode(HEX_OF_SIGNED_HASH[i]),
                             PUBLIC_KEYS[i],
                             TIMESTAMPS[i],
@@ -116,11 +113,12 @@ public class MsgMyPublicKeyTest {
         }
     }
 
-    public void testVerifySignedHash_error1(Method verifySignedHashMethod) throws Exception {
+    @Test
+    public void testVerifySignedHash_error_corruptedHash() throws Exception {
         for (int i = 0; i < HEX_OF_HASH.length; i++) {
             try {
                 assertFalse(
-                        (boolean) verifySignedHashMethod.invoke(null,
+                        (boolean) method_verifySignedHash.invoke(null,
                                 Hex.decode(HEX_OF_SIGNED_HASH[i].replace('0','1')),
                                 PUBLIC_KEYS[i],
                                 TIMESTAMPS[i],
@@ -135,11 +133,12 @@ public class MsgMyPublicKeyTest {
         }
     }
 
-    public void testVerifySignedHash_error2(Method verifySignedHashMethod) throws Exception {
+    @Test
+    public void testVerifySignedHash_error_IncorrectTimestamp() throws Exception {
         for (int i = 0; i < HEX_OF_HASH.length; i++) {
             try {
                 assertFalse(
-                        (boolean) verifySignedHashMethod.invoke(null,
+                        (boolean) method_verifySignedHash.invoke(null,
                                 Hex.decode(HEX_OF_SIGNED_HASH[i]),
                                 PUBLIC_KEYS[i],
                                 TIMESTAMPS[i] + 100,
@@ -154,11 +153,12 @@ public class MsgMyPublicKeyTest {
         }
     }
 
-    public void testVerifySignedHash_error3(Method verifySignedHashMethod) throws Exception {
+    @Test
+    public void testVerifySignedHash_error_CorruptedPublicKey() throws Exception {
         for (int i = 0; i < HEX_OF_HASH.length; i++) {
             try {
                 assertFalse(
-                        (boolean) verifySignedHashMethod.invoke(null,
+                        (boolean) method_verifySignedHash.invoke(null,
                                 Hex.decode(HEX_OF_SIGNED_HASH[i]),
                                 PUBLIC_KEYS[i].replace('9','x'),
                                 TIMESTAMPS[i],
@@ -173,11 +173,12 @@ public class MsgMyPublicKeyTest {
         }
     }
 
-    public void testVerifySignedHash_error4(Method verifySignedHashMethod) throws Exception {
+    @Test
+    public void testVerifySignedHash_error_InvalidPhoneNumber() throws Exception {
         for (int i = 0; i < HEX_OF_HASH.length; i++) {
             try {
                 assertFalse(
-                        (boolean) verifySignedHashMethod.invoke(null,
+                        (boolean) method_verifySignedHash.invoke(null,
                                 Hex.decode(HEX_OF_SIGNED_HASH[i]),
                                 PUBLIC_KEYS[i],
                                 TIMESTAMPS[i],
@@ -192,11 +193,12 @@ public class MsgMyPublicKeyTest {
         }
     }
 
-    public void testVerifySignedHash_error5(Method verifySignedHashMethod) throws Exception {
+    @Test
+    public void testVerifySignedHash_error_OverlongHash() throws Exception {
         for (int i = 0; i < HEX_OF_HASH.length; i++) {
             try {
                 assertFalse(
-                        (boolean) verifySignedHashMethod.invoke(null,
+                        (boolean) method_verifySignedHash.invoke(null,
                                 Hex.decode(HEX_OF_SIGNED_HASH[i] + "1a"),
                                 PUBLIC_KEYS[i],
                                 TIMESTAMPS[i],
@@ -205,6 +207,28 @@ public class MsgMyPublicKeyTest {
                 );
             } catch (InvocationTargetException e) {
                 if (!(e.getCause() instanceof DataSizeException)) {
+                    throw e;
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testVerifySignedHash_error_DifferentPublicKey() throws Exception {
+        for (int i = 0; i < HEX_OF_HASH.length; i++) {
+            String publicKey = PUBLIC_KEYS[i].equals(AsymmetricTest.HARDCODED_PUBLIC_KEY_1) ?
+                    AsymmetricTest.HARDCODED_PUBLIC_KEY_2 : AsymmetricTest.HARDCODED_PUBLIC_KEY_1;
+            try {
+                assertFalse(
+                        (boolean) method_verifySignedHash.invoke(null,
+                                Hex.decode(HEX_OF_SIGNED_HASH[i]),
+                                publicKey,
+                                TIMESTAMPS[i],
+                                PHONE_NUMBERS[i]
+                        )
+                );
+            } catch (InvocationTargetException e) {
+                if (!(e.getCause() instanceof InvalidCipherTextException)) {
                     throw e;
                 }
             }
