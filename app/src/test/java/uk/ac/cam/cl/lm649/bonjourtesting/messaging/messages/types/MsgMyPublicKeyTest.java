@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Random;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.AsymmetricTest;
@@ -56,51 +57,85 @@ public class MsgMyPublicKeyTest {
     };
 
     private static Method method_verifySignedHash;
+    private static Method method_calcHashOfContents;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         method_verifySignedHash = MsgMyPublicKey.class.getDeclaredMethod("_verifySignedHash",
                 byte[].class, String.class, long.class, String.class);
         method_verifySignedHash.setAccessible(true);
+
+        method_calcHashOfContents = MsgMyPublicKey.class.getDeclaredMethod("calcHashOfContents", String.class, long.class, String.class);
+        method_calcHashOfContents.setAccessible(true);
     }
 
     @Test
     public void testCalcHashOfContents() throws Exception {
-        Method method = MsgMyPublicKey.class.getDeclaredMethod("calcHashOfContents", String.class, long.class, String.class);
-        method.setAccessible(true);
-
         for (int i = 0; i < HEX_OF_HASH.length; i++) {
             assertEquals(
                     HEX_OF_HASH[i],
-                    Hex.toHexString((byte[]) method.invoke(
+                    Hex.toHexString((byte[]) method_calcHashOfContents.invoke(
                             null, PUBLIC_KEYS[i], TIMESTAMPS[i], PHONE_NUMBERS[i]))
             );
         }
     }
 
     @Test
-    public void testSignedHashCreationAndVerification() throws Exception {
+    public void testWholeOfHashingSigningVerifying() throws Exception {
+        Random random = new Random();
         for (int i = 0; i < 10; i++) {
-            int input = i % HEX_OF_HASH.length;
-            AsymmetricKeyParameter pubKey = Asymmetric.stringKeyToKey(
-                    PUBLIC_KEYS[input]);
+            // init data
+            String strPubKey = AsymmetricTest.HARDCODED_PUBLIC_KEY_1;
+            long timestamp = random.nextLong();
+            String phoneNumber = PHONE_NUMBERS[0];
+
+            // create hash
+            byte[] hash = (byte[]) method_calcHashOfContents.invoke(null,
+                    strPubKey,
+                    timestamp,
+                    phoneNumber);
+
+            // sign hash
             AsymmetricKeyParameter privKey = Asymmetric.stringKeyToKey(
-                    PRIVATE_KEYS[input]);
+                    AsymmetricTest.HARDCODED_PRIVATE_KEY_1);
             byte[] signedHash = Asymmetric.encryptBytes(
-                    Hex.decode(HEX_OF_HASH[input]),
+                    hash,
                     privKey);
-            byte[] decryptedSignedHash = Asymmetric.decryptBytes(
-                    signedHash,
-                    pubKey);
-            assertEquals(
-                    HEX_OF_HASH[input],
-                    Hex.toHexString(decryptedSignedHash)
+
+            // verify signature
+            assertTrue(
+                    (boolean) method_verifySignedHash.invoke(null,
+                            signedHash,
+                            strPubKey,
+                            timestamp,
+                            phoneNumber
+                    )
             );
         }
     }
 
     @Test
-    public void testVerifySignedHash_happyPaths() throws Exception {
+    public void testVerifySignedHash_happyPath_newlyGeneratedSignatures() throws Exception {
+        for (int i = 0; i < 10; i++) {
+            int input = i % HEX_OF_HASH.length;
+            AsymmetricKeyParameter privKey = Asymmetric.stringKeyToKey(
+                    PRIVATE_KEYS[input]);
+            byte[] signedHash = Asymmetric.encryptBytes(
+                    Hex.decode(HEX_OF_HASH[input]),
+                    privKey);
+            assertTrue(
+                    (boolean) method_verifySignedHash.invoke(null,
+                            signedHash,
+                            PUBLIC_KEYS[input],
+                            TIMESTAMPS[input],
+                            PHONE_NUMBERS[input]
+                    )
+            );
+        }
+    }
+
+    @Test
+    public void testVerifySignedHash_happyPath_preGeneratedSignatures() throws Exception {
         for (int i = 0; i < HEX_OF_HASH.length; i++) {
             assertTrue(
                     (boolean) method_verifySignedHash.invoke(null,
