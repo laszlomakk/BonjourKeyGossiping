@@ -48,7 +48,7 @@ public class Asymmetric {
         try {
             return _encryptBytes(false, data, key);
         } catch (DataLengthException e) {
-            throw new DataSizeException("data too long for RSA. size: " + data.length + " bytes");
+            throw new DataSizeException("data too long for RSA. size: " + data.length + " bytes", e);
         }
     }
 
@@ -136,7 +136,7 @@ public class Asymmetric {
             }
         } catch (IOException e) {
             // should never happen
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
         return (codePrefix + keyMultiLine + codePostfix);
     }
@@ -212,7 +212,7 @@ public class Asymmetric {
             }
         } catch (IOException e) {
             // should never happen
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
         return ret;
     }
