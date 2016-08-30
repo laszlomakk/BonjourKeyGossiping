@@ -12,6 +12,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.Constants;
@@ -25,13 +26,12 @@ import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.DbTablePubli
 import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.PublicKeyEntry;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.MessageRequiringEncryption;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.SerialisationUtil;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 
-public class MsgMyPublicKey extends Message implements MessageRequiringEncryption {
+public class MsgMyPublicKey extends Message implements Message.RequiresEncryption {
 
     private static final String TAG = "MsgMyPublicKey";
 
@@ -112,27 +112,91 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
                 HelperMethods.getTimeStamp(timestamp),
                 phoneNumber));
 
+        if (null == phoneNumber) {
+            FLogger.e(TAG, "onReceive(). phoneNumber == null");
+            return;
+        }
+
         boolean verifiedSignature = verifySignedHash(signedHash, publicKey, timestamp, phoneNumber);
         boolean plausibleTimestamp = isTimestampPlausible(timestamp);
-        String logTestResults = String.format(Locale.US,
+        String logMessage = String.format(Locale.US,
                 "pubKey: %s - verified signature: %b, plausible timestamp: %b",
                 fingerprint, verifiedSignature, plausibleTimestamp);
         if (verifiedSignature && plausibleTimestamp) {
-            FLogger.i(TAG, logTestResults);
-            updatePublicKeyInDatabase(phoneNumber);
+            // at this point, the message is known to be self-consistent
+            // but is it consistent with our previous knowledge? (DB)
+            processMessageGivenSelfConsistency(msgClient, phoneNumber, logMessage);
         } else {
-            FLogger.w(TAG, logTestResults);
+            FLogger.w(TAG, logMessage + " -> REJECTING, failed self-consistency test");
         }
     }
 
-    private void updatePublicKeyInDatabase(String phoneNumber) {
+    private void processMessageGivenSelfConsistency(
+            @NonNull MsgClient msgClient, @NonNull String phoneNumber, @NonNull String logMessage)
+    {
+        PUBLIC_KEY_STANDING_FOR_PHONE_NUMBER publicKeyStandingForPhoneNumber =
+                determinePublicKeyStanding(phoneNumber, publicKey);
+
+        boolean acceptMessage = false;
+        switch (publicKeyStandingForPhoneNumber) {
+            case FIRST_USE:
+                FLogger.i(TAG, logMessage + " - ACCEPTING, trust on first use");
+                acceptMessage = true;
+                break;
+            case UPDATE_FOR_ALREADY_KNOWN:
+                FLogger.i(TAG, logMessage + " - ACCEPTING, already known public key");
+                acceptMessage = true;
+                break;
+            case DIFFERENT_THAN_KNOWN:
+                FLogger.w(TAG, logMessage + " - REJECTING, different public key");
+                break;
+            default:
+                FLogger.e(TAG, logMessage + " - ERROR, unknown publicKeyStandingForPhoneNumber");
+                break;
+        }
+
+        if (acceptMessage) {
+            updatePublicKeyInDatabase(phoneNumber);
+            msgClient.sessionData.setPublicKeyOfOtherParticipant(publicKey);
+            msgClient.sessionData.setTrustOtherParticipant(true);
+            CustomActivity.forceRefreshUIInTopActivity();
+        } else {
+            FLogger.i(TAG, "closing MsgClient with " + msgClient.strSocketAddress);
+            msgClient.close();
+        }
+    }
+
+    private static PUBLIC_KEY_STANDING_FOR_PHONE_NUMBER determinePublicKeyStanding(
+            @NonNull String phoneNumber, @NonNull String publicKey)
+    {
+        List<PublicKeyEntry> publicKeyEntryListForPhoneNumber =
+                DbTablePublicKeys.getEntriesForPhoneNumber(phoneNumber);
+        if (publicKeyEntryListForPhoneNumber.isEmpty()) {
+            // no known public key for phone number yet
+            // trust on first use
+            return PUBLIC_KEY_STANDING_FOR_PHONE_NUMBER.FIRST_USE;
+        } else {
+            // we already know a public key for this phone number
+            // we are not willing to accept other public keys
+            PublicKeyEntry oldEntry = publicKeyEntryListForPhoneNumber.get(0);
+            if (oldEntry.getPublicKey().equals(publicKey)) {
+                // this is the public key we've already known
+                return PUBLIC_KEY_STANDING_FOR_PHONE_NUMBER.UPDATE_FOR_ALREADY_KNOWN;
+            } else {
+                // the public key for the phone number changed ??
+                // this is either a message from an impostor or a legitimate change of keys
+                return PUBLIC_KEY_STANDING_FOR_PHONE_NUMBER.DIFFERENT_THAN_KNOWN;
+            }
+        }
+    }
+
+    private void updatePublicKeyInDatabase(@NonNull String phoneNumber) {
         PublicKeyEntry entry = new PublicKeyEntry();
         entry.setPublicKey(publicKey);
         entry.setPhoneNumber(phoneNumber);
         entry.setTimestampLastSeenAlivePublicKey(timestamp);
         entry.setSignedHash(signedHash);
         DbTablePublicKeys.smartUpdateEntry(entry);
-        CustomActivity.forceRefreshUIInTopActivity();
     }
 
     private static byte[] calcHashOfContents(String publicKey, long timestamp, String phoneNumber) {
@@ -189,6 +253,10 @@ public class MsgMyPublicKey extends Message implements MessageRequiringEncryptio
         long localTime = System.currentTimeMillis();
         long threshold = 10 * Constants.MSECONDS_IN_MINUTE;
         return Math.abs(timestamp - localTime) < threshold;
+    }
+
+    public enum PUBLIC_KEY_STANDING_FOR_PHONE_NUMBER {
+        FIRST_USE, UPDATE_FOR_ALREADY_KNOWN, DIFFERENT_THAN_KNOWN
     }
 
 }

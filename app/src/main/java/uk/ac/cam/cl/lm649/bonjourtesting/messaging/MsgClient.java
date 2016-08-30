@@ -32,7 +32,6 @@ import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Symmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEManager;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.MessageRequiringEncryption;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.UnknownMessageTypeException;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.ServiceStub;
@@ -222,7 +221,12 @@ public class MsgClient {
             FLogger.e(logTag, strFromAddress + "received msg. But parsing it returned null.");
             return;
         }
-        msg.onReceive(this);
+        if (!encrypted && (msg instanceof Message.RequiresEncryption)) {
+            FLogger.e(logTag, strFromAddress
+                    + "received msg. It arrived to a PLAINTEXT MsgClient, but it's marked as requiring encryption.");
+            // we'll still process the message
+        }
+        msg.onUntrustedReceive(this);
     }
 
     public void sendMessage(@Nullable final Message msg){
@@ -240,7 +244,7 @@ public class MsgClient {
                     return;
                 }
                 try {
-                    if (encrypted || !(msg instanceof MessageRequiringEncryption)) {
+                    if (encrypted || !(msg instanceof Message.RequiresEncryption)) {
                         msg.send(MsgClient.this);
                         FLogger.i(logTag, strToAddress + "sent msg with type " + msg.getType()
                                 + "/" + msg.getClass().getSimpleName());

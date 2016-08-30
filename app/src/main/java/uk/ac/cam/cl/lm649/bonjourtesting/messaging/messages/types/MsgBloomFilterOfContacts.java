@@ -17,11 +17,11 @@ import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.phonenumbers.Contact;
 import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.phonenumbers.DbTablePhoneNumbers;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.MessageRequiringEncryption;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 
-public class MsgBloomFilterOfContacts extends Message implements MessageRequiringEncryption {
+public class MsgBloomFilterOfContacts extends Message implements
+        Message.RequiresEncryption, Message.DiscardIfNotFromTrustedSource {
 
     private static final String TAG = "MsgBloomFilterContacts";
 

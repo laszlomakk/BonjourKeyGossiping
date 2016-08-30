@@ -15,11 +15,10 @@ import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.DbTablePubli
 import uk.ac.cam.cl.lm649.bonjourtesting.database.tables.publickeys.PublicKeyEntry;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
-import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.MessageRequiringEncryption;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.UsedViaReflection;
 
-public class MsgCommonContactsPhoneNumbers extends Message implements MessageRequiringEncryption {
+public class MsgCommonContactsPhoneNumbers extends Message implements Message.RequiresEncryption {
 
     private static final String TAG = "MsgCommonContactPhNums";
 

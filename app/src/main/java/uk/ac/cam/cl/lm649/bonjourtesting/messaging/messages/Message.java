@@ -44,7 +44,18 @@ public abstract class Message {
         serialiseToStream(outStream);
     }
 
-    public abstract void onReceive(MsgClient msgClient) throws IOException;
+    public void onUntrustedReceive(MsgClient msgClient) throws IOException {
+        if (this instanceof DiscardIfNotFromTrustedSource && !msgClient.sessionData.doWeTrustOtherParticipant()) {
+            FLogger.w(TAG, String.format(Locale.US,
+                    "Discarded message from %s with type %s, due to insufficient trust in sender.",
+                    msgClient.strSocketAddress, getClass().getSimpleName()));
+            return;
+        }
+
+        onReceive(msgClient);
+    }
+
+    protected abstract void onReceive(MsgClient msgClient) throws IOException;
 
     @Nullable
     public static Message createFromStream(DataInputStream inStream) throws IOException, UnknownMessageTypeException {
@@ -105,5 +116,15 @@ public abstract class Message {
         }
         return nBytesDiscarded;
     }
+
+    /**
+     * This is a marker interface using which encryption is forced for messages.
+     */
+    public interface RequiresEncryption {}
+
+    /**
+     * This is a marker interface using which messages received from untrusted sources are discarded.
+     */
+    public interface DiscardIfNotFromTrustedSource {}
 
 }
