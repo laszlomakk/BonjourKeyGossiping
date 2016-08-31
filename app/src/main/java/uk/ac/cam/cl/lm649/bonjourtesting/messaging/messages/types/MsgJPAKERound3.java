@@ -14,6 +14,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.SessionData;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.JPAKEClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.SessionKey;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.ratelimit.JPAKERateLimiter;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.SerialisationUtil;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
@@ -76,6 +77,8 @@ public class MsgJPAKERound3 extends Message {
     private void onRound3Success(MsgClient msgClient, JPAKEClient jpakeClient) throws IOException {
         byte[] sessionKeyBytes = jpakeClient.getSessionKey();
         FLogger.i(TAG, "round 3 succeeded! key: " + Hex.toHexString(sessionKeyBytes) + strHandshakeId);
+
+        JPAKERateLimiter.getInstance().notifyRegardingSuccessfulJpake(jpakeClient, msgClient.getMacAddress());
 
         FLogger.d(TAG, "msgClient.iAmTheInitiator == " + msgClient.iAmTheInitiator + strHandshakeId);
         if (!msgClient.iAmTheInitiator) {

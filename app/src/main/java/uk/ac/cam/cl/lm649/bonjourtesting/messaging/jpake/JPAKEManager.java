@@ -12,6 +12,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.ratelimit.JPAKERateLimiter;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.ratelimit.JPAKERateLimiterGlobal;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
 public class JPAKEManager {
@@ -70,7 +72,7 @@ public class JPAKEManager {
         }
         JPAKEManager jpakeManager = msgClient.jpakeManager;
         try {
-            if (JPAKERateLimiter.getInstance().startNewJpakeHandshake(msgClient)) {
+            if (JPAKERateLimiter.getInstance().startNewJpakeHandshake(true, msgClient)) {
                 UUID handshakeId = UUID.randomUUID();
                 JPAKEClient jpakeClient = new JPAKEClient(true, handshakeId, sharedSecret);
                 jpakeManager.handshakeIdToClientMap.put(handshakeId, jpakeClient);
@@ -96,7 +98,7 @@ public class JPAKEManager {
             return oldJpakeClient;
         }
 
-        if (JPAKERateLimiter.getInstance().startNewJpakeHandshake(msgClient)) {
+        if (JPAKERateLimiter.getInstance().startNewJpakeHandshake(false, msgClient)) {
             String sharedSecret = getMyOwnSharedSecret();
             JPAKEClient jpakeClient = new JPAKEClient(false, handshakeId, sharedSecret);
             handshakeIdToClientMap.put(handshakeId, jpakeClient);
