@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.SaveData;
 
-public class SaveSettingsData extends SaveData {
+public final class SaveSettingsData extends SaveData {
 
     private static SaveSettingsData INSTANCE = null;
 

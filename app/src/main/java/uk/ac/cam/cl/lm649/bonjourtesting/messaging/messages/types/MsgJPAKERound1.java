@@ -84,10 +84,10 @@ public class MsgJPAKERound1 extends Message {
         JPAKEClient jpakeClient = jpakeManager.findJPAKEClient(handshakeId);
         if (null == jpakeClient) {
             FLogger.d(TAG, "onReceive(). this is a new handshakeId, the other end initiated." + strHandshakeId);
-            jpakeClient = jpakeManager.createJPAKEClientDueToIncomingMessage(handshakeId);
+            jpakeClient = jpakeManager.createJPAKEClientDueToIncomingMessage(msgClient, handshakeId);
         }
         if (null == jpakeClient) {
-            FLogger.e(TAG, "onReceive(). wtf. jpakeClient is null." + strHandshakeId);
+            FLogger.d(TAG, "onReceive(). jpakeClient == null." + strHandshakeId);
             return;
         }
         boolean round1Success = jpakeClient.round1Receive(msgClient, this);

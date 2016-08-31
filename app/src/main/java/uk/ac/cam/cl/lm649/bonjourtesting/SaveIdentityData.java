@@ -13,7 +13,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.PhoneNumUtil;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.SaveData;
 
-public class SaveIdentityData extends SaveData {
+public final class SaveIdentityData extends SaveData {
 
     private static final String TAG = "SaveIdentityData";
 
