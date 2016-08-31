@@ -35,6 +35,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.Message;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.messages.UnknownMessageTypeException;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.ServiceStub;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.NetworkUtil;
 
 public class MsgClient {
 
@@ -69,6 +70,7 @@ public class MsgClient {
     public String strSocketAddress;
     public String strFromAddress;
     public String strToAddress;
+    private String macAddress;
 
     public final JPAKEManager jpakeManager = new JPAKEManager();
 
@@ -130,6 +132,8 @@ public class MsgClient {
         try {
             socketAddress = socket.getInetAddress();
             strSocketAddress = socketAddress.getHostAddress();
+            macAddress = NetworkUtil.getMacFromArpCache(strSocketAddress);
+
             strFromAddress = "from addr: " + strSocketAddress + ", ";
             strToAddress = "to addr: " + strSocketAddress + ", ";
 
@@ -297,6 +301,10 @@ public class MsgClient {
     
     public void setServiceStubWeAreBoundTo(ServiceStub serviceStubWeAreBoundTo) {
         this.serviceStubWeAreBoundTo = serviceStubWeAreBoundTo;
+    }
+
+    public String getMacAddress() {
+        return macAddress;
     }
 
     /**
