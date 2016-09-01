@@ -12,6 +12,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import uk.ac.cam.cl.lm649.bonjourtesting.CustomApplication;
 import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.messaging.MsgClient;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.ratelimit.JPAKERateLimiter;
+import uk.ac.cam.cl.lm649.bonjourtesting.messaging.jpake.ratelimit.JPAKERateLimiterGlobal;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 
 public class JPAKEManager {
@@ -70,10 +72,12 @@ public class JPAKEManager {
         }
         JPAKEManager jpakeManager = msgClient.jpakeManager;
         try {
-            UUID handshakeId = UUID.randomUUID();
-            JPAKEClient jpakeClient = new JPAKEClient(true, handshakeId, sharedSecret);
-            jpakeManager.handshakeIdToClientMap.put(handshakeId, jpakeClient);
-            return jpakeClient.round1Send(msgClient);
+            if (JPAKERateLimiter.getInstance().startNewJpakeHandshake(true, msgClient)) {
+                UUID handshakeId = UUID.randomUUID();
+                JPAKEClient jpakeClient = new JPAKEClient(true, handshakeId, sharedSecret);
+                jpakeManager.handshakeIdToClientMap.put(handshakeId, jpakeClient);
+                return jpakeClient.round1Send(msgClient);
+            }
         } catch (IOException e) {
             FLogger.e(TAG, "startJPAKEHandshake(). IOE - " + e);
         }
@@ -85,7 +89,8 @@ public class JPAKEManager {
         return handshakeIdToClientMap.get(handshakeId);
     }
 
-    public synchronized JPAKEClient createJPAKEClientDueToIncomingMessage(UUID handshakeId) {
+    @Nullable
+    public synchronized JPAKEClient createJPAKEClientDueToIncomingMessage(MsgClient msgClient, UUID handshakeId) {
         JPAKEClient oldJpakeClient = handshakeIdToClientMap.get(handshakeId);
         if (null != oldJpakeClient) {
             FLogger.e(TAG, "createJPAKEClientDueToIncomingMessage(). Found an already existing JPAKEClient" +
@@ -93,10 +98,14 @@ public class JPAKEManager {
             return oldJpakeClient;
         }
 
-        String sharedSecret = getMyOwnSharedSecret();
-        JPAKEClient jpakeClient = new JPAKEClient(false, handshakeId, sharedSecret);
-        handshakeIdToClientMap.put(handshakeId, jpakeClient);
-        return jpakeClient;
+        if (JPAKERateLimiter.getInstance().startNewJpakeHandshake(false, msgClient)) {
+            String sharedSecret = getMyOwnSharedSecret();
+            JPAKEClient jpakeClient = new JPAKEClient(false, handshakeId, sharedSecret);
+            handshakeIdToClientMap.put(handshakeId, jpakeClient);
+            return jpakeClient;
+        }
+
+        return null;
     }
 
     /**

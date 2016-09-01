@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.ServiceStub;
 
-public class MsgServerManager {
+public final class MsgServerManager {
 
     private final static String TAG = "MsgServerManager";
     private static MsgServerManager INSTANCE = null;
