@@ -1,6 +1,8 @@
 package uk.ac.cam.cl.lm649.bonjourtesting.menu.settings;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,7 +29,6 @@ public class SettingsActivity extends CustomActivity {
     private EditText editTextCustomNameInput;
     private EditText editTextPhoneNumberInput;
     private CheckBox checkBoxRandomServiceName;
-    private Button buttonRestartBonjourService;
     private Switch switchMaster;
     private Switch switchAutoContactPoll;
 
@@ -52,11 +53,12 @@ public class SettingsActivity extends CustomActivity {
         setupButtonRestartBonjourService();
         setupSwitchMaster();
         setupSwitchAutoContactPoll();
+        setupButtonGenerateNewKeyPair();
     }
 
     private void setupButtonRestartBonjourService() {
-        buttonRestartBonjourService = (Button) findViewById(R.id.buttonRestartBonjourService);
-        buttonRestartBonjourService.setOnClickListener(new View.OnClickListener() {
+        Button button = (Button) findViewById(R.id.buttonRestartBonjourService);
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FLogger.i(TAG, "user clicked buttonRestartBonjourService");
@@ -68,6 +70,29 @@ public class SettingsActivity extends CustomActivity {
                     FLogger.e(TAG, "bonjourService is null.");
                     HelperMethods.displayMsgToUser(app, "error: bonjourService is null");
                 }
+            }
+        });
+    }
+
+    private void setupButtonGenerateNewKeyPair() {
+        Button button = (Button) findViewById(R.id.buttonGenerateNewKeyPair);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FLogger.i(TAG, "user clicked buttonGenerateNewKeyPair");
+                DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        FLogger.i(TAG, "user decided to regenerate his/her key pair");
+                        saveIdentityData.asyncGenerateAndSaveMyKeypair(true);
+                    }
+                };
+                new AlertDialog.Builder(SettingsActivity.this)
+                        .setTitle("Confirm Key Pair Regeneration")
+                        .setMessage("Regenerating your key pair means losing your current one. Are you sure?")
+                        //.setIcon(R.drawable.maybe_a_cool_icon_here)
+                        .setPositiveButton(android.R.string.yes, clickListener)
+                        .setNegativeButton(android.R.string.no, null).show();
             }
         });
     }
