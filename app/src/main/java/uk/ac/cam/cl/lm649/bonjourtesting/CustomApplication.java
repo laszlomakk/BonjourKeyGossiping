@@ -82,7 +82,7 @@ public class CustomApplication extends Application {
 
         startupOperationalCore();
 
-        generateOurCryptoKeypair();
+        SaveIdentityData.getInstance(this).asyncGenerateAndSaveMyKeypair(false);
     }
 
     public void startupOperationalCore() {
@@ -105,16 +105,6 @@ public class CustomApplication extends Application {
         NetworkPollingService.automaticPollingEnabled = false;
         NetworkPollingService.cancelPolling(this);
         MsgServerManager.getInstance().stop();
-    }
-
-    private void generateOurCryptoKeypair() {
-        FLogger.i(TAG, "generateOurCryptoKeypair() called.");
-        new Thread() {
-            @Override
-            public void run() {
-                SaveIdentityData.getInstance(CustomApplication.this).generateAndSaveMyKeypair(false);
-            }
-        }.start();
     }
 
     private void initLogger() {

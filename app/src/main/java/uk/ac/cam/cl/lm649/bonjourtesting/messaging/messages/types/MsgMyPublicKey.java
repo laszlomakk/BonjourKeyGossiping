@@ -128,6 +128,8 @@ public class MsgMyPublicKey extends Message implements Message.RequiresEncryptio
             processMessageGivenSelfConsistency(msgClient, phoneNumber, logMessage);
         } else {
             FLogger.w(TAG, logMessage + " -> REJECTING, failed self-consistency test");
+            FLogger.i(TAG, "closing MsgClient with " + msgClient.strSocketAddress);
+            msgClient.close();
         }
     }
 

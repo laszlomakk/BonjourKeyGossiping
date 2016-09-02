@@ -10,6 +10,7 @@ import java.security.SecureRandom;
 
 import uk.ac.cam.cl.lm649.bonjourtesting.crypto.Asymmetric;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
+import uk.ac.cam.cl.lm649.bonjourtesting.util.HelperMethods;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.PhoneNumUtil;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.SaveData;
 
@@ -50,28 +51,42 @@ public final class SaveIdentityData extends SaveData {
         return customName;
     }
 
-    // TODO if we end up regenerating our key pair at arbitrary times, locking will be needed.
-    //      e.g. what if the private key is retrieved, we call regenerate, and then we get the
-    //           new public key instead of the old one (so there's a mismatch)
+    public void asyncGenerateAndSaveMyKeypair(final boolean forceReGen) {
+        FLogger.i(TAG, "asyncGenerateAndSaveMyKeypair() called.");
+        new Thread() {
+            @Override
+            public void run() {
+                boolean generatedNewKeyPair = generateAndSaveMyKeypair(forceReGen);
+                if (generatedNewKeyPair) {
+                    HelperMethods.displayMsgToUser(context, "Key pair generation finished");
+                    CustomActivity.forceRefreshUIInTopActivity();
+                }
+            }
+        }.start();
+    }
+
     /**
      * Generates a new public-private key pair and persists it to disk.
      * If we already have a key pair, does nothing, unless you force re-generation.
      *
      * @param forceReGen if you want to generate a key pair even if we already have one
+     * @return whether a keypair was generated
      */
-    public synchronized void generateAndSaveMyKeypair(boolean forceReGen) {
+    public synchronized boolean generateAndSaveMyKeypair(boolean forceReGen) {
         FLogger.d(TAG, "generateAndSaveMyKeypair() called.");
         if (!doWeHaveAKeypair() || forceReGen) {
             FLogger.i(TAG, "generateAndSaveMyKeypair() decided to generate a new key pair.");
             AsymmetricCipherKeyPair keyPair = generateKeypairWithTiming();
             saveMyPublicKey(Asymmetric.keyToStringKey(keyPair.getPublic()));
             saveMyPrivateKey(Asymmetric.keyToStringKey(keyPair.getPrivate()));
+            return true;
         } else {
             FLogger.i(TAG, "generateAndSaveMyKeypair() decided to use already existing key pair.");
+            return false;
         }
     }
 
-    private static AsymmetricCipherKeyPair generateKeypairWithTiming() {
+    private synchronized static AsymmetricCipherKeyPair generateKeypairWithTiming() {
         long time1 = android.os.SystemClock.elapsedRealtime();
         AsymmetricCipherKeyPair keyPair = Asymmetric.generateNewKeyPair();
         long time2 = android.os.SystemClock.elapsedRealtime();
@@ -80,13 +95,13 @@ public final class SaveIdentityData extends SaveData {
         return keyPair;
     }
 
-    private void saveMyPublicKey(String publicKey) {
+    private synchronized void saveMyPublicKey(String publicKey) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(SAVE_LOCATION_FOR_OWN_PUBLIC_KEY, publicKey);
         editor.apply();
     }
 
-    public String getMyPublicKey() {
+    public synchronized String getMyPublicKey() {
         String publicKey = sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_PUBLIC_KEY, "");
         if ("".equals(publicKey)) {
             FLogger.i(TAG, "getMyPublicKey(). generating new key pair on demand");
@@ -96,13 +111,13 @@ public final class SaveIdentityData extends SaveData {
         return publicKey;
     }
 
-    private void saveMyPrivateKey(String privateKey) {
+    private synchronized void saveMyPrivateKey(String privateKey) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(SAVE_LOCATION_FOR_OWN_PRIVATE_KEY, privateKey);
         editor.apply();
     }
 
-    public String getMyPrivateKey() {
+    public synchronized String getMyPrivateKey() {
         String privateKey = sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_PRIVATE_KEY, "");
         if ("".equals(privateKey)) {
             FLogger.i(TAG, "getMyPublicKey(). generating new key pair on demand");
@@ -112,7 +127,7 @@ public final class SaveIdentityData extends SaveData {
         return privateKey;
     }
 
-    private boolean doWeHaveAKeypair() {
+    private synchronized boolean doWeHaveAKeypair() {
         String privateKey = sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_PRIVATE_KEY, "");
         String publicKey = sharedPreferences.getString(SAVE_LOCATION_FOR_OWN_PUBLIC_KEY, "");
         return !"".equals(privateKey) && !"".equals(publicKey);
