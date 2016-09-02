@@ -17,6 +17,7 @@ import uk.ac.cam.cl.lm649.bonjourtesting.CustomActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.R;
 import uk.ac.cam.cl.lm649.bonjourtesting.SaveIdentityData;
 import uk.ac.cam.cl.lm649.bonjourtesting.bonjour.BonjourService;
+import uk.ac.cam.cl.lm649.bonjourtesting.menu.phonebook.PhoneBookActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SaveSettingsData;
 import uk.ac.cam.cl.lm649.bonjourtesting.menu.settings.SettingsActivity;
 import uk.ac.cam.cl.lm649.bonjourtesting.util.FLogger;
@@ -175,6 +176,7 @@ public class MainMenuActivity extends CustomActivity {
             case Constants.MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     FLogger.d(TAG, "onRequestPermissionsResult(). READ_CONTACTS permission was granted");
+                    PhoneBookActivity.asyncImportContactsFromSystemToInternalDb(context);
                 } else {
                     FLogger.d(TAG, "onRequestPermissionsResult(). READ_CONTACTS permission was denied");
                     saveSettingsData.saveAutomaticContactPollingEnabled(false);
