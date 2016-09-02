@@ -13,7 +13,7 @@ public class JPAKERateLimiterGlobal {
     // sorted list of timestamps of all JPAKE handshakes (both directions)
     private final List<Long> globalJpakeHandshakeTimestamps = Collections.synchronizedList(new LinkedList<Long>());
     private static final long GLOBAL_LIMIT_CONSIDERS_TIME_INTERVAL = 30 * Constants.MSECONDS_IN_MINUTE;
-    private static final int GLOBAL_LIMIT_ALLOWS_NUM_HANDSHAKES_IN_INTERVAL = 50;
+    private static final int GLOBAL_LIMIT_ALLOWS_NUM_HANDSHAKES_IN_INTERVAL = 200;
 
     protected JPAKERateLimiterGlobal() {}
 
